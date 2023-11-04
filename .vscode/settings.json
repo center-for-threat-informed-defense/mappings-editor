@@ -1,0 +1,12 @@
+{
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "files.exclude": {},
+    "editor.rulers": [
+        88
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    "markdown.extension.toc.levels": "2..6",
+}
