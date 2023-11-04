@@ -1,0 +1,38 @@
+name: Editor Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  mappings_explorer_tests:
+    runs-on: ubuntu-latest
+    steps:
+
+    # Configure Environment
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      id: "setup-node"
+      with:
+        node-version: '19'
+        cache: 'npm'
+        cache-dependency-path: 'src/mappings_editor/package-lock.json'
+    - name: Install dependencies
+      working-directory: src/mappings_editor/
+      run: npm ci
+
+    # Lint
+    - name: Lint
+      working-directory: src/mappings_editor/
+      run: npm run lint
+
+    # Build and Upload Artifact
+    - name: Build
+      working-directory: ./src/mappings_editor/
+      run: npm run build
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: mappings_editor
+        path: src/mappings_editor/dist/
