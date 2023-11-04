@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  mappings_explorer_tests:
+  mappings_editor_build:
     runs-on: ubuntu-latest
     steps:
 
