@@ -1,5 +1,5 @@
 {
-    "frameworkName": "mitre_attack",
+    "frameworkId": "mitre_attack",
     "frameworkVersion": "mobile@10.1",
     "categories": {
         "techniques": [

@@ -4,9 +4,9 @@
 const BASE_URL = "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master";
 
 /**
- * The framework's name.
+ * The framework's identifier.
  */
-const FRAMEWORK_NAME = "mitre_attack";
+const FRAMEWORK_ID = "mitre_attack";
 
 /**
  * Enterprise Sources
@@ -17,7 +17,7 @@ const ENTERPRISE_SOURCES = [
     "11.0", "10.1", "10.0"
 ].map(v => ({
     url              : `${BASE_URL}/enterprise-attack/enterprise-attack-${ v }.json`,
-    frameworkName    : FRAMEWORK_NAME,
+    frameworkId      : FRAMEWORK_ID,
     frameworkVersion : `enterprise@${ v }`
 }));
 
@@ -30,7 +30,7 @@ const ICS_SOURCES = [
     "11.1", "11.0", "10.1", "10.0"
 ].map(v => ({
     url              : `${BASE_URL}/ics-attack/ics-attack-${ v }.json`,
-    frameworkName    : FRAMEWORK_NAME,
+    frameworkId      : FRAMEWORK_ID,
     frameworkVersion : `ics@${ v }`
 }));
 
@@ -43,8 +43,8 @@ const MOBILE_SOURCES = [
     "10.0"
 ].map(v => ({
     url              : `${BASE_URL}/mobile-attack/mobile-attack-${ v }.json`,
-    frameworkName    : FRAMEWORK_NAME,
-    frameworkVersion : `mobile@${ v }`
+    frameworkId      : FRAMEWORK_ID,
+    frameworkVersion : `mobile@${ v }`,
 }));
 
 /**

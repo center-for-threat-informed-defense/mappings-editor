@@ -1,5 +1,5 @@
 {
-    "frameworkName": "mitre_attack",
+    "frameworkId": "mitre_attack",
     "frameworkVersion": "ics@11.1",
     "categories": {
         "techniques": [

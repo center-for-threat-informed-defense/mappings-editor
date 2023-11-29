@@ -59,12 +59,12 @@ async function updateApplicationFrameworks(path, ...sources) {
     };
     for(let i = 0; i < sources.length; i++) {
         let source = sources[i];
-        let file = `${source.frameworkName}_${source.frameworkVersion}.json`
-        let filepath = resolve(__dirname,`../public/${ path }/${ file }`);
+        let filename = `${source.frameworkId}_${source.frameworkVersion}.json`
+        let filepath = resolve(__dirname,`../public/${ path }/${ filename }`);
         
         // Generate Framework File
         writeFileSync(filepath, JSON.stringify({
-            frameworkName: source.frameworkName,
+            frameworkId: source.frameworkId,
             frameworkVersion: source.frameworkVersion,
             categories: {
                 // tactics    : filterAttackObjects(listings[i].get("tactic")),
@@ -73,7 +73,11 @@ async function updateApplicationFrameworks(path, ...sources) {
         }, null, 4));
 
         // Update Manifest
-        manifest.files.push(file);
+        manifest.files.push({ 
+            frameworkId: source.frameworkId,
+            frameworkVersion: source.frameworkVersion,
+            filename
+        });
 
     }
 
