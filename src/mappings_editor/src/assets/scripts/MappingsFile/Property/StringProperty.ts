@@ -10,21 +10,17 @@ export class StringProperty extends Property {
 
     /**
      * Creates a new {@link StringProperty}.
-     * @param name
-     *  The property's name.
      */
-    constructor(name: string); 
+    constructor(); 
 
     /**
      * Creates a new {@link StringProperty}.
-     * @param name
-     *  The property's name.
      * @param value
      *  The property's value.
      */
-    constructor(name: string, value?: string | null);
-    constructor(name: string, value?: string | null) {
-        super(name);
+    constructor(value?: string | null);
+    constructor(value?: string | null) {
+        super();
         this.value = value ?? null;
     }
 

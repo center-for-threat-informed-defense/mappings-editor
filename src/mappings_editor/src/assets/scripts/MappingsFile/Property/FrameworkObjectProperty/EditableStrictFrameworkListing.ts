@@ -1,26 +1,31 @@
-import type { FrameworkListing } from "./FrameworkListing";
+import { FrameworkListing } from "./FrameworkListing";
 
-export class EditableStrictFrameworkListing implements FrameworkListing {
+export class EditableStrictFrameworkListing extends FrameworkListing {
 
     /**
      * The internal framework listing.
      */
-    private readonly _options: Map<string, string>
+    private readonly _options: Map<string | null, string | null>
 
 
     /**
      * The framework listing.
      */
-    public get options(): ReadonlyMap<string, string> {
+    public get options(): ReadonlyMap<string | null, string | null> {
         return this._options;
     }
 
 
     /**
      * Creates a new {@link EditableStrictFrameworkListing}.
+     * @param framework
+     *  The framework's identifier.
+     * @param version
+     *  The framework's version.
      */
-    constructor() {
-        this._options = new Map();
+    constructor(framework: string, version: string) {
+        super(framework, version);
+        this._options = new Map([[null, null]]);
     }
 
 

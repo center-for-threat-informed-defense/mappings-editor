@@ -1,5 +1,6 @@
-import type { EditableStrictFrameworkListing } from "./EditableStrictFrameworkListing";
 import { FrameworkObjectProperty } from "./FrameworkObjectProperty";
+import type { FrameworkListing } from ".";
+import type { EditableStrictFrameworkListing } from "./EditableStrictFrameworkListing";
 
 export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
 
@@ -16,8 +17,15 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
     /**
      * The property's framework listing.
      */
-    public readonly framework: EditableStrictFrameworkListing;
+    private readonly _framework: EditableStrictFrameworkListing;
 
+    
+    /**
+     * The property's framework listing.
+     */
+    public get framework(): FrameworkListing {
+        return this._framework;
+    }
 
     /**
      * The framework object's id.
@@ -30,13 +38,11 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      * The framework object id's setter.
      */
     set objectId(value: string | null) {
-        if(value === null) {
-            this._objectId = null;
-            return;
-        }
-        if(this.framework.options.has(value)) {
+        if(this._framework.options.has(value)) {
             this._objectId = value;
-            this._objectText = this.framework.options.get(value)!;
+            this._objectText = this._framework.options.get(value)!;
+            this._objectFramework = this._framework.id;
+            this._objectVersion = this._framework.version;
         } else {
             throw new Error(`Invalid framework object id '${ value }'.`)
         }
@@ -61,35 +67,30 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
      * Creates a new {@link StrictFrameworkObjectProperty}.
-     * @param name
-     *  The property's name.
      * @param listing
      *  The property's framework listing.
      */
-    constructor(name: string, listing: EditableStrictFrameworkListing) {
-        super(name);
+    constructor(listing: EditableStrictFrameworkListing) {
+        super(listing.id, listing.version);
         this._objectId = null;
         this._objectText = null;
-        this.framework = listing;
+        this._framework = listing;
     }
 
 
     /**
-     * Forcibly sets the framework object's id.
+     * Forcibly sets the framework object's value.
      * @param id 
      *  The framework object's id.
-     */
-    public forceSetObjectId(id: string | null): void {
-        this._objectId = id;
-    }
-
-    /**
-     * Forcibly sets the framework object's text.
      * @param text
      *  The framework object's text.
+     * @param frameworkVersion
+     *  The framework's version.
      */
-    public forceSetObjectText(text: string | null): void {
+    public forceSet(id: string | null, text: string | null, version: string) {
+        this._objectId = id;
         this._objectText = text;
+        this._objectVersion = version;
     }
 
     /**
@@ -98,9 +99,8 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The duplicated object property.s
      */
     public duplicate(): StrictFrameworkObjectProperty {
-        const duplicate = new StrictFrameworkObjectProperty(this.name, this.framework);
-        duplicate.forceSetObjectId(this.objectId);
-        duplicate.forceSetObjectText(this.objectText);
+        const duplicate = new StrictFrameworkObjectProperty(this._framework);
+        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
         return duplicate;
     }
 

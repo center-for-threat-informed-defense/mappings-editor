@@ -10,21 +10,17 @@ export class DateProperty extends Property {
 
     /**
      * Creates a new {@link DateProperty}.
-     * @param name
-     *  The property's name.
      */
-    constructor(name: string); 
+    constructor(); 
 
     /**
      * Creates a new {@link DateProperty}.
-     * @param name
-     *  The property's name.
      * @param value
      *  The property's value.
      */
-    constructor(name: string, value?: Date | null);
-    constructor(name: string, value?: Date | null) {
-        super(name);
+    constructor(value?: Date | null);
+    constructor(value?: Date | null) {
+        super();
         this.value = value ?? null;
     }
 

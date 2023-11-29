@@ -44,32 +44,31 @@ export class FreeFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
      * Creates a new {@link FreeFrameworkObjectProperty}.
-     * @param name
-     *  The property's name.
+     * @param objectFramework
+     *  The framework object's framework.
+     * @param objectVersion
+     *  The framework object's framework version.
      */
-    constructor(name: string) {
-        super(name);
+    constructor(objectFramework: string, objectVersion: string) {
+        super(objectFramework, objectVersion);
         this._objectId = null;
         this._objectText = null;
     }
 
 
     /**
-     * Forcibly sets the framework object's id.
+     * Forcibly sets the framework object's value.
      * @param id 
      *  The framework object's id.
-     */
-    public forceSetObjectId(id: string | null): void {
-        this.objectId = id;
-    }
-
-    /**
-     * Forcibly sets the framework object's text.
      * @param text
      *  The framework object's text.
+     * @param frameworkVersion
+     *  The framework's version.
      */
-    public forceSetObjectText(text: string | null): void {
-        this.objectText = text;
+    public forceSet(id: string | null, text: string | null, version: string) {
+        this._objectId = id;
+        this._objectText = text;
+        this._objectVersion = version;
     }
 
     /**
@@ -78,9 +77,8 @@ export class FreeFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The duplicated object property.s
      */
     public duplicate(): FreeFrameworkObjectProperty {
-        const duplicate = new FreeFrameworkObjectProperty(this.name);
-        duplicate.forceSetObjectId(this.objectId);
-        duplicate.forceSetObjectText(this.objectText);
+        const duplicate = new FreeFrameworkObjectProperty(this.objectFramework, this.objectVersion);
+        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
         return duplicate;
     }
 

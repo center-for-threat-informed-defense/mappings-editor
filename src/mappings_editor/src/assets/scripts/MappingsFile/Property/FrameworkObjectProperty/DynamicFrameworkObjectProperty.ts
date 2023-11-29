@@ -1,6 +1,6 @@
+import { FrameworkListing } from ".";
 import { FrameworkObjectProperty } from "./FrameworkObjectProperty";
 import type { EditableDynamicFrameworkListing } from "./EditableDynamicFrameworkListing";
-import type { FrameworkListing } from ".";
 
 export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
 
@@ -10,9 +10,14 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
     private _objectId: string | null;
 
     /**
+     * The framework object's internal text.
+     */
+    private _objectText: string | null; 
+
+    /**
      * The property's internal framework listing.
      */
-    public readonly _framework: EditableDynamicFrameworkListing;
+    private readonly _framework: EditableDynamicFrameworkListing;
 
     
     /**
@@ -34,13 +39,25 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     set objectId(value: string | null) {
         this._objectId = this._framework.switchListingId(value, this._objectId);
+        this._objectText = null;
+        this._objectFramework = this._framework.id;
+        this._objectVersion = this._framework.version;
     }
 
     /**
      * The framework object's text.
      */
     get objectText(): string | null {
-        return this._framework.getListingText(this._objectId);
+        // If framework object's text is overridden...
+        if(this._objectText !== null) {
+            // ...return overridden text.
+            return this._objectText;
+        }
+        // If framework object's text is not overridden...
+        else {
+            // ...return framework object's text.
+            return this._framework.getListingText(this._objectId);
+        }   
     }
 
     /**
@@ -48,17 +65,11 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     set objectText(value: string | null) {
         this._framework.setListingText(this._objectId, value);
+        this._objectText = null;
+        this._objectFramework = this._framework.id;
+        this._objectVersion = this._framework.version;
     }
 
-
-    /**
-     * Creates a new {@link DynamicFrameworkObjectProperty}.
-     * @param name
-     *  The property's name.
-     * @param listing
-     *  The property's framework listing.
-     */
-    constructor(name: string, listing: EditableDynamicFrameworkListing);
 
     /**
      * Creates a new {@link StaticFrameworkObjectProperty}.
@@ -66,32 +77,37 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The property's name.
      * @param listing
      *  The property's framework listing.
-     * @param value
-     *  The property's value.
      */
-    constructor(name: string, listing: EditableDynamicFrameworkListing) {
-        super(name);
+    constructor(listing: EditableDynamicFrameworkListing) {
+        super(listing.id, listing.version);
         this._objectId = null;
+        this._objectText = null;
         this._framework = listing;
     }
 
-
     /**
-     * Forcibly sets the framework object's id.
+     * Forcibly sets the framework object's value.
      * @param id 
      *  The framework object's id.
-     */
-    public forceSetObjectId(id: string | null): void {
-        this.objectId = id;
-    }
-
-    /**
-     * Forcibly sets the framework object's text.
      * @param text
      *  The framework object's text.
+     * @param frameworkVersion
+     *  The framework's version.
      */
-    public forceSetObjectText(text: string | null): void {
-        this.objectText = text;
+    public forceSet(id: string | null, text: string | null, frameworkVersion: string): void {
+        // Set framework object's id
+        this.objectId = id;
+        // If framework object's text is not set...
+        if(this._framework.getListingText(this._objectId) === null) {
+            // ...set it outright.
+            this.objectText = text;
+        }
+        // If framework object's text is already set...
+        else {
+            // ...override it.
+            this._objectText = text;
+        }
+        this._objectVersion = frameworkVersion;
     }
 
     /**
@@ -100,9 +116,8 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The duplicated object property.
      */
     public duplicate(): DynamicFrameworkObjectProperty {
-        const duplicate = new DynamicFrameworkObjectProperty(this.name, this._framework);
-        duplicate.forceSetObjectId(this.objectId);
-        duplicate.forceSetObjectText(this.objectText);
+        const duplicate = new DynamicFrameworkObjectProperty(this._framework);
+        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
         return duplicate;
     }
 
