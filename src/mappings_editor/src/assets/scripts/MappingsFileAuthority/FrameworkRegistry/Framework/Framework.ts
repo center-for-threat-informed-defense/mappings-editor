@@ -5,12 +5,12 @@ export type Framework = {
     /**
      * The framework's identifier.
      */
-    id: string;
+    frameworkId: string;
 
     /**
      * The framework's version.
      */
-    version: string;
+    frameworkVersion: string;
 
     /**
      * The framework's objects organized by category. 

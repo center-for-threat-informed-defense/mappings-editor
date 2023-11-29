@@ -41,13 +41,13 @@ export class FrameworksSourceUrl extends FrameworkSource {
             } catch(err) {
                 throw new Error(`Failed to download framework '${ this._url }'.`);
             }
-            if(this.id !== this._file.id) {
-                const dl = this._file.id;
+            if(this.id !== this._file.frameworkId) {
+                const dl = this._file.frameworkId;
                 const ex = this.id;
                 throw new Error(`Downloaded framework '${ dl }', expected '${ ex }'.`);
             }
-            if(this.version !== this._file.version) {
-                const dl = `${ this._file.id }@${ this._file.version }`;
+            if(this.version !== this._file.frameworkVersion) {
+                const dl = `${ this._file.frameworkId }@${ this._file.frameworkVersion }`;
                 const ex = `${ this.id }@${ this.version }`
                 throw new Error(`Downloaded framework '${ dl }', expected '${ ex }'.`);
             }
