@@ -1,5 +1,6 @@
-import type { AppConfiguration } from "@/assets/scripts/Application";
 import * as manifest from "@/assets/configuration/app.framework.manifest.json";
+import { UniversalSchemaMappingFileSerializer } from "./app.config.serializer";
+import type { AppConfiguration } from "@/assets/scripts/Application";
 
 const config: AppConfiguration = {
     file_type_name: "Mappings File",
@@ -18,7 +19,8 @@ const config: AppConfiguration = {
                 }
             ]
         }
-    }
+    },
+    serializer: UniversalSchemaMappingFileSerializer
 }
 
 export default config;
