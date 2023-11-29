@@ -8,6 +8,8 @@ on:
 jobs:
   mappings_editor_build:
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     steps:
 
     # Configure Environment
@@ -30,7 +32,8 @@ jobs:
     # Build and Upload Artifact
     - name: Build
       working-directory: ./src/mappings_editor/
-      run: npm run build
+      run: npm run type-check
+      run: npm run build-only -- --base /${{env.BRANCH_NAME}}/
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
