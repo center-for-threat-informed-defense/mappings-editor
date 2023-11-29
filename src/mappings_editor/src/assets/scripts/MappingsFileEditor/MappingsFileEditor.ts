@@ -1,12 +1,25 @@
-import type { Page } from "../MappingsFile/MappingFile";
-import type { EditorCommand } from "./EditorCommands/EditorCommand";
+import { randomUUID } from "../Utilities";
+import { GroupCommand, type EditorCommand } from ".";
+import { FreeFrameworkObjectProperty, MappingFile, MappingObject } from "../MappingsFile";
 
-export class PageEditor {
+export class MappingFileEditor {
 
     /**
-     * The editor's page.
+     * The phantom mappings editor.
      */
-    public readonly page: Page;
+    public static Phantom: MappingFileEditor = new this(
+        this.createPhantomPage()
+    );
+    
+    /**
+     * The editor's id.
+     */
+    public readonly id: string;
+
+    /**
+     * The editor's Mapping File.
+     */
+    public readonly file: MappingFile;
 
     /**
      * The editor's undo stack.
@@ -20,12 +33,22 @@ export class PageEditor {
 
 
     /**
-     * Creates a new {@link PageEditor}.
-     * @param page
-     *  The editor's page.
+     * The editor's file name.
      */
-    private constructor(page: Page) {
-        this.page = page;
+    public get name(): string {
+        // TODO: Compute the file name using the Mapping File.
+        return "Untitled Mappings File";
+    }
+
+
+    /**
+     * Creates a new {@link MappingFileEditor}.
+     * @param file
+     *  The editor's Mapping File.
+     */
+    constructor(file: MappingFile) {
+        this.id = randomUUID();
+        this.file = file;
         this._undoStack = [];
         this._redoStack = [];
     }
@@ -37,7 +60,7 @@ export class PageEditor {
 
 
     /**
-     * Executes one or more page editor commands.
+     * Executes one or more editor commands.
      * @param commands
      *  The commands.
      */
@@ -55,15 +78,6 @@ export class PageEditor {
             }
             cmd = grp;
         }
-        // Validate command
-        if(cmd.page === PageCommand.NullPage) {
-            return;
-        }
-        if(cmd.page !== this.page.instance) {
-            throw new Error(
-                "Command is not configured to operate on this page."
-            );
-        }
         // Execute command
         if(cmd.execute()) {
             this._redoStack = [];
@@ -73,7 +87,7 @@ export class PageEditor {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  2. Page History  //////////////////////////////////////////////////////
+    //  2. File History  //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
     
@@ -82,7 +96,7 @@ export class PageEditor {
      */
     public undo() {
         if(this._undoStack.length) {
-            this._undoStack.at(-1)!.undo();
+            this._undoStack[this._undoStack.length - 1].undo();
             this._redoStack.push(this._undoStack.pop()!);
         }
     }
@@ -101,7 +115,7 @@ export class PageEditor {
      */
     public redo() {
         if(this._redoStack.length) {
-            this._redoStack.at(-1)!.execute();
+            this._redoStack[this._redoStack.length - 1].execute();
             this._undoStack.push(this._redoStack.pop()!);
         }
     }
@@ -115,54 +129,42 @@ export class PageEditor {
         return 0 < this._redoStack.length;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  3. Phantom  ///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Creates a phantom {@link MappingFile}.
+     * @returns
+     *  The phantom {@link MappingFile}.
+     */
+    private static createPhantomPage(): MappingFile {
+        // Define mapping options
+        const framework = "NONE";
+        const version = "0.0.0";
+        const author = "PHANTOM";
+        const authorContact = "PHANTOM@SPECTER.ORG";
+        // Return mapping file
+        return new MappingFile({
+            sourceFramework: framework,
+            sourceVersion: version,
+            targetFramework: framework,
+            targetVersion: version,
+            author: author,
+            authorContact: authorContact,
+            authorOrganization: "SPECTER LTD.",
+            creationDate: new Date(),
+            modifiedDate: new Date(),
+            mappingObjectTemplate: new MappingObject({
+                sourceObject: new FreeFrameworkObjectProperty(framework, version),
+                targetObject: new FreeFrameworkObjectProperty(framework, version),
+                author: author,
+                authorContact: authorContact,
+                comments: "",
+                group: ""
+            })
+        });
+    }
     
-    ///////////////////////////////////////////////////////////////////////////
-    //  3. Page Import & Export  //////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    /**
-     * Creates a new page.
-     * @param template
-     *  The page's template.
-     * @returns
-     *  The page's editor.
-     */
-    public static createNew(template: PageTemplate): PageEditor {
-        const page = new PageImporter(template).initialize().getPage();
-        return new this(template.name, template.keys, page);
-    }
-
-    /**
-     * Deserializes a page export.
-     * @param template
-     *  The page's template.
-     * @param value
-     *  The page's values.
-     * @returns
-     *  The page's editor.
-     */
-    public static fromFile(template: PageTemplate, value: any): PageEditor {
-        const page = new PageImporter(template, value).initialize().getPage();
-        return new this(template.name, template.keys, page);
-    }
-
-    /**
-     * Exports the page as a text file.
-     * @returns
-     *  The serialized page.
-     */
-    public toFile(): string {
-        return JSON.stringify({
-            ...PageExporter.serialize(this.page).toObject(),
-            report_date: new Date().toISOString(),
-            __document: {
-                authoring_tool_version: version,
-                template_name: this.template,
-                template_version: "0.1.0",
-                template_identifier: this.page.id
-            }
-        }, null, 4);
-    }
-
 }
