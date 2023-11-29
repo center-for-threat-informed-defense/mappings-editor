@@ -25,7 +25,7 @@ export class FrameworksSourceUrl extends FrameworkSource {
      */
     constructor(id: string, version: string, url: string) {
         super(id, version);
-        this._url = url;
+        this._url = `${ import.meta.env.BASE_URL }${ url }`;
     }
 
 

@@ -148,10 +148,11 @@ export default defineComponent({
   async created() {
     // Import settings
     let settings;
+    const baseUrl = `${ import.meta.env.BASE_URL }`;
     if(Browser.getOperatingSystemClass() === OperatingSystem.MacOS) {
-      settings = await (await fetch("/settings_macos.json")).json();
+      settings = await (await fetch(`${ baseUrl }settings_macos.json`)).json();
     } else {
-      settings = await (await fetch("/settings_win.json")).json();
+      settings = await (await fetch(`${ baseUrl }settings_win.json`)).json();
     }
     // Load settings
     this.application.execute(AppCommands.loadSettings(this.application, settings));

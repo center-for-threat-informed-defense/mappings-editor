@@ -12,7 +12,7 @@ for(const file of manifest.files) {
         new FrameworksSourceUrl(
             file.frameworkId,
             file.frameworkVersion,
-            `/${ manifest.path }/${ file.filename }`
+            `${ manifest.path }/${ file.filename }`
         )
     )
 }
