@@ -15,7 +15,7 @@ export class FrameworksSourceFile extends FrameworkSource {
      *  The source's framework file.
      */
     constructor(file: Framework) {
-        super(file.id, file.version);
+        super(file.frameworkId, file.frameworkVersion);
         this._file = file;
     }
 
