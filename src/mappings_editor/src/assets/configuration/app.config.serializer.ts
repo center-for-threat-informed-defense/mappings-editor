@@ -1,5 +1,5 @@
 import { MappingFileSerializer } from "../scripts/Application";
-import type { MappingFileExport } from "../scripts/MappingsFileAuthority";
+import type { MappingFileExport } from "../scripts/MappingFileAuthority";
 
 export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer {
 

@@ -1,7 +1,7 @@
 import Configuration from "@/assets/configuration/app.config";
 import { defineStore } from 'pinia'
-import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingsFileEditor'
-import { FrameworkRegistry, FrameworksSourceUrl, MappingsFileAuthority } from '@/assets/scripts/MappingsFileAuthority'
+import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEditor'
+import { FrameworkRegistry, FrameworksSourceUrl, MappingFileAuthority } from '@/assets/scripts/MappingFileAuthority'
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
 
 // Build Framework Registry
@@ -21,7 +21,7 @@ for(const file of manifest.files) {
 export const useApplicationStore = defineStore('applicationStore', {
     state: () => ({
         activeEditor: MappingFileEditor.Phantom,
-        fileAuthority: new MappingsFileAuthority(registry),
+        fileAuthority: new MappingFileAuthority(registry),
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
         settings: BaseAppSettings
     }),

@@ -1,3 +1,3 @@
 export * from "./FrameworkRegistry";
 export * from "./MappingFileExport";
-export * from "./MappingsFileAuthority";
+export * from "./MappingFileAuthority";

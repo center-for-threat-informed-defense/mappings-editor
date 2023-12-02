@@ -1,4 +1,4 @@
-import type { MappingFileExport } from "../../MappingsFileAuthority";
+import type { MappingFileExport } from "../../MappingFileAuthority";
 
 export class MappingFileSerializer {
 

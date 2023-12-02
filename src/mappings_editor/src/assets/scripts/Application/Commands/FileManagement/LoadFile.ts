@@ -1,7 +1,7 @@
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import { MappingFileEditor } from "@/assets/scripts/MappingsFileEditor";
-import type { MappingFile } from "@/assets/scripts/MappingsFile";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFile } from "@/assets/scripts/MappingFile";
 
 export class LoadFile extends AppCommand {
 

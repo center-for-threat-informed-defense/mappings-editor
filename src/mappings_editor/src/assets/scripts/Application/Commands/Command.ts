@@ -1,5 +1,5 @@
 import type { AppCommand } from "..";
-import type { EditorCommand } from "../../MappingsFileEditor";
+import type { EditorCommand } from "../../MappingFileEditor";
 
 export type Command
     = AppCommand | EditorCommand;

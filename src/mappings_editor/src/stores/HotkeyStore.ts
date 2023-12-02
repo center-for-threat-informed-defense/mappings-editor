@@ -1,6 +1,6 @@
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import { defineStore } from 'pinia'
-import { MappingFileEditor } from "@/assets/scripts/MappingsFileEditor";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { Hotkey } from '@/assets/scripts/Utilities';
 import type { CommandEmitter } from '@/assets/scripts/Application';

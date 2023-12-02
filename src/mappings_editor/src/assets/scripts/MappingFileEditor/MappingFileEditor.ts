@@ -1,5 +1,5 @@
 import { GroupCommand, type EditorCommand } from ".";
-import { FreeFrameworkObjectProperty, MappingFile, MappingObject, StringProperty } from "../MappingsFile";
+import { FreeFrameworkObjectProperty, MappingFile, MappingObject, StringProperty } from "../MappingFile";
 
 export class MappingFileEditor {
 

@@ -2,7 +2,7 @@ import Configuration from "@/assets/configuration/app.config";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import { MenuType } from '@/assets/scripts/Application';
 import { defineStore } from 'pinia'
-import { MappingFileEditor } from "@/assets/scripts/MappingsFileEditor";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { ContextMenu, ContextMenuSection, ContextMenuSubmenu } from '@/assets/scripts/Application';
 
@@ -48,7 +48,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     //     shortcut: file.new_file
                     // },
                     {
-                        text: `Open File...`,
+                        text: `Open ${ Configuration.file_type_name }...`,
                         type: MenuType.Item,
                         data: () => AppCommands.loadPageFromFileSystem(app),
                         shortcut: file.open_file

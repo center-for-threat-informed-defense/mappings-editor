@@ -1,4 +1,4 @@
-import { MappingFile } from "../MappingsFile/MappingFile";
+import { MappingFile } from "../MappingFile/MappingFile";
 import type { FrameworkRegistry } from "./FrameworkRegistry";
 import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
 import { 
@@ -12,10 +12,10 @@ import {
     MappingObject,
     StrictFrameworkObjectProperty,
     StringProperty,
-} from "../MappingsFile";
+} from "../MappingFile";
 import { randomUUID } from "../Utilities";
 
-export class MappingsFileAuthority {
+export class MappingFileAuthority {
 
     /**
      * The unknown framework identifier.
@@ -42,7 +42,7 @@ export class MappingsFileAuthority {
 
 
     /**
-     * Creates a new {@link MappingsFileAuthority}.
+     * Creates a new {@link MappingFileAuthority}.
      * @param registry
      *  The mapping authority's framework registry.
      */
@@ -291,8 +291,8 @@ export class MappingsFileAuthority {
                     return;
                 }
             }
-            objFramework = MappingsFileAuthority.UNKNOWN_FRAMEWORK_ID;
-            objVersion = MappingsFileAuthority.UNKNOWN_FRAMEWORK_VERSION;
+            objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
+            objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION;
         }
         prop.forceSet(objId, objText, objFramework, objVersion);
     }
@@ -325,8 +325,8 @@ export class MappingsFileAuthority {
                 if(text === objText) {
                     prop.objectId = objId;
                 } else {
-                    objFramework = MappingsFileAuthority.UNKNOWN_FRAMEWORK_ID;
-                    objVersion = MappingsFileAuthority.UNKNOWN_FRAMEWORK_VERSION
+                    objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
+                    objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION
                     prop.forceSet(objId, objText, objFramework, objVersion);
                 }
             } else {
@@ -442,7 +442,7 @@ export class MappingsFileAuthority {
      * @returns
      *  The exported Mapping File.
      */
-    public exportMappingsFile(file: MappingFile): MappingFileExport {
+    public exportMappingFile(file: MappingFile): MappingFileExport {
         
         // Compile mapping types list
         const mapping_types = new Map();
