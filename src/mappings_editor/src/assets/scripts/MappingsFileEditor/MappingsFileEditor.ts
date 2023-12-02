@@ -1,6 +1,5 @@
-import { randomUUID } from "../Utilities";
 import { GroupCommand, type EditorCommand } from ".";
-import { FreeFrameworkObjectProperty, MappingFile, MappingObject } from "../MappingsFile";
+import { FreeFrameworkObjectProperty, MappingFile, MappingObject, StringProperty } from "../MappingsFile";
 
 export class MappingFileEditor {
 
@@ -36,8 +35,15 @@ export class MappingFileEditor {
      * The editor's file name.
      */
     public get name(): string {
-        // TODO: Compute the file name using the Mapping File.
-        return "Untitled Mappings File";
+        return `${ 
+            this.file.sourceFramework
+        }@${
+            this.file.sourceVersion
+        }_${
+            this.file.targetFramework
+        }@${
+            this.file.targetVersion
+        }`;
     }
 
 
@@ -47,7 +53,7 @@ export class MappingFileEditor {
      *  The editor's Mapping File.
      */
     constructor(file: MappingFile) {
-        this.id = randomUUID();
+        this.id = file.id;
         this.file = file;
         this._undoStack = [];
         this._redoStack = [];
@@ -140,29 +146,16 @@ export class MappingFileEditor {
      *  The phantom {@link MappingFile}.
      */
     private static createPhantomPage(): MappingFile {
-        // Define mapping options
-        const framework = "NONE";
-        const version = "0.0.0";
-        const author = "PHANTOM";
-        const authorContact = "PHANTOM@SPECTER.ORG";
-        // Return mapping file
         return new MappingFile({
-            sourceFramework: framework,
-            sourceVersion: version,
-            targetFramework: framework,
-            targetVersion: version,
-            author: author,
-            authorContact: authorContact,
-            authorOrganization: "SPECTER LTD.",
             creationDate: new Date(),
             modifiedDate: new Date(),
             mappingObjectTemplate: new MappingObject({
-                sourceObject: new FreeFrameworkObjectProperty(framework, version),
-                targetObject: new FreeFrameworkObjectProperty(framework, version),
-                author: author,
-                authorContact: authorContact,
-                comments: "",
-                group: ""
+                sourceObject: new FreeFrameworkObjectProperty("NONE", "0.0.0"),
+                targetObject: new FreeFrameworkObjectProperty("NONE", "0.0.0"),
+                author: new StringProperty("PHANTOM"),
+                authorContact: new StringProperty("PHANTOM@SPECTER.ORG"),
+                authorOrganization: new StringProperty("SPECTER LLC."),
+                comments: new StringProperty()
             })
         });
     }
