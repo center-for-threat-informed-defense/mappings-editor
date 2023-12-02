@@ -18,7 +18,7 @@ import type { MappingFileExport } from "@/assets/scripts/MappingsFileAuthority";
  */
 export async function loadNewPageFile(context: ApplicationStore, settings: MappingFileExport): Promise<AppCommand> {
     // Create file
-    const mappingFile = await context.fileAuthority.createMappingFile(settings);
+    const mappingFile = await context.fileAuthority.createEmptyMappingFile(settings);
     // Return command
     return new LoadFile(context, mappingFile);
 }
