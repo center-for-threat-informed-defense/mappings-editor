@@ -20,35 +20,52 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         // Parse mapping objects
         const mapping_objects = [];
         for(const obj of file.mapping_objects) {
+            const fsv = file.source_version,
+                  ftv = file.target_version,
+                  osv = obj.source_version,
+                  otv = obj.target_version;
             mapping_objects.push({
-                comments: obj.comments,
-                attack_object_id: obj.source_id,
-                attack_object_name: obj.source_text,
-                references: [],
-                capability_description: obj.target_text,
-                capability_id: obj.target_id,
-                mapping_type: "",
-                group: obj.group
-            })
+                author                  : obj.author,
+                contact                 : obj.author_contact,
+                comments                : obj.comments,
+                references              : obj.references,
+                attack_object_id        : obj.source_id,
+                attack_object_name      : obj.source_text,
+                attack_object_version   : osv !== undefined && osv !== fsv ? osv : undefined,
+                capability_id           : obj.target_id,
+                capability_description  : obj.target_text,
+                capability_version      : otv !== undefined && otv !== ftv ? otv : undefined,
+                mapping_type            : obj.mapping_type,
+                group                   : obj.mapping_group,
+                status                  : obj.mapping_status
+            });
         }
         // Parse domain and version
-        const [domain, version] = file.source_version.split(/@/);
+        const [attackDomain, attackVersion] = file.source_version.split(/@/);
+        // Parse mapping types
+        const mapping_types = Object.entries(file.mapping_types).map(
+            ([id, obj]) => ({ id, ...obj })
+        )
+        // Parse mapping groups
+        const groups = Object.entries(file.mapping_groups).map(
+            ([id, name]) => ({ id, name })
+        )
         // Parse metadata
-        const unifiedSchemaFile = {
+        const unifiedSchemaFile: UniversalSchemaMappingFile = {
             metadata: {
-                mapping_version: "",
-                attack_version: version,
-                technology_domain: domain,
-                author: file.author,
-                contact: file.author_contact,
-                creation_date: file.creation_date,
-                last_update: file.modified_date,
-                organizations: file.author_organization,
-                mapping_framework: file.target_framework,
-                mapping_framework_version: file.target_version,
-                mapping_framework_schema: "",
-                mappings_types: [],
-                groups: [],
+                mapping_version                  : file.version,
+                attack_version                   : attackVersion,
+                technology_domain                : attackDomain,
+                author                           : file.author,
+                contact                          : file.author_contact,
+                organization                     : file.author_organization,
+                creation_date                    : file.creation_date.toString(),
+                last_update                      : file.modified_date.toString(),
+                mapping_framework                : file.target_framework,
+                mapping_framework_version        : file.target_version,
+                mapping_framework_version_schema : "",
+                mapping_types,
+                groups
             },
             mapping_objects
         }
@@ -61,39 +78,102 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
      *  The file to deserialize.
      */
     public deserialize(file: string): MappingFileExport {
-        const json = JSON.parse(file);
-        // Parse Objects
+        const json = JSON.parse(file) as UniversalSchemaMappingFile;
+        // Parse mapping objects
         const mapping_objects = [];
         for(const obj of json.mapping_objects) {
             mapping_objects.push({
-                source_id: obj.attack_object_id,
-                source_text: obj.attack_object_name,
-                source_version: obj.attack_object_version,
-                source_framework: "mitre_attack",
-                target_id: obj.capability_id,
-                target_text: obj.capability_description,
-                target_version: obj.capability_version,
-                author: obj.author,
-                author_contact: obj.contact,
-                comments: obj.comments,
-                group: obj.group
+                source_id        : obj.attack_object_id,
+                source_text      : obj.attack_object_name,
+                source_version   : obj.attack_object_version,
+                source_framework : "mitre_attack",
+                target_id        : obj.capability_id,
+                target_text      : obj.capability_description,
+                target_version   : obj.capability_version,
+                mapping_type     : obj.mapping_type,
+                mapping_group    : obj.group,
+                mapping_status   : obj.status ?? "complete",
+                author           : obj.author,
+                author_contact   : obj.contact,
+                references       : obj.references,
+                comments         : obj.comments
             });
         }
-        // Parse File
         const meta = json.metadata;
+        // Parse mapping types
+        const mapping_types = Object.fromEntries(meta.mapping_types.map(
+            ({id, name, description}) => [id, { name, description }]
+        ));
+        // Parse mapping groups
+        const mapping_groups = Object.fromEntries(meta.groups.map(
+            ({id, name}) => [id, name]
+        ));
+        // Define mapping statuses
+        const mapping_statuses = {
+            "complete"    : "Complete",
+            "in_progress" : "In Progress"
+        }
+        // Parse metadata
         const mappingFileExport = { 
-            source_framework: "mitre_attack",
-            source_version: `${ meta.technology_domain }@${ meta.attack_version }`,
-            target_framework: meta.mapping_framework,
-            target_version: meta.mapping_framework_version,
-            author: meta.author,
-            author_contact: meta.contact,
-            author_organization: meta.organization,
-            creation_date: new Date(meta.creation_date),
-            modified_date: new Date(meta.last_update),
+            version               : meta.mapping_version,
+            source_framework      : "mitre_attack",
+            source_version        : `${ meta.technology_domain }@${ meta.attack_version }`,
+            target_framework      : meta.mapping_framework,
+            target_version        : meta.mapping_framework_version,
+            author                : meta.author,
+            author_contact        : meta.contact,
+            author_organization   : meta.organization,
+            creation_date         : new Date(meta.creation_date),
+            modified_date         : new Date(meta.last_update),
+            mapping_types,
+            mapping_groups,
+            mapping_statuses,
             mapping_objects
         }
         return mappingFileExport;
     }
 
+}
+
+/**
+ * The Universal Schema Mapping File Format
+ */
+type UniversalSchemaMappingFile = {
+    metadata: {
+        mapping_version: string,
+        attack_version: string,
+        technology_domain: string,
+        mapping_framework: string,
+        mapping_framework_version: string,
+        mapping_framework_version_schema: string,
+        author: string | null,
+        contact: string | null,
+        organization: string | null,
+        creation_date: string,
+        last_update: string,
+        mapping_types: {
+            id: string,
+            name: string,
+            description: string
+        }[],
+        groups: { 
+            id: string,
+            name: string
+        }[]
+    },
+    mapping_objects: {
+        author: string | null,
+        contact: string | null,
+        comments: string | null,
+        references: string[],
+        attack_object_id: string | null,
+        attack_object_name: string | null,
+        attack_object_version?: string,
+        capability_id: string | null,
+        capability_description: string | null,
+        capability_version?: string,
+        mapping_type: string | null,
+        group: string | null,
+        status: string | null
+    }[]
 }
