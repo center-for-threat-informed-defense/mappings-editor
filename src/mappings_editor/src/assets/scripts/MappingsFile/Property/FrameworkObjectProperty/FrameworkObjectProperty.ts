@@ -68,10 +68,12 @@ export abstract class FrameworkObjectProperty extends Property {
      *  The framework object's id.
      * @param text
      *  The framework object's text.
-     * @param frameworkVersion
-     *  The framework's version.
+     * @param framework
+     *  The framework object's framework.
+     * @param version
+     *  The framework object's framework version.
      */
-    abstract forceSet(id: string | null, text: string | null, frameworkVersion: string): void;
+    abstract forceSet(id: string | null, text: string | null, framework: string, version: string): void;
 
     /**
      * Duplicates the object property.
@@ -79,5 +81,14 @@ export abstract class FrameworkObjectProperty extends Property {
      *  The duplicated object property.
      */
     abstract duplicate(): FrameworkObjectProperty;
+
+    /**
+     * Returns the property's value as a string.
+     * @returns
+     *  The property's value as a string.
+     */
+    public toString(): string {
+        return `${ this.objectId }: ${ this.objectText }`
+    }
 
 }

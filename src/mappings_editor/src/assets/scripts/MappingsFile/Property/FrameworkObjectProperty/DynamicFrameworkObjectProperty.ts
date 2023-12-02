@@ -91,23 +91,16 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The framework object's id.
      * @param text
      *  The framework object's text.
-     * @param frameworkVersion
-     *  The framework's version.
+     * @param framework
+     *  The framework object's framework.
+     * @param version
+     *  The framework object's framework version.
      */
-    public forceSet(id: string | null, text: string | null, frameworkVersion: string): void {
-        // Set framework object's id
-        this.objectId = id;
-        // If framework object's text is not set...
-        if(this._framework.getListingText(this._objectId) === null) {
-            // ...set it outright.
-            this.objectText = text;
-        }
-        // If framework object's text is already set...
-        else {
-            // ...override it.
-            this._objectText = text;
-        }
-        this._objectVersion = frameworkVersion;
+    public forceSet(id: string | null, text: string | null, framework: string, version: string): void {
+        this._objectId = id;
+        this._objectText = text;
+        this._objectFramework = framework;
+        this._objectVersion = version;
     }
 
     /**
@@ -117,7 +110,10 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public duplicate(): DynamicFrameworkObjectProperty {
         const duplicate = new DynamicFrameworkObjectProperty(this._framework);
-        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
+        duplicate.forceSet(
+            this.objectId, this.objectText,
+            this.objectFramework, this.objectVersion
+        );
         return duplicate;
     }
 

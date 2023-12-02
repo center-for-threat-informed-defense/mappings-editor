@@ -84,12 +84,15 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The framework object's id.
      * @param text
      *  The framework object's text.
-     * @param frameworkVersion
-     *  The framework's version.
+     * @param framework
+     *  The framework object's framework.
+     * @param version
+     *  The framework object's framework version.
      */
-    public forceSet(id: string | null, text: string | null, version: string) {
+    public forceSet(id: string | null, text: string | null, framework: string, version: string) {
         this._objectId = id;
         this._objectText = text;
+        this._objectFramework = framework;
         this._objectVersion = version;
     }
 
@@ -100,7 +103,10 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public duplicate(): StrictFrameworkObjectProperty {
         const duplicate = new StrictFrameworkObjectProperty(this._framework);
-        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
+        duplicate.forceSet(
+            this.objectId, this.objectText,
+            this.objectFramework, this.objectVersion
+        );
         return duplicate;
     }
 

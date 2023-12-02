@@ -1,9 +1,14 @@
-import type { MappingFileConfiguration as MappingFileConfiguration } from "./MappingFileConfiguration";
+import { randomUUID } from "../Utilities";
+import { ListProperty, StringProperty } from ".";
 import type { MappingObject } from "./MappingObject";
-
-// TODO: Missing 'mappingTypes' and 'groups'
+import type { MappingFileConfiguration } from "./MappingFileConfiguration";
 
 export class MappingFile {
+
+    /**
+     * The file's id.
+     */
+    public readonly id: string;
 
     /**
      * The file's version.
@@ -33,17 +38,17 @@ export class MappingFile {
     /**
      * The file's author.
      */
-    public readonly author: string;
+    public readonly author: StringProperty;
 
     /**
      * The author's e-mail.
      */
-    public readonly authorContact: string;
+    public readonly authorContact: StringProperty;
 
     /**
      * The author's organization.
      */
-    public readonly authorOrganization: string;
+    public readonly authorOrganization: StringProperty;
 
     /**
      * The file's creation date.
@@ -56,14 +61,29 @@ export class MappingFile {
     public readonly modifiedDate: Date;
 
     /**
-     * The file's mapping object template.
+     * The file's mapping types.
      */
-    public readonly mappingObjectTemplate: MappingObject;
+    public readonly mappingTypes: ListProperty;
+
+    /**
+     * The file's mapping groups.
+     */
+    public readonly mappingGroups: ListProperty;
+
+    /**
+     * The file's mapping statuses.
+     */
+    public readonly mappingStatuses: ListProperty;
 
     /**
      * The file's mapping objects.
      */
     public readonly mappingObjects: ReadonlyMap<string, MappingObject>;
+
+    /**
+     * The file's mapping object template.
+     */
+    private readonly _mappingObjectTemplate: MappingObject;
 
 
     /**
@@ -72,20 +92,42 @@ export class MappingFile {
      *  The file's configuration.
      */
     constructor(config: MappingFileConfiguration) {
+        const template = config.mappingObjectTemplate;
+        this.id = randomUUID();
         this.version = ""
-        this.sourceFramework = config.sourceFramework;
-        this.sourceVersion = config.sourceVersion;
-        this.targetFramework = config.targetFramework;
-        this.targetVersion = config.targetVersion;
-        this.author = config.author;
-        this.authorContact = config.authorContact;
-        this.authorOrganization = config.authorOrganization;
+        this.sourceFramework = template.sourceObject.objectFramework;
+        this.sourceVersion = template.sourceObject.objectVersion;
+        this.targetFramework = template.targetObject.objectFramework;
+        this.targetVersion = template.targetObject.objectVersion;
+        this.author = template.author;
+        this.authorContact = template.authorContact;
+        this.authorOrganization = template.authorOrganization;
         this.creationDate = config.creationDate
         this.modifiedDate = config.modifiedDate;
-        this.mappingObjectTemplate = config.mappingObjectTemplate;
+        this.mappingTypes = template.mappingType.options;
+        this.mappingGroups = template.mappingGroup.options;
+        this.mappingStatuses = template.mappingStatus.options;
         this.mappingObjects = new Map<string, MappingObject>();
+        this._mappingObjectTemplate = template;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  1. Mapping Object Management  /////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Creates a new mapping object.
+     * @remarks
+     *  This function only creates a mapping object, it doesn't insert into the
+     *  file. Use {@link MappingFile.insertMappingObject} to insert the object.
+     * @returns
+     *  The new mapping object.
+     */
+    public createMappingObject(): MappingObject {
+        return this._mappingObjectTemplate.duplicate();
+    }
 
     /**
      * Inserts a mapping object into the mapping file.

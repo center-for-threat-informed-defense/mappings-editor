@@ -1,4 +1,5 @@
 export * from "./FrameworkObjectProperty";
-export * from "./DateProperty";
+export * from "./ListProperty";
+export * from "./ListItemProperty";
 export * from "./Property";
 export * from "./StringProperty";

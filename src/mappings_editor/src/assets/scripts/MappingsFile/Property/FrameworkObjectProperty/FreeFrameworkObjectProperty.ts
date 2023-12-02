@@ -62,12 +62,15 @@ export class FreeFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The framework object's id.
      * @param text
      *  The framework object's text.
-     * @param frameworkVersion
-     *  The framework's version.
+     * @param framework
+     *  The framework object's framework.
+     * @param version
+     *  The framework object's framework version.
      */
-    public forceSet(id: string | null, text: string | null, version: string) {
+    public forceSet(id: string | null, text: string | null, framework: string, version: string) {
         this._objectId = id;
         this._objectText = text;
+        this._objectFramework = framework;
         this._objectVersion = version;
     }
 
@@ -78,7 +81,10 @@ export class FreeFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public duplicate(): FreeFrameworkObjectProperty {
         const duplicate = new FreeFrameworkObjectProperty(this.objectFramework, this.objectVersion);
-        duplicate.forceSet(this.objectId, this.objectText, this.objectVersion);
+        duplicate.forceSet(
+            this.objectId, this.objectText,
+            this.objectVersion, this.objectVersion
+        );
         return duplicate;
     }
 

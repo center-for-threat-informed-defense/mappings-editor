@@ -73,7 +73,7 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
         // Return the listing id
         return nextId;
     }
-
+    
     /**
      * Sets a framework listing's text.
      * @param id
