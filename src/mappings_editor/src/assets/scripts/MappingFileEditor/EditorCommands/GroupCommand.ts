@@ -1,24 +1,18 @@
-import { ViewObjectCommand, type EditorCommand, EditorDirectives } from ".";
+import { EditorCommand, EditorDirectives, CameraCommand } from ".";
 
-export class GroupCommand implements EditorCommand {
+export class GroupCommand extends EditorCommand {
 
     /**
      * The list of commands in order of application.
      */
     private _commands: EditorCommand[];
-    
 
+    
     /**
-     * The command's view objects.
+     * The group's {@link CameraCommand}s in order of execution.
      */
-    public get ids(): Set<string> {
-        const ids = new Set<string>();
-        for(const command of this._commands) {
-            if(command instanceof ViewObjectCommand) {
-                ids.add(command.id);
-            }
-        }
-        return ids;
+    public get cameraCommands(): CameraCommand[] {
+        return this.getCameraCommands(this);
     }
 
 
@@ -26,6 +20,7 @@ export class GroupCommand implements EditorCommand {
      * Executes a series of page commands.
      */
     constructor() {
+        super();
         this._commands = [];
     }
     
@@ -74,6 +69,27 @@ export class GroupCommand implements EditorCommand {
             directives |= this._commands[i].undo();
         }
         return directives;
+    }
+
+    /**
+     * Returns all {@link CameraCommand}s from a {@link GroupCommand} in order
+     * of execution.
+     * @param cmd
+     *  The {@link GroupCommand}.
+     * @returns
+     *  The {@link CameraCommand}s.
+     */
+    private getCameraCommands(cmd: GroupCommand): CameraCommand[] {
+        let commands: CameraCommand[] = []
+        for(let i = cmd._commands.length - 1; 0 <= i; i--) {
+            const command = cmd._commands[i];
+            if(command instanceof GroupCommand) {
+                commands = commands.concat(this.getCameraCommands(command));
+            } else if(command instanceof CameraCommand) {
+                commands.push(command);
+            }
+        }
+        return commands;
     }
 
 }
