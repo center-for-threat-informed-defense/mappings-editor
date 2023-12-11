@@ -4,9 +4,11 @@
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
         <div class="resize-handle" @pointerdown="startResize($event, Handle.Left)"></div>
-        <ViewFilterSidebar id="view-filter-sidebar"/>
+        <ViewFilterSidebar id="view-filter-sidebar" @execute="onExecute"/>
       </div>
       <div class="frame center">
+        <MappingFileSearch id="file-search" :editor="activeEditor" />
+        <MappingFileViewControl id="file-editor" :editor="activeEditor" @execute="onExecute" />
       </div>
       <div class="frame right">
         <div class="resize-handle" @pointerdown="startResize($event, Handle.Right)"></div>
@@ -26,11 +28,14 @@ import { useApplicationStore } from "./stores/ApplicationStore";
 import { defineComponent, markRaw, ref } from "vue";
 import { Browser, OperatingSystem, clamp } from "./assets/scripts/Utilities";
 import type { Command } from "./assets/scripts/Application";
+import type { MappingFileEditor } from "./assets/scripts/MappingFileEditor";
 // Components
 import AppTitleBar from "./components/Elements/AppTitleBar.vue";
 import AppHotkeyBox from "./components/Elements/AppHotkeyBox.vue";
 import AppFooterBar from "./components/Elements/AppFooterBar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
+import MappingFileSearch from "./components/Controls/MappingFileSearch.vue";
+import MappingFileViewControl from "./components/Controls/MappingFileViewControl.vue";
 
 enum Handle {
   Center = 0,
@@ -75,6 +80,16 @@ export default defineComponent({
         gridTemplateColumns: `${ l }px minmax(0, 1fr) ${ r }px`
       }
     },
+
+    /**
+     * Returns the active file editor.
+     * @returns
+     *  The active file editor.
+     */
+    activeEditor(): MappingFileEditor {
+      // Have to cast because Pinia seems to struggle with type inference
+      return this.application.activeEditor as MappingFileEditor;
+    }
 
   },
   methods: {
@@ -174,8 +189,9 @@ export default defineComponent({
     this.onResizeObserver?.disconnect();
   },
   components: {
-    AppTitleBar, AppHotkeyBox, 
-    AppFooterBar, ViewFilterSidebar
+    AppTitleBar, AppHotkeyBox,
+    AppFooterBar, ViewFilterSidebar,
+    MappingFileSearch, MappingFileViewControl,
   }
 });
 
@@ -249,6 +265,18 @@ ul {
   border-right: solid 1px #333333;
 }
 
+#file-search {
+  height: 90px;
+  width: 100%;
+}
+
+#file-editor {
+  flex: 1;
+  width: 100%;
+  padding-left: 30px;
+  box-sizing: border-box;
+}
+
 #app-footer-bar {
   width: 100%;
   height: 100%;
@@ -273,7 +301,9 @@ ul {
 }
 
 .frame.center {
-  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  grid-column: 2;
 }
 
 .frame.right {
