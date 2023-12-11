@@ -1,4 +1,4 @@
-import { Property, StringProperty } from "..";
+import { NumberProperty, Property, StringProperty } from "..";
 import type { ListItem } from "./ListItem";
 
 export class ListProperty extends Property {
@@ -57,12 +57,11 @@ export class ListProperty extends Property {
         const item = this._itemTemplate.duplicate();
         if(values) {
             for(const id in values) {
-                const prop = item.properties.get(id);
-                if(!prop) {
-                    continue;
-                }
+                const prop = item.get(id);
                 if(prop instanceof StringProperty) {
                     prop.value = `${ values[id] }`
+                } else if(prop instanceof NumberProperty) {
+                    prop.value = parseFloat(values[id])
                 } else {
                     throw new Error(
                         `Cannot dynamically set property of type: '${

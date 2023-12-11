@@ -1,6 +1,11 @@
 export abstract class FrameworkListing {
 
     /**
+     * The default id length.
+     */
+    protected static DEFAULT_OBJ_ID_LEN: number = 6;
+
+    /**
      * The framework's identifier.
      */
     public readonly id: string;
@@ -15,6 +20,11 @@ export abstract class FrameworkListing {
      * The framework listing.
      */
     abstract get options(): ReadonlyMap<string | null, string | null>;
+
+    /**
+     * The framework listing's object id length.
+     */
+    abstract get objectIdLength(): number;
 
 
     /**

@@ -5,12 +5,22 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
     /**
      * The internal framework listing.
      */
-    private readonly _options: Map<string | null, string | null>
+    private readonly _options: Map<string | null, string | null>;
+
+    /**
+     * The internal framework listing's object id length.
+     */
+    private _idLength: number;
 
     /**
      * The framework listing reference count.
      */
-    private readonly _references: Map<string | null, number>
+    private readonly _references: Map<string | null, number>;
+
+    /**
+     * The currently targeted framework object.
+     */
+    private _targetedObjectId: string | undefined;
 
 
     /**
@@ -18,6 +28,33 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
      */
     public get options(): ReadonlyMap<string | null, string | null> {
         return this._options;
+    }
+
+    /**
+     * The framework listing's object id length.
+     */
+    public get objectIdLength(): number {
+        return this._idLength;
+    }
+
+    /**
+     * The currently targeted framework object.
+     */
+    public get targetedObjectId(): string | null | undefined {
+        return this._targetedObjectId;
+    }
+
+    /**
+     * The currently targeted framework object's setter.
+     */
+    public set targetedObjectId(value: string | undefined) {
+        if(value === undefined) {
+            this._targetedObjectId = undefined;
+        } else if(this._options.has(value)) {
+            this._targetedObjectId = value;
+        } else {
+            throw new Error(`Cannot target non-existent object id '${ value }'.`)
+        }
     }
 
 
@@ -31,55 +68,73 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
     constructor(framework: string, version: string) {
         super(framework, version);
         this._options = new Map([[null, null]]);
-        this._references = new Map([[null, 1]]);
+        this._references = new Map([[null, Infinity]]);
+        this._idLength = FrameworkListing.DEFAULT_OBJ_ID_LEN;
+        this._targetedObjectId = undefined;
     }
 
 
     /**
-     * Switches into a framework listing by object id.
+     * Switches into a framework object by id.
      * @param nextId
-     *  The framework listing's new id.
+     *  The object's new id.
      *  (`null` if it should not have a next id.)
-     * @param objectId
-     *  The framework listing's previous id.
+     * @param prevId
+     *  The object's previous id.
      *  (`null` if it did not have a previous id.)
      * @returns
-     *  The framework listing's new id.
+     *  The object's new id.
      */
     public switchListingId(nextId: string | null, prevId: string | null): string | null {
-        // If next listing listing doesn't exists... 
+        if(nextId === prevId) {
+            return nextId;
+        }
+        // If next object doesn't exists... 
         if(!this._options.has(nextId)) {
-            // ...define the listing
+            // ...define the object
             let objectText = null;
+            // If the previous object had text...
             if(prevId && this._options.has(prevId)){
+                // ...copy it to the new object
                 objectText = this._options.get(prevId)!;
             }
             this._options.set(nextId, objectText);
             this._references.set(nextId, 0);
+            // Update id length
+            const idLength = nextId?.length ?? FrameworkListing.DEFAULT_OBJ_ID_LEN;
+            this._idLength = Math.max(this._idLength, idLength);
         }
-        // Increment the listing's reference count
+
+        // Increment the object's reference count
         this._references.set(nextId, this._references.get(nextId)! + 1);
-        // If previous listing id exists...
+        
+        // If previous object id exists...
         if(this._options.has(prevId)) {
             // ...decrement its reference count
             this._references.set(prevId, this._references.get(prevId)! - 1);
-            // If nothing references listing anymore...
+            // If nothing references object anymore...
             if(this._references.get(prevId) === 0) {
                 // ...delete it.
                 this._options.delete(prevId);
                 this._references.delete(prevId);
+                // Update id length
+                this._idLength = [...this._options.keys()].reduce(
+                    (a,b) => Math.max(a, b?.length ?? 0),
+                    FrameworkListing.DEFAULT_OBJ_ID_LEN
+                );
             }
         }
+        
         // Return the listing id
         return nextId;
     }
     
     /**
-     * Sets a framework listing's text.
+     * Sets a framework object's text.
      * @param id
-     *  The framework listing's id.
+     *  The object's id.
      * @param text
-     *  The framework listing's text.
+     *  The object's text.
      */
     public setListingText(id: string | null, text: string | null) {
         if(id === null) {
@@ -93,11 +148,11 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
     }
 
     /**
-     * Returns a framework listing's text.
+     * Returns a framework object's text.
      * @param id
-     *  The framework listing's id.
+     *  The object's id.
      * @returns
-     *  The framework listing's text.
+     *  The object's text.
      */
     public getListingText(id: string | null): string | null {
         if(id === null) {
@@ -110,4 +165,15 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
         }
     }
     
+    /**
+     * Returns the number of times a framework object's id is referenced.
+     * @param id
+     *  The object's id.
+     * @returns
+     *  The number of times the object's id is referenced.
+     */
+    public getReferenceCount(id: string | null): number {
+        return this._references.get(id) ?? 0;
+    }
+
 }
