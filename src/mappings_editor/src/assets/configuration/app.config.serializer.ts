@@ -29,19 +29,19 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 contact                 : obj.author_contact,
                 comments                : obj.comments,
                 references              : obj.references,
-                attack_object_id        : obj.source_id,
-                attack_object_name      : obj.source_text,
-                attack_object_version   : osv !== undefined && osv !== fsv ? osv : undefined,
-                capability_id           : obj.target_id,
-                capability_description  : obj.target_text,
-                capability_version      : otv !== undefined && otv !== ftv ? otv : undefined,
+                attack_object_id        : obj.target_id,
+                attack_object_name      : obj.target_text,
+                attack_object_version   : otv !== undefined && otv !== ftv ? otv : undefined,
+                capability_id           : obj.source_id,
+                capability_description  : obj.source_text,
+                capability_version      : osv !== undefined && osv !== fsv ? osv : undefined,
                 mapping_type            : obj.mapping_type,
                 group                   : obj.mapping_group,
                 status                  : obj.mapping_status
             });
         }
         // Parse domain and version
-        const [attackDomain, attackVersion] = file.source_version.split(/@/);
+        const [attackDomain, attackVersion] = file.target_version.split(/@/);
         // Parse mapping types
         const mapping_types = Object.entries(file.mapping_types).map(
             ([id, obj]) => ({ id, ...obj })
@@ -61,9 +61,8 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 organization                     : file.author_organization,
                 creation_date                    : file.creation_date.toString(),
                 last_update                      : file.modified_date.toString(),
-                mapping_framework                : file.target_framework,
-                mapping_framework_version        : file.target_version,
-                mapping_framework_version_schema : "",
+                mapping_framework                : file.source_framework,
+                mapping_framework_version        : file.source_version,
                 mapping_types,
                 groups
             },
@@ -83,13 +82,12 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         const mapping_objects = [];
         for(const obj of json.mapping_objects) {
             mapping_objects.push({
-                source_id        : obj.attack_object_id,
-                source_text      : obj.attack_object_name,
-                source_version   : obj.attack_object_version,
-                source_framework : "mitre_attack",
-                target_id        : obj.capability_id,
-                target_text      : obj.capability_description,
-                target_version   : obj.capability_version,
+                source_id        : obj.capability_id,
+                source_text      : obj.capability_description,
+                source_version   : obj.capability_version,
+                target_id        : obj.attack_object_id,
+                target_text      : obj.attack_object_name,
+                target_version   : obj.attack_object_version,
                 mapping_type     : obj.mapping_type,
                 mapping_group    : obj.group,
                 mapping_status   : obj.status ?? "complete",
@@ -110,16 +108,17 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         ));
         // Define mapping statuses
         const mapping_statuses = {
-            "complete"    : "Complete",
-            "in_progress" : "In Progress"
+            "complete"     : "Complete",
+            "in_progress"  : "In Progress",
+            "non_mappable" : "Non-Mappable"
         }
         // Parse metadata
         const mappingFileExport = { 
             version               : meta.mapping_version,
-            source_framework      : "mitre_attack",
-            source_version        : `${ meta.technology_domain }@${ meta.attack_version }`,
-            target_framework      : meta.mapping_framework,
-            target_version        : meta.mapping_framework_version,
+            source_framework      : meta.mapping_framework,
+            source_version        : meta.mapping_framework_version,
+            target_framework      : "mitre_attack",
+            target_version        : `${ meta.technology_domain }@${ meta.attack_version }`,
             author                : meta.author,
             author_contact        : meta.contact,
             author_organization   : meta.organization,
@@ -145,7 +144,6 @@ type UniversalSchemaMappingFile = {
         technology_domain: string,
         mapping_framework: string,
         mapping_framework_version: string,
-        mapping_framework_version_schema: string,
         author: string | null,
         contact: string | null,
         organization: string | null,
