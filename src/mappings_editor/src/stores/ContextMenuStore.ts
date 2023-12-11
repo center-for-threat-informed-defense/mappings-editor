@@ -108,25 +108,25 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
          */
         undoRedoMenu(): ContextMenuSection {
             const app = useApplicationStore();
-            const page = app.activeEditor;
             const edit = app.settings.hotkeys.edit;
+            const editor = app.activeEditor as MappingFileEditor;
             return {
                 id: "undo_redo_options",
                 items: [
-                    // {
-                    //     text: "Undo",
-                    //     type: MenuType.Item,
-                    //     data: () => AppCommands.undoPageCommand(ctx, page),
-                    //     shortcut: edit.undo,
-                    //     disabled: !app.canUndo
-                    // },
-                    // {
-                    //     text: "Redo",
-                    //     type: MenuType.Item,
-                    //     data: () => AppCommands.redoPageCommand(ctx, page),
-                    //     shortcut: edit.redo,
-                    //     disabled: !app.canRedo
-                    // }
+                    {
+                        text: "Undo",
+                        type: MenuType.Item,
+                        data: () => AppCommands.undoEditorCommand(editor),
+                        shortcut: edit.undo,
+                        disabled: !app.canUndo
+                    },
+                    {
+                        text: "Redo",
+                        type: MenuType.Item,
+                        data: () => AppCommands.redoEditorCommand(editor),
+                        shortcut: edit.redo,
+                        disabled: !app.canRedo
+                    }
                 ],
             }
         },
