@@ -290,14 +290,14 @@ export default defineComponent({
   background: #404040;
 }
 
-.options-list:not(.flip) + .value-container.search-open {
+.options-list:not(.flip) + .value-container {
   border: solid 1px #575757;
   border-bottom: none;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
 }
 
-.options-list.flip + .value-container.search-open {
+.options-list.flip + .value-container {
   border: solid 1px #575757;
   border-top: none;
   border-top-left-radius: 0px;

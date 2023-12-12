@@ -1,5 +1,5 @@
 import { randomUUID } from "../Utilities";
-import { DynamicFrameworkObjectProperty, FrameworkListing, FrameworkObjectProperty, ListProperty, StrictFrameworkObjectProperty, StringProperty } from ".";
+import { FrameworkListing, ListProperty, StringProperty } from ".";
 import type { MappingObject } from "./MappingObject";
 import type { MappingFileConfiguration } from "./MappingFileConfiguration";
 
@@ -18,7 +18,7 @@ export class MappingFile {
     /**
      * The file's source framework listing.
      */
-    public readonly sourceFrameworkListing: FrameworkListing | null;
+    public readonly sourceFrameworkListing: FrameworkListing;
 
     /**
      * The file's source framework.
@@ -33,7 +33,7 @@ export class MappingFile {
     /**
      * The file's target framework listing.
      */
-    public readonly targetFrameworkListing: FrameworkListing | null;
+    public readonly targetFrameworkListing: FrameworkListing;
 
     /**
      * The file's target framework.
@@ -116,27 +116,15 @@ export class MappingFile {
         this.mappingObjects = new Map<string, MappingObject>();
         this._mappingObjectTemplate = template;
         // Configure source information
-        const sourceListing = this.getFrameworkListing(template.sourceObject);
-        if(sourceListing) {
-            this.sourceFrameworkListing = sourceListing;
-            this.sourceFramework = sourceListing.id;
-            this.sourceVersion = sourceListing.version;
-        } else {
-            this.sourceFrameworkListing = null;
-            this.sourceFramework = template.sourceObject.objectFramework;
-            this.sourceVersion = template.sourceObject.objectVersion;
-        }
+        const sourceListing = template.sourceObject.framework;
+        this.sourceFrameworkListing = sourceListing;
+        this.sourceFramework = sourceListing.id;
+        this.sourceVersion = sourceListing.version;
         // Configure target information
-        const targetListing = this.getFrameworkListing(template.targetObject);
-        if(targetListing) {
-            this.targetFrameworkListing = targetListing;
-            this.targetFramework = targetListing.id;
-            this.targetVersion = targetListing.version;
-        } else {
-            this.targetFrameworkListing = null;
-            this.targetFramework = template.targetObject.objectFramework;
-            this.targetVersion = template.targetObject.objectVersion;
-        }
+        const targetListing = template.targetObject.framework;
+        this.targetFrameworkListing = targetListing;
+        this.targetFramework = targetListing.id;
+        this.targetVersion = targetListing.version;
     }
 
 
@@ -237,30 +225,6 @@ export class MappingFile {
             // Configure file's object.
             (this.mappingObjects as Map<string, MappingObject>).delete(id);
         }
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    //  2. Framework Listing Management  //////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    /**
-     * Returns a {@link FrameworkObjectProperty}'s {@link FrameworkListing} if
-     * it has one.
-     * @param object
-     *  The {@link FrameworkObjectProperty}.
-     * @returns
-     *  The {@link FrameworkListing} if one exists. 
-     */
-    private getFrameworkListing(object: FrameworkObjectProperty): FrameworkListing | undefined {
-        if(
-            object instanceof StrictFrameworkObjectProperty ||
-            object instanceof DynamicFrameworkObjectProperty
-        ) {
-            return object.framework;
-        }
-        return undefined;
     }
 
 }

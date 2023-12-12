@@ -29,6 +29,13 @@ export class ListPropertyFilterControl extends FilterControl {
         return new Map(options)
     }
 
+    /**
+     * The control's number of valid options.
+     */
+    public get size(): number {
+        return this._options.value.size + 1;
+    }
+
     
     /**
      * Creates a new {@link FilterControl}.

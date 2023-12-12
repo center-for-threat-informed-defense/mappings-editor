@@ -36,6 +36,7 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   height: 100%;
+  min-width: 0px;
   color: #a8a8a8;
   font-size: 9.5pt;
   font-weight: 500;
@@ -48,6 +49,7 @@ export default defineComponent({
 }
 
 .checkbox {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;

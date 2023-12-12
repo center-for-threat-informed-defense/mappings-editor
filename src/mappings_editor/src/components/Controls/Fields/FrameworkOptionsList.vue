@@ -45,7 +45,7 @@ export default defineComponent({
     },
     maxHeight: {
       type: Number,
-      required: true
+      default: 211
     },
     maxIdLength: {
       type: Number,

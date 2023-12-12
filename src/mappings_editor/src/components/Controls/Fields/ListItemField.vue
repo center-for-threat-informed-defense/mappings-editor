@@ -5,7 +5,7 @@
     @focusin="onFocusIn"
     @focusout="onFocusOut"
   >
-    <ListItemOptionsList 
+    <OptionsList 
       ref="optionsList"
       class="options-list"
       :select="select"
@@ -44,7 +44,7 @@ import { defineComponent, type PropType } from "vue";
 import type { ListItemProperty } from "@/assets/scripts/MappingFile";
 // Components
 import FocusBox from "@/components/Containers/FocusBox.vue";
-import ListItemOptionsList from "./ListItemOptionsList.vue";
+import OptionsList from "./OptionsList.vue";
 
 export default defineComponent({
   name: "ListItemField",
@@ -82,9 +82,9 @@ export default defineComponent({
     },
     
     /**
-     * Returns the enum's options.
+     * Returns the list item's options.
      * @returns
-     *  The enum's options.
+     *  The list item's options.
      */
     options(): { value: string | null, text: string }[] {
       let options: { value: string | null, text: string }[] = [];
@@ -233,7 +233,7 @@ export default defineComponent({
       this.refreshValue();
     }
   },
-  components: { FocusBox, ListItemOptionsList }
+  components: { FocusBox, OptionsList }
 });
 </script>
 

@@ -4,9 +4,7 @@
       <div class="reorder-handle" @pointerdown="onStartDrag(key, $event)">
         <MoveDots />
       </div>
-      <div class="checkbox-bar" name="checkbox" @click="onClickBreakout(key, breakout)">
-        <CheckboxBar :text="breakout.text" :checked="breakout.enabled" />
-      </div>
+      <CheckboxBar :text="breakout.text" :checked="breakout.enabled" @click="onClickBreakout(key, breakout)"/>
     </li>
   </ul>
 </template>
@@ -23,7 +21,7 @@ import MoveDots from "@/components/Icons/MoveDots.vue";
 import CheckboxBar from "./CheckboxBar.vue";
 
 export default defineComponent({
-  name: "TabularField",
+  name: "BreakoutController",
   props: {
     control: {
       type: Object as PropType<BreakoutControl>,
@@ -202,6 +200,7 @@ export default defineComponent({
 }
 
 .reorder-handle {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,24 +1,36 @@
 <template>
   <AccordionBox class="view-filter-sidebar-element">
     <AccordionPane :units="1" name="Organize Mappings" class="pane">
-      <ScrollBox class="scrollbox" :propagateScroll="false">
-        <p class="control-title">BREAKOUT BY</p>
-        <BreakoutController :control="activeView.breakouts" @execute="execute" />
-        <template v-if="groupFilters">
-          <span class="separator"></span>
-          <p class="control-title">FILTER BY GROUP</p>
-          <FilterController :control="groupFilters" @execute="execute" />
-        </template>
-        <template v-if="statusFilters">
-          <span class="separator"></span>
-          <p class="control-title">FILTER BY STATUS</p>
-          <FilterController :control="statusFilters" @execute="execute" />
-        </template>
-        <template v-if="mappingTypeFilters">
-          <span class="separator"></span>
-          <p class="control-title">FILTER BY MAPPING TYPE</p>
-          <FilterController :control="mappingTypeFilters" @execute="execute" />
-        </template>
+      <ScrollBox class="control-scrollbox" :propagateScroll="false">
+        <div class="control-container">
+          <p class="control-title">BREAKOUT BY</p>
+          <BreakoutController :control="activeView.breakouts" @execute="execute" />
+          <template v-if="mappingGroupFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY GROUP</p>
+            <FilterController :control="mappingGroupFilters" @execute="execute" />
+          </template>
+          <template v-if="mappingStatusFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY STATUS</p>
+            <FilterController :control="mappingStatusFilters" @execute="execute" />
+          </template>
+          <template v-if="mappingTypeFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY MAPPING TYPE</p>
+            <FilterController :control="mappingTypeFilters" @execute="execute" />
+          </template>
+          <template v-if="sourceObjectFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY SOURCE</p>
+            <FilterController :control="sourceObjectFilters" @execute="execute" />
+          </template>
+          <template v-if="targetObjectFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY TARGET</p>
+            <FilterController :control="targetObjectFilters" @execute="execute" />
+          </template>
+        </div>
       </ScrollBox>
     </AccordionPane>
   </AccordionBox>
@@ -60,17 +72,16 @@ export default defineComponent({
      * @returns
      *  The mapping group filters control. `undefined` if there wasn't one.
      */
-    groupFilters(): FilterControl | undefined {
+    mappingGroupFilters(): FilterControl | undefined {
       return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingGroup);
     },
-
 
     /**
      * Returns the mapping status filters.
      * @returns
      *  The mapping status filters control. `undefined` if there wasn't one.
      */
-    statusFilters(): FilterControl | undefined {
+    mappingStatusFilters(): FilterControl | undefined {
       return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingStatus);
     },
 
@@ -81,6 +92,24 @@ export default defineComponent({
      */
     mappingTypeFilters(): FilterControl | undefined {
       return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingType);
+    },
+
+    /**
+     * Returns the source object filters.
+     * @returns
+     *  The source object filters control. `undefined` if there wasn't one.
+     */
+    sourceObjectFilters(): FilterControl | undefined {
+      return this.activeView.filterSets.get(MappingObjectDiscriminator.SourceObject);
+    },
+
+    /**
+     * Returns the target object filters.
+     * @returns
+     *  The target object filters control. `undefined` if there wasn't one.
+     */
+    targetObjectFilters(): FilterControl | undefined {
+      return this.activeView.filterSets.get(MappingObjectDiscriminator.TargetObject);
     }
 
   },
@@ -116,12 +145,12 @@ export default defineComponent({
   margin: 25px 0px;
 }
 
-.scrollbox {
+.control-scrollbox {
   width: 100%;
   height: 100%;
 }
 
-:deep(.scroll-content) {
+.control-container {
   padding: 0px 30px 25px;
   box-sizing: border-box;
 }

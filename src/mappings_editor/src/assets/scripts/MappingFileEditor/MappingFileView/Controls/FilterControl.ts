@@ -6,16 +6,29 @@ export abstract class FilterControl {
     abstract get options(): ReadonlyMap<string | null, string>;
 
     /**
-     * The control's active filters.
+     * The control's number of valid options.
      */
-    protected _activeFilters: Set<string | null>;
+    abstract get size(): number;
+
+    /**
+     * The control's internal applied filters.
+     */
+    protected _appliedFilters: Set<string | null>;
     
+    
+    /**
+     * The control's applied filters. 
+     */
+    public get appliedFilters(): ReadonlySet<string | null> {
+        return this._appliedFilters;
+    }
+
 
     /**
      * Creates a new {@link FilterControl}.
      */
     constructor() {
-        this._activeFilters = new Set();
+        this._appliedFilters = new Set();
     }
 
 
@@ -23,7 +36,7 @@ export abstract class FilterControl {
      * Show all items.
      */
     public showAll() {
-        this._activeFilters.clear();
+        this._appliedFilters.clear();
     }
 
     /**
@@ -32,7 +45,10 @@ export abstract class FilterControl {
      *  The filter value.
      */
     public show(value: string | null) {
-        this._activeFilters.add(value);
+        this._appliedFilters.add(value);
+        if(this._appliedFilters.size === this.size) {
+            this._appliedFilters.clear();
+        }
     }
 
     /**
@@ -41,7 +57,7 @@ export abstract class FilterControl {
      *  The filter value.
      */
     public hide(value: string | null) {
-        this._activeFilters.delete(value);
+        this._appliedFilters.delete(value);
     }
     
     /**
@@ -55,7 +71,7 @@ export abstract class FilterControl {
         if(this.allShown()) {
             return true;
         }
-        return this._activeFilters.has(value);
+        return this._appliedFilters.has(value);
     }
 
     /**
@@ -64,7 +80,7 @@ export abstract class FilterControl {
      *  True if all items are shown, false otherwise.
      */
     public allShown(): boolean {
-        return this._activeFilters.size === 0;
+        return this._appliedFilters.size === 0;
     }
 
 }

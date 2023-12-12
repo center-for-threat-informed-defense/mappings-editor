@@ -29,7 +29,7 @@ import { defineComponent, type PropType } from "vue";
 import ScrollBox from "@/components/Containers/ScrollBox.vue";
 
 export default defineComponent({
-  name: "ListItemOptionsList",
+  name: "OptionsList",
   props: {
     options: {
       type: Array as PropType<{ value: string | null, text: string }[]>,
@@ -40,7 +40,7 @@ export default defineComponent({
     },
     maxHeight: {
       type: Number,
-      required: true
+      default: 195
     }
   },
   data() {
@@ -208,13 +208,18 @@ export default defineComponent({
 
 /** === Main Field === */
 
+.list-item-options-list-field {
+  background: #1c1c1c;
+}
+
 .scrollbox {
   position: absolute;
   width: 100%;
+  font-size: 10pt;
   border-width: 1px;
   border-color: #3b3b3b;
   box-sizing: border-box;
-  background: #1c1c1c;
+  background: inherit;
 }
 
 .list-item-options-list-field:not(.flip) .scrollbox-container {
@@ -247,7 +252,6 @@ export default defineComponent({
 .options li {
   list-style: none;
   color: #b3b3b3;
-  font-size: 10pt;
   user-select: none;
   white-space: nowrap;
   text-overflow: ellipsis;

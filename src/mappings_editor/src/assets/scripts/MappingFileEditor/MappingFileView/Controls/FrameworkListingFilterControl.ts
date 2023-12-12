@@ -14,14 +14,21 @@ export class FrameworkListingFilterControl extends FilterControl {
      */
     public get options(): ReadonlyMap<string, string> {
         const options = new Map();
-        for(const value of this._framework.options.keys()) {
+        for(const [value, text] of this._framework.options) {
             if(value === null) {
                 options.set(null, "No Value")
             } else {
-                options.set(value, value);
+                options.set(value, `${ value }: ${ text }`);
             }
         }
         return options;
+    }
+
+    /**
+     * The control's number of valid options.
+     */
+    public get size(): number {
+        return this._framework.options.size;
     }
 
     

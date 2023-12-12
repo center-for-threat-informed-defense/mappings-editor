@@ -911,20 +911,16 @@ export class MappingFileView {
             [
                 MappingObjectDiscriminator.MappingType,
                 new ListPropertyFilterControl("name", file.mappingTypes)
-            ]
-        ]);
-        if(file.sourceFrameworkListing) {
-            filterSets.set(
+            ],
+            [
                 MappingObjectDiscriminator.SourceObject,
                 new FrameworkListingFilterControl(file.sourceFrameworkListing)
-            )
-        }
-        if(file.targetFrameworkListing) {
-            filterSets.set(
+            ],
+            [
                 MappingObjectDiscriminator.TargetObject,
                 new FrameworkListingFilterControl(file.targetFrameworkListing)
-            )
-        }
+            ]
+        ]);
         return filterSets;
     }
 
