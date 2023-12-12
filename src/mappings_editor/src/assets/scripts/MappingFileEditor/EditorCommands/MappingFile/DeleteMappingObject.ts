@@ -58,8 +58,8 @@ export class DeleteMappingObject extends EditorCommand {
      */
     public undo(): EditorDirectives {
         // Uncache object values
-        this.object.sourceObject.tryUncacheObjetValue();
-        this.object.targetObject.tryUncacheObjetValue();
+        this.object.sourceObject.tryUncacheObjectValue();
+        this.object.targetObject.tryUncacheObjectValue();
         // Insert mapping object
         this.file.insertMappingObject(this.object, this.index);
         return EditorDirectives.RebuildBreakouts;

@@ -111,7 +111,7 @@ export abstract class FrameworkObjectProperty extends Property {
      * @returns
      *  True if the object value was successfully uncached, false otherwise.
      */
-    public tryUncacheObjetValue(): boolean {
+    public tryUncacheObjectValue(): boolean {
         return this.setObjectValue(this.objectId, this.objectText);   
     }
 
