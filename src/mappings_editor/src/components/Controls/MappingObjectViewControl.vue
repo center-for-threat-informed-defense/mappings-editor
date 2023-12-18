@@ -52,7 +52,7 @@
             v-slot="{ item }"
           >
             <a :href="toAbsoluteUrl(item.getAsString('url'))" target="_blank" >
-              {{ toAbsoluteUrl(item.getAsString("url")) || "None" }}
+              {{ item.getAsString("url") || "None" }}
             </a>
           </ListField>
         </div>
