@@ -56,11 +56,13 @@ export abstract class FrameworkObjectProperty extends Property {
 
     /**
      * Creates a new {@link FrameworkObjectProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param framework
      *  The property's framework listing.
      */
-    constructor(framework: FrameworkListing) {
-        super();
+    constructor(name: string, framework: FrameworkListing) {
+        super(name);
         this._objectFramework = framework.id;
         this._objectVersion = framework.version;
     }
@@ -123,11 +125,20 @@ export abstract class FrameworkObjectProperty extends Property {
     abstract isObjectValueCached(): boolean;
 
     /**
-     * Duplicates the object property.
+     * Duplicates the property.
      * @returns
-     *  The duplicated object property.
+     *  A duplicate of the property.
      */
     abstract duplicate(): FrameworkObjectProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    abstract duplicate(name?: string): FrameworkObjectProperty;
 
     /**
      * Returns the property's value as a string.
@@ -136,6 +147,15 @@ export abstract class FrameworkObjectProperty extends Property {
      */
     public toString(): string {
         return `${ this.objectId }: ${ this.objectText }`
+    }
+
+    /**
+     * Tests if the property's value is unset.
+     * @returns
+     *  True if the property's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        return this.objectId === null && this.objectText === null;
     }
 
 }

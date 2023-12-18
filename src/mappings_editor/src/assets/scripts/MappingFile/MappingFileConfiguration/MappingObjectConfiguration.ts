@@ -13,21 +13,6 @@ export type MappingObjectConfiguration = {
     targetObject: FrameworkObjectProperty;
 
     /**
-     * The mapping object's mapping type.
-     */
-    mappingType?: ListItemProperty;
-
-    /**
-     * The mapping object's mapping group.
-     */
-    mappingGroup?: ListItemProperty;
-
-    /**
-     * The mapping object's mapping status.
-     */
-    mappingStatus?: ListItemProperty;
-
-    /**
      * The mapping object's author.
      */
     author: StringProperty;
@@ -51,5 +36,35 @@ export type MappingObjectConfiguration = {
      * The mapping object's comments.
      */
     comments: StringProperty;
+
+    /**
+     * The mapping object's mapping type.
+     */
+    mappingType?: ListItemProperty;
+
+    /**
+     * The mapping object's mapping group.
+     */
+    mappingGroup?: ListItemProperty;
+
+    /**
+     * The mapping object's mapping status.
+     */
+    mappingStatus?: ListItemProperty;
+
+    /**
+     * The mapping object's score category.
+     */
+    scoreCategory?: ListItemProperty,
+
+    /**
+     * The mapping object's score value
+     */
+    scoreValue?: ListItemProperty,
+
+    /**
+     * The mapping object's related score.
+     */
+    relatedScore?: FrameworkObjectProperty,
 
 }

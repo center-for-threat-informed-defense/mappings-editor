@@ -92,6 +92,8 @@ export class ListItemProperty extends Property {
 
     /**
      * Creates a new {@link ListItemProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param exportValueKey
      *  The property (on each list item) that acts as the export value.
      * @param exportTextKey
@@ -99,8 +101,8 @@ export class ListItemProperty extends Property {
      * @param options
      *  The {@link ListProperty} that lists the valid options.
      */
-    constructor(exportValueKey: string, exportTextKey: string, options: ListProperty) {
-        super();
+    constructor(name: string, exportValueKey: string, exportTextKey: string, options: ListProperty) {
+        super(name);
         this._value = null;
         this._cachedExportValue = null;
         this._cachedExportText = null;
@@ -139,8 +141,20 @@ export class ListItemProperty extends Property {
      * @returns
      *  A duplicate of the property.
      */
-    public duplicate(): ListItemProperty {
-        const property = new ListItemProperty(this.exportValueKey, this.exportTextKey, this.options);   
+    public duplicate(): ListItemProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public duplicate(name?: string): ListItemProperty {
+        const property = new ListItemProperty(
+            name ?? this.name, this.exportValueKey, 
+            this.exportTextKey, this.options
+        );   
         if(this.isValueCached()) {
             property.cacheValue(this.exportValue, this.exportText);
         } else {
@@ -156,6 +170,15 @@ export class ListItemProperty extends Property {
      */
     public toString(): string {
         return this.exportText ?? "";
+    }
+
+    /**
+     * Tests if the property's value is unset.
+     * @returns
+     *  True if the property's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        return this._value === null;
     }
 
 }

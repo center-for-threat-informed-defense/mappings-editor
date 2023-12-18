@@ -86,6 +86,16 @@ export class MappingFile {
     public readonly mappingStatuses: ListProperty;
 
     /**
+     * The file's score categories.
+     */
+    public readonly scoreCategories: ListProperty;
+
+    /**
+     * The file's score values.
+     */
+    public readonly scoreValues: ListProperty;
+
+    /**
      * The file's mapping objects.
      */
     public mappingObjects: ReadonlyMap<string, MappingObject>;
@@ -94,6 +104,23 @@ export class MappingFile {
      * The file's mapping object template.
      */
     private readonly _mappingObjectTemplate: MappingObject;
+
+
+    /**
+     * The file's default mapping status.
+     */
+    public get defaultMappingStatus(): string | null {
+        return this._mappingObjectTemplate.mappingStatus.value
+    }
+
+    /**
+     * The file's default mapping status setter.
+     */
+    public set defaultMappingStatus(value: string | null) {
+        const options = this._mappingObjectTemplate.mappingStatus.options;
+        const itemId = [...options.value.values()].find(o => o.getAsString("id") === value)?.id;
+        this._mappingObjectTemplate.mappingStatus.value = itemId ?? null;
+    }
 
 
     /**
@@ -113,6 +140,8 @@ export class MappingFile {
         this.mappingTypes = template.mappingType.options;
         this.mappingGroups = template.mappingGroup.options;
         this.mappingStatuses = template.mappingStatus.options;
+        this.scoreCategories = template.scoreCategory.options;
+        this.scoreValues = template.scoreValue.options;
         this.mappingObjects = new Map<string, MappingObject>();
         this._mappingObjectTemplate = template;
         // Configure source information

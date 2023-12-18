@@ -1,5 +1,11 @@
 import { FrameworkListing } from "./FrameworkListing";
 
+/**
+ * An {@link EditableStrictFrameworkListing} represents a STRICT list of
+ * "framework objects". Each framework object is uniquely identified by an `id`
+ * and is described with `text`. Each valid `id` / `text` pair is registered
+ * once and remains with the listing indefinitely.
+ */
 export class EditableStrictFrameworkListing extends FrameworkListing {
 
     /**
