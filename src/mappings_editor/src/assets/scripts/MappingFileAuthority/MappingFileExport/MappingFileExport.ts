@@ -2,6 +2,8 @@ import type { MappingObjectExport } from "./MappingObjectExport";
 import type { MappingGroupsExport } from "./MappingGroupsExport";
 import type { MappingTypesExport } from "./MappingTypesExport";
 import type { MappingStatusesExport } from "./MappingStatusesExport";
+import type { MappingScoreValuesExport } from "./ScoreValuesExport";
+import type { MappingScoreCategoriesExport } from "./ScoreCategoriesExport";
 
 export type MappingFileExport = {
 
@@ -71,8 +73,23 @@ export type MappingFileExport = {
     mapping_statuses: MappingStatusesExport
 
     /**
+     * The file's score categories.
+     */
+    score_categories: MappingScoreCategoriesExport;
+
+    /**
+     * The file's score values.
+     */
+    score_values: MappingScoreValuesExport;
+
+    /**
      * The file's objects.
      */
     mapping_objects: MappingObjectExport[];
+
+    /**
+     * The file's default mapping status.
+     */
+    default_mapping_status: string | null;
 
 }

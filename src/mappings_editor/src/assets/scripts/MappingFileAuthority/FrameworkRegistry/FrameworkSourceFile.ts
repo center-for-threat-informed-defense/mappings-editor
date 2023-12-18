@@ -1,7 +1,7 @@
 import type { Framework } from "./Framework/Framework";
 import { FrameworkSource } from "./FrameworkSource";
 
-export class FrameworksSourceFile extends FrameworkSource {
+export class FrameworkSourceFile extends FrameworkSource {
 
     /**
      * The framework's file.
@@ -10,7 +10,7 @@ export class FrameworksSourceFile extends FrameworkSource {
 
     
     /**
-     * Creates a {@link FrameworksSourceFile}.
+     * Creates a {@link FrameworkSourceFile}.
      * @param file
      *  The source's framework file.
      */

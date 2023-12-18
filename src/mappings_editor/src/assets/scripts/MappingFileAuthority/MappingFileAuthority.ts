@@ -6,6 +6,7 @@ import {
     EditableDynamicFrameworkListing, 
     EditableStrictFrameworkListing, 
     FrameworkObjectProperty,
+    ListItem,
     ListItemProperty, 
     ListProperty, 
     MappingObject,
@@ -73,10 +74,10 @@ export class MappingFileAuthority {
         const mappingObjectTemplate = new MappingObject({
             sourceObject       : await this.createFrameworkObjectProp(sf, sv),
             targetObject       : await this.createFrameworkObjectProp(tf, tv),
-            author             : new StringProperty(file.author),
-            authorContact      : new StringProperty(file.author_contact),
-            authorOrganization : new StringProperty(file.author_organization),
-            comments           : new StringProperty(file.author_contact)
+            author             : new StringProperty("Author", file.author),
+            authorContact      : new StringProperty("Author E-mail", file.author_contact),
+            authorOrganization : new StringProperty("Author Organization", file.author_organization),
+            comments           : new StringProperty("Comments", file.author_contact),
         });
         
         // Create mapping file
@@ -112,14 +113,14 @@ export class MappingFileAuthority {
                     listing.registerObject(object.id, object.name);
                 }
             }
-            return new StrictFrameworkObjectProperty(listing);
+            return new StrictFrameworkObjectProperty("", listing);
         }
 
         // If the registry does not have the framework...
         else {
             // ...create a dynamic framework object property
             const listing = new EditableDynamicFrameworkListing(id, version);
-            return new DynamicFrameworkObjectProperty(listing);
+            return new DynamicFrameworkObjectProperty("", listing);
         }
         
     }
@@ -142,24 +143,28 @@ export class MappingFileAuthority {
         // Create new file
         const newFile = await this.createEmptyMappingFile(file);
         
-        // Load mapping types into file
-        const mappingTypeIdToItemIdMap = this.populateListPropertyFromDictionary(
-            newFile.mappingTypes, file.mapping_types,
-            (id, { name, description }) => ({ id, name, description })
-        )
-        
-        // Load mapping groups into file
-        const mappingGroupIdToItemIdMap = this.populateListPropertyFromDictionary(
-            newFile.mappingGroups, file.mapping_groups,
-            (id, name) => ({ id, name })
+        // Load dictionaries into file lists
+        const stringTransform 
+            = (id: string, name: string) => ({ id, name });
+        const objectTransform
+            = (id: string, { name, description }: any) => ({ id, name, description });
+        const argSets: [ListProperty, { [key: string]: any }, any][] = [
+            [newFile.mappingTypes, file.mapping_types, objectTransform],
+            [newFile.mappingGroups, file.mapping_groups, stringTransform],
+            [newFile.mappingStatuses, file.mapping_statuses, stringTransform],
+            [newFile.scoreCategories, file.score_categories, stringTransform],
+            [newFile.scoreValues, file.score_values, stringTransform]
+        ];
+        const [
+            mappingTypeIdToItemIdMap,
+            mappingGroupIdToItemIdMap,
+            mappingStatusIdToItemIdMap,
+            scoreCategoryIdToItemIdMap,
+            scoreValuesIdToItemIdMap
+        ] = argSets.map(
+            args => this.populateListPropertyFromDictionary(...args)
         );
 
-        // Load mapping statuses into file
-        const mappingStatusIdToItemIdMap = this.populateListPropertyFromDictionary(
-            newFile.mappingStatuses, file.mapping_statuses,
-            (id, name) => ({ id, name })
-        );
-        
         // Load mapping objects into file
         for(const obj of file.mapping_objects) {
             // Create mapping object
@@ -179,31 +184,10 @@ export class MappingFileAuthority {
                 obj.target_framework ?? newFile.targetFramework,
                 obj.target_version ?? newFile.targetVersion
             );
-            // Configure mapping type
-            this.populateListItemProperty(
-                newObject.mappingType, obj.mapping_type, mappingTypeIdToItemIdMap,
-                mapping_type => ({
-                    name        : `Undefined Mapping Type '${ mapping_type }'`,
-                    description : `Undefined Mapping Type '${ mapping_type }'`,
-                })
-            )
-            // Configure mapping group
-            this.populateListItemProperty(
-                newObject.mappingGroup, obj.mapping_group, mappingGroupIdToItemIdMap,
-                mapping_group => ({ 
-                    name : `Undefined Mapping Group '${ mapping_group }'`
-                })
-            )
-            // Configure mapping status
-            this.populateListItemProperty(
-                newObject.mappingStatus, obj.mapping_status, mappingStatusIdToItemIdMap,
-                mapping_status => ({ 
-                    name : `Undefined Mapping Status '${ mapping_status }'`
-                })
-            )
             // Configure author
             newObject.author.value ??= file.author;
             newObject.authorContact.value ??= file.author_contact;
+            newObject.authorOrganization.value ??= file.author_organization;
             // Configure references
             for(const url of obj.references) {
                 newObject.references.insertListItem(
@@ -212,9 +196,54 @@ export class MappingFileAuthority {
             }
             // Configure comments
             newObject.comments.value = obj.comments;
+            // Configure mapping type
+            this.populateListItemProperty(
+                newObject.mappingType, obj.mapping_type, mappingTypeIdToItemIdMap,
+                mapping_type => ({
+                    name        : `Unknown Mapping Type '${ mapping_type }'`,
+                    description : `Unknown Mapping Type '${ mapping_type }'`,
+                })
+            )
+            // Configure mapping group
+            this.populateListItemProperty(
+                newObject.mappingGroup, obj.mapping_group, mappingGroupIdToItemIdMap,
+                mapping_group => ({ 
+                    name : `Unknown Mapping Group '${ mapping_group }'`
+                })
+            )
+            // Configure mapping status
+            this.populateListItemProperty(
+                newObject.mappingStatus, obj.mapping_status, mappingStatusIdToItemIdMap,
+                mapping_status => ({ 
+                    name : `Unknown Mapping Status '${ mapping_status }'`
+                })
+            )
+            // Configure score category
+            this.populateListItemProperty(
+                newObject.scoreCategory, obj.score_category, scoreCategoryIdToItemIdMap,
+                score_category => ({ 
+                    name : `Unknown Score Category '${ score_category }'`
+                })
+            );
+            // Configure score value
+            this.populateListItemProperty(
+                newObject.scoreValue, obj.score_value, scoreValuesIdToItemIdMap,
+                score_value => ({ 
+                    name : `Unknown Score Value '${ score_value }'`
+                })
+            );
+            // Configure related score
+            if(newObject.targetObject.framework.options.has(obj.related_score)) {
+                newObject.relatedScore.objectId = obj.related_score;
+            } else {
+                newObject.relatedScore.cacheObjectValue(obj.related_score, null);
+            }
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
+
+        // Set default mapping status
+        newFile.defaultMappingStatus = file.default_mapping_status;
 
         return newFile;
 
@@ -349,8 +378,8 @@ export class MappingFileAuthority {
         prop: ListProperty,
         object: { [key: string]: any },
         defineItem: (key: string, value: any) => { [key: string]: any }
-    ): Map<string | null, string> {
-        const keyToItemIdMap = new Map<string | null, string>();
+    ): Map<string, string> {
+        const keyToItemIdMap = new Map<string, string>();
         for(const key in object) {
             const item = prop.createNewItem(defineItem(key, object[key]));
             prop.insertListItem(item);
@@ -375,18 +404,23 @@ export class MappingFileAuthority {
     private populateListItemProperty(
         prop: ListItemProperty,
         exportValue: string | null,
-        exportValueToItemId: Map<string | null, string>,
+        exportValueToItemId: Map<string, string>,
         defineUnknownItem: (exportValue: string | null) => { [key: string]: any }
     ) {
-        let itemId = exportValueToItemId.get(exportValue);
-        if(!itemId) {
-            const item = prop.options.createNewItem({
-                ...defineUnknownItem(exportValue),
-                [prop.exportValueKey]: exportValue,
-            });
-            exportValueToItemId.set(exportValue, item.id);
-            prop.options.insertListItem(item);
-            itemId = item.id;
+        let itemId;
+        if(exportValue) {
+            itemId = exportValueToItemId.get(exportValue);
+            if(!itemId) {
+                const item = prop.options.createNewItem({
+                    ...defineUnknownItem(exportValue),
+                    [prop.exportValueKey]: exportValue,
+                });
+                exportValueToItemId.set(exportValue, item.id);
+                prop.options.insertListItem(item);
+                itemId = item.id;
+            }
+        } else {
+            itemId = null;
         }
         prop.value = itemId;
     }
@@ -439,39 +473,31 @@ export class MappingFileAuthority {
      */
     public exportMappingFile(file: MappingFile): MappingFileExport {
         
-        // Compile mapping types list
-        const mapping_types = new Map();
-        this.deduplicateListProperty(file.mappingTypes, "id")
-        for(const type of file.mappingTypes.value.values()) {
-            mapping_types.set(
-                type.getAsString("id"),
-                { 
-                    name        : type.getAsString("name"),
-                    description : type.getAsString("description")
-                }
-            );
-        }
-        
-        // Compile mapping groups list
-        const mapping_groups = new Map();
-        this.deduplicateListProperty(file.mappingGroups, "id");
-        for(const type of file.mappingGroups.value.values()) {
-            mapping_groups.set(
-                type.getAsString("id"),
-                type.getAsString("name")
-            );
-        }
+        // Convert list properties to maps
+        const stringTransform 
+            = (item: ListItem) => item.getAsString("name");
+        const objectTransform
+            = (item: ListItem) => ({ 
+                name        : item.getAsString("name"),
+                description : item.getAsString("description")
+            });
+        const argSets: [ListProperty, string, any][] = [
+            [file.mappingTypes, "id", objectTransform],
+            [file.mappingGroups, "id", stringTransform],
+            [file.mappingStatuses, "id", stringTransform],
+            [file.scoreCategories, "id", stringTransform],
+            [file.scoreValues, "id", stringTransform]
+        ];
+        const [
+            mapping_types,
+            mapping_groups,
+            mapping_statuses,
+            score_categories,
+            score_values
+        ] = argSets.map(
+            args => this.convertListPropertyToDictionary(...args)
+        );
 
-        // Compile mapping status list
-        const mapping_statuses = new Map();
-        this.deduplicateListProperty(file.mappingStatuses, "id");
-        for(const type of file.mappingStatuses.value.values()) {
-            mapping_statuses.set(
-                type.getAsString("id"),
-                type.getAsString("name")
-            );
-        }
-        
         // Compile mapping objects list
         const mapping_objects: MappingObjectExport[] = [];
         for(const object of file.mappingObjects.values()) {
@@ -480,42 +506,74 @@ export class MappingFileAuthority {
                 .map(o => o.getAsString("url"))
             // Compile mapping object
             mapping_objects.push({
-                source_id        : object.sourceObject.objectId,
-                source_text      : object.sourceObject.objectText,
-                source_version   : object.sourceObject.objectVersion,
-                source_framework : object.sourceObject.objectFramework,
-                target_id        : object.targetObject.objectId,
-                target_text      : object.targetObject.objectText,
-                target_version   : object.targetObject.objectVersion,
-                target_framework : object.targetObject.objectFramework,
-                mapping_type     : object.mappingType.exportValue,
-                mapping_group    : object.mappingGroup.exportValue,
-                mapping_status   : object.mappingStatus.exportValue,
-                author           : object.author.value,
-                author_contact   : object.authorContact.value,
+                source_id           : object.sourceObject.objectId,
+                source_text         : object.sourceObject.objectText,
+                source_version      : object.sourceObject.objectVersion,
+                source_framework    : object.sourceObject.objectFramework,
+                target_id           : object.targetObject.objectId,
+                target_text         : object.targetObject.objectText,
+                target_version      : object.targetObject.objectVersion,
+                target_framework    : object.targetObject.objectFramework,
+                author              : object.author.value,
+                author_contact      : object.authorContact.value,
+                author_organization : object.authorOrganization.value,
                 references,
-                comments         : object.comments.value,
+                comments            : object.comments.value,
+                mapping_type        : object.mappingType.exportValue,
+                mapping_group       : object.mappingGroup.exportValue,
+                mapping_status      : object.mappingStatus.exportValue,
+                score_category      : object.scoreCategory.exportValue,
+                score_value         : object.scoreValue.exportValue,
+                related_score       : object.relatedScore.objectId
             });
         }
         
         // Compile file
         return {
-            version               : file.version,
-            source_framework      : file.sourceFramework,
-            source_version        : file.sourceVersion,
-            target_framework      : file.targetFramework,
-            target_version        : file.targetVersion,
-            author                : file.author.value,
-            author_contact        : file.authorContact.value,
-            author_organization   : file.authorOrganization.value,
-            creation_date         : file.creationDate,
-            modified_date         : file.modifiedDate,
-            mapping_types         : Object.fromEntries(mapping_types),
-            mapping_groups        : Object.fromEntries(mapping_groups),
-            mapping_statuses      : Object.fromEntries(mapping_statuses),
-            mapping_objects  
+            version                : file.version,
+            source_framework       : file.sourceFramework,
+            source_version         : file.sourceVersion,
+            target_framework       : file.targetFramework,
+            target_version         : file.targetVersion,
+            author                 : file.author.value,
+            author_contact         : file.authorContact.value,
+            author_organization    : file.authorOrganization.value,
+            creation_date          : file.creationDate,
+            modified_date          : file.modifiedDate,
+            mapping_types          : Object.fromEntries(mapping_types),
+            mapping_groups         : Object.fromEntries(mapping_groups),
+            mapping_statuses       : Object.fromEntries(mapping_statuses),
+            score_categories       : Object.fromEntries(score_categories),
+            score_values           : Object.fromEntries(score_values),
+            default_mapping_status : file.defaultMappingStatus,
+            mapping_objects
         }
 
+    }
+
+    /**
+     * Coverts a {@link ListProperty} to a dictionary of values. 
+     * @param prop
+     *  The {@link ListProperty} to convert.
+     * @param key
+     *  The identifying subproperty of each {@link ListItem}.
+     * @param defineValue
+     *  A function which accepts a list item and returns the item's dictionary value.
+     * @returns
+     *  A dictionary of values.
+     */
+    private convertListPropertyToDictionary(
+        prop: ListProperty,
+        key: string,
+        defineValue: (item: ListItem) => any
+    ) {
+        const map = new Map();
+        const clone = prop.duplicate();
+        this.deduplicateListProperty(clone, key);
+        for(const item of clone.value.values()) {
+            map.set(item.getAsString(key), defineValue(item));
+        }
+        return map;
     }
 
     /**
