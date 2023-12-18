@@ -1,5 +1,6 @@
-import { GroupCommand, type EditorCommand } from ".";
-import { FreeFrameworkObjectProperty, MappingFile, MappingObject, StringProperty } from "../MappingFile";
+import { toRaw } from "vue";
+import { EditableStrictFrameworkListing, MappingFile, MappingObject, StrictFrameworkObjectProperty, StringProperty } from "../MappingFile";
+import { GroupCommand, EditorCommand, MappingFileView, EditorDirectives, CameraCommand } from ".";
 
 export class MappingFileEditor {
 
@@ -19,6 +20,11 @@ export class MappingFileEditor {
      * The editor's Mapping File.
      */
     public readonly file: MappingFile;
+
+    /**
+     * The editor's file view.
+     */
+    public readonly view: MappingFileView;
 
     /**
      * The editor's undo stack.
@@ -55,6 +61,17 @@ export class MappingFileEditor {
     constructor(file: MappingFile) {
         this.id = file.id;
         this.file = file;
+        this.view = new MappingFileView(
+            this.file,
+            {
+                sectionHeight: 33,
+                sectionPaddingHeight: 10,
+                objectHeightCollapsed: 42,
+                objectHeightUncollapsed: 285,
+                objectPaddingHeight: 6,
+                loadMargin: 0
+            }
+        );
         this._undoStack = [];
         this._redoStack = [];
     }
@@ -85,9 +102,52 @@ export class MappingFileEditor {
             cmd = grp;
         }
         // Execute command
-        if(cmd.execute()) {
+        const directives = cmd.execute();
+        if(directives & EditorDirectives.Record) {
             this._redoStack = [];
             this._undoStack.push(cmd);
+        }
+        this.executeDirectives(cmd, directives);
+    }
+
+    /**
+     * Executes a command's {@link EditorDirectives}.
+     * @param cmd
+     *  The command.
+     * @param dirs
+     *  The command's editor directives.
+     */
+    public executeDirectives(cmd: EditorCommand, dirs: EditorDirectives) {
+        // Update view
+        if(dirs & EditorDirectives.RebuildBreakouts) {
+            // Perform rebuild on raw object to improve performance
+            this.view.rebuildBreakouts(toRaw);
+        } else if(dirs & EditorDirectives.RecalculatePositions) {
+            // Perform rebuild on raw object to improve performance
+            this.view.recalculateViewItemPositions(toRaw);
+        }
+        // Get camera commands
+        let cameraCommands: CameraCommand[] = [];
+        if(cmd instanceof GroupCommand) {
+            cameraCommands = cmd.cameraCommands;
+        } else if(cmd instanceof CameraCommand) {
+            cameraCommands = [cmd];
+        }
+        // Select camera items
+        if(dirs & EditorDirectives.ExclusiveSelect) {
+            this.view.unselectAllViewItems();
+            for(const cmd of cameraCommands) {
+                this.view.selectViewItem(cmd.id);
+            }
+        }
+        // Move camera
+        if(dirs & EditorDirectives.MoveCamera && cameraCommands[0]) {
+            this.view.moveToViewItem(
+                cameraCommands[0].id,
+                cameraCommands[0].position,
+                cameraCommands[0].fromHangers,
+                cameraCommands[0].strict
+            );
         }
     }
 
@@ -102,8 +162,10 @@ export class MappingFileEditor {
      */
     public undo() {
         if(this._undoStack.length) {
-            this._undoStack[this._undoStack.length - 1].undo();
+            const cmd = this._undoStack[this._undoStack.length - 1];
+            const directives = cmd.undo();
             this._redoStack.push(this._undoStack.pop()!);
+            this.executeDirectives(cmd, directives);
         }
     }
 
@@ -121,8 +183,10 @@ export class MappingFileEditor {
      */
     public redo() {
         if(this._redoStack.length) {
-            this._redoStack[this._redoStack.length - 1].execute();
+            const cmd = this._redoStack[this._redoStack.length - 1];
+            const directives = cmd.redo();
             this._undoStack.push(this._redoStack.pop()!);
+            this.executeDirectives(cmd, directives);
         }
     }
 
@@ -146,12 +210,13 @@ export class MappingFileEditor {
      *  The phantom {@link MappingFile}.
      */
     private static createPhantomPage(): MappingFile {
+        const framework = new EditableStrictFrameworkListing("NONE", "0.0.0");
         return new MappingFile({
             creationDate: new Date(),
             modifiedDate: new Date(),
             mappingObjectTemplate: new MappingObject({
-                sourceObject: new FreeFrameworkObjectProperty("NONE", "0.0.0"),
-                targetObject: new FreeFrameworkObjectProperty("NONE", "0.0.0"),
+                sourceObject: new StrictFrameworkObjectProperty(framework),
+                targetObject: new StrictFrameworkObjectProperty(framework),
                 author: new StringProperty("PHANTOM"),
                 authorContact: new StringProperty("PHANTOM@SPECTER.ORG"),
                 authorOrganization: new StringProperty("SPECTER LLC."),

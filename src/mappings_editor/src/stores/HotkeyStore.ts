@@ -2,7 +2,7 @@ import * as AppCommands from "@/assets/scripts/Application/Commands";
 import { defineStore } from 'pinia'
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
-import type { Hotkey } from '@/assets/scripts/Utilities';
+import type { Hotkey } from "@/assets/scripts/Utilities";
 import type { CommandEmitter } from '@/assets/scripts/Application';
 
 export const useHotkeyStore = defineStore('hotkeyStore', {
@@ -74,19 +74,19 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
          */
         editHotKeys(): Hotkey<CommandEmitter>[] {
             const app = useApplicationStore();
-            const page = app.activeEditor;
             const edit = app.settings.hotkeys.edit;
+            const editor = app.activeEditor as MappingFileEditor;
             return [
-                // {
-                //     data: () => AppCommands.undoPageCommand(ctx, page.instance),
-                //     shortcut: edit.undo,
-                //     repeatable: true
-                // },
-                // {
-                //     data: () => AppCommands.redoPageCommand(ctx, page.instance),
-                //     shortcut: edit.redo,
-                //     repeatable: true
-                // }
+                {
+                    data: () => AppCommands.undoEditorCommand(editor),
+                    shortcut: edit.undo,
+                    repeatable: true
+                },
+                {
+                    data: () => AppCommands.redoEditorCommand(editor),
+                    shortcut: edit.redo,
+                    repeatable: true
+                }
             ];
         },
 

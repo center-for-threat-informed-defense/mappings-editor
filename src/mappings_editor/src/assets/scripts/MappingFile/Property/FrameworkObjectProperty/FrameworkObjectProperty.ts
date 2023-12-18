@@ -1,27 +1,28 @@
+import type { FrameworkListing } from ".";
 import { Property } from "../Property";
 
 export abstract class FrameworkObjectProperty extends Property {
 
     /**
-     * The framework object's internal framework.
+     * The object's internal framework.
      */
     protected _objectFramework: string;
 
     /**
-     * The framework object's internal framework version.
+     * The object's internal framework version.
      */
     protected _objectVersion: string;
 
 
     /**
-     * The framework object's framework.
+     * The object's framework.
      */
     get objectFramework(): string {
         return this._objectFramework;
     }
 
     /**
-     * The framework object's framework version.
+     * The object's framework version.
      */
     get objectVersion(): string {
         return this._objectVersion;
@@ -33,47 +34,93 @@ export abstract class FrameworkObjectProperty extends Property {
     abstract get objectId(): string | null;
 
     /**
-     * The framework object id's setter.
+     * The object's id setter.
      */
     abstract set objectId(value: string | null);
 
     /**
-     * The framework object's text.
+     * The object's text.
      */
     abstract get objectText(): string | null;
 
     /**
-     * The framework object text's setter.
+     * The object's text setter.
      */
     abstract set objectText(value: string | null);
+
+    /**
+     * The property's framework listing.
+     */
+    abstract get framework(): FrameworkListing;
 
 
     /**
      * Creates a new {@link FrameworkObjectProperty}.
-     * @param objectFramework
-     *  The framework object's framework.
-     * @param objectVersion
-     *  The framework object's framework version.
+     * @param framework
+     *  The property's framework listing.
      */
-    constructor(objectFramework: string, objectVersion: string) {
+    constructor(framework: FrameworkListing) {
         super();
-        this._objectFramework = objectFramework;
-        this._objectVersion = objectVersion;
+        this._objectFramework = framework.id;
+        this._objectVersion = framework.version;
     }
 
 
     /**
-     * Forcibly sets the framework object's value.
+     * Sets the property's object value. If the specified object value is
+     * invalid, the value is cached instead. 
      * @param id 
      *  The framework object's id.
-     * @param text
+     * @param text 
      *  The framework object's text.
      * @param framework
      *  The framework object's framework.
      * @param version
      *  The framework object's framework version.
+     * @returns
+     *  True if the object value was set successfully, false if it was cached.
      */
-    abstract forceSet(id: string | null, text: string | null, framework: string, version: string): void;
+    abstract setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean;
+
+    /**
+     * Caches the provided object value and, if necessary, removes the object's
+     * current value from the underlying framework listing. If no value is
+     * provided, the object's current value is cached instead.
+     * 
+     * This function allows a property to be set with an invalid object value
+     * (one not included in the framework listing). It also allows a valid
+     * object value to be temporarily withheld from the framework listing. 
+     * 
+     * The latter can be useful when deleting a FrameworkObjectProperty from a
+     * document. While the property is deleted, its value might not need to
+     * appear in the underlying framework listing. However, we still want to
+     * store its original value so we have the option of restoring it later.
+     * @param id 
+     *  The object's id.
+     * @param text
+     *  The object's text.
+     * @param framework
+     *  The object's framework.
+     * @param version
+     *  The object's framework version.
+     */
+    abstract cacheObjectValue(id?: string | null, text?: string | null, framework?: string, version?: string): void;
+
+    /**
+     * Attempts to uncache the property's current object value.
+     * @returns
+     *  True if the object value was successfully uncached, false otherwise.
+     */
+    public tryUncacheObjectValue(): boolean {
+        return this.setObjectValue(this.objectId, this.objectText);   
+    }
+
+    /**
+     * Tests if the property's object value is cached.
+     * @returns
+     *  True if the property's object value is cached, false otherwise.
+     */
+    abstract isObjectValueCached(): boolean;
 
     /**
      * Duplicates the object property.

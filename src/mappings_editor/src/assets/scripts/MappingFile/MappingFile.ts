@@ -1,5 +1,5 @@
 import { randomUUID } from "../Utilities";
-import { ListProperty, StringProperty } from ".";
+import { FrameworkListing, ListProperty, StringProperty } from ".";
 import type { MappingObject } from "./MappingObject";
 import type { MappingFileConfiguration } from "./MappingFileConfiguration";
 
@@ -16,6 +16,11 @@ export class MappingFile {
     public readonly version: string;
 
     /**
+     * The file's source framework listing.
+     */
+    public readonly sourceFrameworkListing: FrameworkListing;
+
+    /**
      * The file's source framework.
      */
     public readonly sourceFramework: string;
@@ -24,6 +29,11 @@ export class MappingFile {
      * The file's source framework version.
      */
     public readonly sourceVersion: string;
+
+    /**
+     * The file's target framework listing.
+     */
+    public readonly targetFrameworkListing: FrameworkListing;
 
     /**
      * The file's target framework.
@@ -78,7 +88,7 @@ export class MappingFile {
     /**
      * The file's mapping objects.
      */
-    public readonly mappingObjects: ReadonlyMap<string, MappingObject>;
+    public mappingObjects: ReadonlyMap<string, MappingObject>;
 
     /**
      * The file's mapping object template.
@@ -95,10 +105,6 @@ export class MappingFile {
         const template = config.mappingObjectTemplate;
         this.id = randomUUID();
         this.version = ""
-        this.sourceFramework = template.sourceObject.objectFramework;
-        this.sourceVersion = template.sourceObject.objectVersion;
-        this.targetFramework = template.targetObject.objectFramework;
-        this.targetVersion = template.targetObject.objectVersion;
         this.author = template.author;
         this.authorContact = template.authorContact;
         this.authorOrganization = template.authorOrganization;
@@ -109,6 +115,16 @@ export class MappingFile {
         this.mappingStatuses = template.mappingStatus.options;
         this.mappingObjects = new Map<string, MappingObject>();
         this._mappingObjectTemplate = template;
+        // Configure source information
+        const sourceListing = template.sourceObject.framework;
+        this.sourceFrameworkListing = sourceListing;
+        this.sourceFramework = sourceListing.id;
+        this.sourceVersion = sourceListing.version;
+        // Configure target information
+        const targetListing = template.targetObject.framework;
+        this.targetFrameworkListing = targetListing;
+        this.targetFramework = targetListing.id;
+        this.targetVersion = targetListing.version;
     }
 
 
@@ -128,17 +144,59 @@ export class MappingFile {
     public createMappingObject(): MappingObject {
         return this._mappingObjectTemplate.duplicate();
     }
+    
+    /**
+     * Returns the index of a mapping object in the file.
+     * @param id
+     *  The mapping object's id.
+     * @returns
+     *  The index of a mapping object in the file.
+     */
+    public getMappingObjectIndex(id: string): number;
+
+    /**
+     * Returns the index of a mapping object in the file.
+     * @param id
+     *  The mapping object.
+     * @returns
+     *  The index of a mapping object in the file.
+     */
+    public getMappingObjectIndex(obj: MappingObject): number;
+    public getMappingObjectIndex(obj: MappingObject | string): number {
+        const id = typeof obj === "string" ? obj : obj.id;
+        return [...this.mappingObjects.keys()].findIndex(o => o === id);
+    }
 
     /**
      * Inserts a mapping object into the mapping file.
      * @param object
      *  The mapping object to insert.
      */
-    public insertMappingObject(object: MappingObject) {
+    public insertMappingObject(object: MappingObject): void;
+    
+    /**
+     * Inserts a mapping object into the mapping file.
+     * @param object
+     *  The mapping object to insert.
+     * @param index
+     *  The index to insert the object at.
+     */
+    public insertMappingObject(object: MappingObject, index: number): void;
+    public insertMappingObject(object: MappingObject, index?: number) {
+        if(this.mappingObjects.has(object.id)) {
+            throw new Error(`Mapping file already contains object '${ object.id }'.`);
+        }
         // Configure object's file
         object.file = this;
         // Configure file's object
-        (this.mappingObjects as Map<string, MappingObject>).set(object.id, object);
+        if(index !== undefined) {
+            const items = [...this.mappingObjects];
+            items.splice(index, 0, [object.id, object]);
+            this.mappingObjects = new Map(items);
+        } else {
+            (this.mappingObjects as Map<string, MappingObject>)
+                .set(object.id, object);
+        }
     }
 
     /**

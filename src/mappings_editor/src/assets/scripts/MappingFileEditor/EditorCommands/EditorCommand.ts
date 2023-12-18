@@ -9,12 +9,21 @@ export abstract class EditorCommand {
 
 
     /**
-     * Executes an editor command.
+     * Executes the editor command.
      * @returns
      *  The command's directives.
      */
     abstract execute(): EditorDirectives;
 
+    /**
+     * Redoes the editor command.
+     * @returns
+     *  The command's directives.
+     */
+    public redo(): EditorDirectives {
+        return this.execute();
+    }
+ 
     /**
      * Undoes the editor command.
      * @returns

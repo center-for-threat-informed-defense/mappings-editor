@@ -15,14 +15,6 @@ export class ListItem {
 
 
     /**
-     * The list item's properties.
-     */
-    public get properties(): ReadonlyMap<string, Property> {
-        return this._properties;
-    }
-
-
-    /**
      * Creates a new {@link ListItem}.
      */
     constructor(properties: Map<string, Property>) {
@@ -30,10 +22,34 @@ export class ListItem {
         this._properties = properties;
     }
 
-    public getAsString(key: string): string {
-        const prop = this.properties.get(key);
+
+    /**
+     * Returns a property from the item, if it exists.
+     * @param key
+     *  The property's name.
+     * @returns
+     *  The property.
+     */
+    public get(key: string): Property {
+        const prop = this._properties.get(key);
         if(!prop) {
-            throw new Error(`No property'${ key }'.`)
+            throw new Error(`No property '${ key }'.`)
+        } else {
+            return prop;
+        }
+    }
+
+    /**
+     * Returns a property from the item as a string.
+     * @param key
+     *  The property's name.
+     * @returns
+     *  The property as a string.
+     */
+    public getAsString(key: string): string {
+        const prop = this._properties.get(key);
+        if(!prop) {
+            throw new Error(`No property '${ key }'.`)
         } else {
             return prop.toString();
         }

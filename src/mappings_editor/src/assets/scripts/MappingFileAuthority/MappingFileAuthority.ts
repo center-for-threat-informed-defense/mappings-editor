@@ -5,8 +5,7 @@ import {
     DynamicFrameworkObjectProperty, 
     EditableDynamicFrameworkListing, 
     EditableStrictFrameworkListing, 
-    FrameworkObjectProperty, 
-    FreeFrameworkObjectProperty,
+    FrameworkObjectProperty,
     ListItemProperty, 
     ListProperty, 
     MappingObject,
@@ -110,7 +109,7 @@ export class MappingFileAuthority {
             for(const name in framework.categories) {
                 const category = framework.categories[name];
                 for(const object of category){
-                    listing.registerListing(object.id, object.name);
+                    listing.registerObject(object.id, object.name);
                 }
             }
             return new StrictFrameworkObjectProperty(listing);
@@ -252,10 +251,6 @@ export class MappingFileAuthority {
             this.populateDynamicFrameworkObjectProperty(
                 prop, objId, objText, objFramework, objVersion
             );
-        }
-        // Attempt to load free value
-        else if(prop instanceof FreeFrameworkObjectProperty) {
-            prop.forceSet(objId, objText, objFramework, objVersion);
         } else {
             throw new Error(`Cannot load framework object into type '${ prop.constructor.name }'.`);
         }
@@ -294,7 +289,7 @@ export class MappingFileAuthority {
             objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
             objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION;
         }
-        prop.forceSet(objId, objText, objFramework, objVersion);
+        prop.cacheObjectValue(objId, objText, objFramework, objVersion);
     }
 
     /**
@@ -327,14 +322,14 @@ export class MappingFileAuthority {
                 } else {
                     objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
                     objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION
-                    prop.forceSet(objId, objText, objFramework, objVersion);
+                    prop.cacheObjectValue(objId, objText, objFramework, objVersion);
                 }
             } else {
                 prop.objectId = objId;
                 prop.objectText = objText;
             }
         } else {
-            prop.forceSet(objId, objText, objFramework, objVersion);
+            prop.cacheObjectValue(objId, objText, objFramework, objVersion);
         }
     }
 
@@ -482,7 +477,7 @@ export class MappingFileAuthority {
         for(const object of file.mappingObjects.values()) {
             // Compile references
             const references = [...object.references.value.values()]
-                .map(o => o.properties.get("url")!.toString())
+                .map(o => o.getAsString("url"))
             // Compile mapping object
             mapping_objects.push({
                 source_id        : object.sourceObject.objectId,
@@ -534,10 +529,8 @@ export class MappingFileAuthority {
     private deduplicateListProperty(prop: ListProperty, key: string) {
         const ids = new Set();
         for(const type of prop.value.values()) {
-            const subProp = type.properties.get(key);
-            if(!subProp) {
-                throw new Error(`No subproperty '${ key }'.`)
-            } else if(subProp instanceof StringProperty) {
+            const subProp = type.get(key);
+            if(subProp instanceof StringProperty) {
                 let id = subProp.value;
                 for(let i = 1; ids.has(id); id = `${ subProp }_${ i }`);
                 subProp.value = id;

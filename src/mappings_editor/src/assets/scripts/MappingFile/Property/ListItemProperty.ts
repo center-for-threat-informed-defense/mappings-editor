@@ -17,12 +17,12 @@ export class ListItemProperty extends Property {
     /**
      * The property's cached export value.
      */
-    private _cachedExportValue: string;
+    private _cachedExportValue: string | null;
 
     /**
      * The property's cached export text.
      */
-    private _cachedExportText: string;
+    private _cachedExportText: string | null;
 
     /**
      * The property's export value key.
@@ -54,17 +54,9 @@ export class ListItemProperty extends Property {
         if(!value) {
             throw new Error(`List does not contain item '${id}'.`)
         }
-        const idProperty = value.properties.get(this.exportValueKey);
-        if(!idProperty) {
-            throw new Error(`List item has no property '${ this.exportValueKey }'.`);
-        }
-        const textProperty = value.properties.get(this.exportTextKey);
-        if(!textProperty) {
-            throw new Error(`List item has no property '${ this.exportTextKey }'.`);
-        }
         this._value = value.id;
-        this._cachedExportValue = idProperty.toString();
-        this._cachedExportText = textProperty.toString();
+        this._cachedExportValue = this.exportValue;
+        this._cachedExportText = this.exportText;
     }
 
     /**
@@ -74,14 +66,11 @@ export class ListItemProperty extends Property {
         if(this._value === null) {
             return null;
         }
-        const item = this.options.value.get(this._value);
-        if(!item) {
+        if(this.isValueCached()) {
             return this._cachedExportValue;
         }
-        const property = item.properties.get(this.exportValueKey);
-        if(!property) {
-            throw new Error(`List item has no property '${ this.exportValueKey }'.`);
-        }
+        const item = this.options.value.get(this._value)!;
+        const property = item.get(this.exportValueKey);
         return property.toString();
     }
 
@@ -92,14 +81,11 @@ export class ListItemProperty extends Property {
         if(this._value === null) {
             return null;
         }
-        const item = this.options.value.get(this._value);
-        if(!item) {
+        if(this.isValueCached()) {
             return this._cachedExportText;
         }
-        const property = item.properties.get(this.exportTextKey);
-        if(!property) {
-            throw new Error(`List item has no property '${ this.exportTextKey }'.`);
-        }
+        const item = this.options.value.get(this._value)!;
+        const property = item.get(this.exportTextKey);
         return property.toString();
     }
 
@@ -116,8 +102,8 @@ export class ListItemProperty extends Property {
     constructor(exportValueKey: string, exportTextKey: string, options: ListProperty) {
         super();
         this._value = null;
-        this._cachedExportValue = "???";
-        this._cachedExportText = "???";
+        this._cachedExportValue = null;
+        this._cachedExportText = null;
         this.exportValueKey = exportValueKey;
         this.exportTextKey = exportTextKey;
         this.options = options;
@@ -125,28 +111,27 @@ export class ListItemProperty extends Property {
 
 
     /**
-     * Forcibly sets the list item's value.
+     * Caches the provided list item's value. This function allows the property
+     * to be set with an invalid value (one not included in the list property).
      * @param exportValue
      *  The export value.
      * @param exportText
      *  The export text.
      */
-    public forceSetValue(exportValue: string, exportText: string): void;
-
-    /**
-     * Forcibly sets the list item's value.
-     * @param exportValue
-     *  The export value.
-     * @param exportText
-     *  The export text.
-     * @param value
-     *  The value.
-     */
-    public forceSetValue(exportValue: string, exportText: string, value: string | null): void; 
-    public forceSetValue(exportValue: string, exportText: string, value?: string | null) {
-        this._value = value ?? randomUUID();
+    public cacheValue(exportValue: string | null, exportText: string | null): void; 
+    public cacheValue(exportValue: string | null, exportText: string | null) {
+        this._value = randomUUID();
         this._cachedExportValue = exportValue;
         this._cachedExportText = exportText;
+    }
+
+    /**
+     * Tests if the property's value is cached.
+     * @returns
+     *  True if the property's value is cached, false otherwise.
+     */
+    public isValueCached(): boolean {
+        return this._value !== null && !this.options.value.has(this._value)
     }
 
     /**
@@ -156,7 +141,11 @@ export class ListItemProperty extends Property {
      */
     public duplicate(): ListItemProperty {
         const property = new ListItemProperty(this.exportValueKey, this.exportTextKey, this.options);   
-        property.forceSetValue(this._cachedExportValue, this._cachedExportText, this._value);
+        if(this.isValueCached()) {
+            property.cacheValue(this.exportValue, this.exportText);
+        } else {
+            property.value = this.value;
+        }
         return property;
     }
 

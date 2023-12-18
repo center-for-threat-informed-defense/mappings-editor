@@ -34,7 +34,6 @@ export class LoadFile extends AppCommand {
      * Executes the command.
      */
     public execute(): void {
-        console.log(this._editor);
         this._context.activeEditor = this._editor;
     }
 
