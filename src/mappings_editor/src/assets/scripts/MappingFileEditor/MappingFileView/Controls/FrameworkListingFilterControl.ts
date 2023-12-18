@@ -13,14 +13,18 @@ export class FrameworkListingFilterControl extends FilterControl {
      * The control's set of valid options.
      */
     public get options(): ReadonlyMap<string, string> {
-        const options = new Map();
+        let options = new Map();
         for(const [value, text] of this._framework.options) {
             if(value === null) {
-                options.set(null, "No Value")
+                continue;
             } else {
                 options.set(value, `${ value }: ${ text }`);
             }
         }
+        options = new Map(
+            [...options].sort((a,b) => a[1].localeCompare(b[1]))
+        )
+        options.set(null, "No Value")
         return options;
     }
 

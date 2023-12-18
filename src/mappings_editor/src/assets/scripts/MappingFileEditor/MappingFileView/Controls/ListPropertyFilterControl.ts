@@ -23,6 +23,8 @@ export class ListPropertyFilterControl extends FilterControl {
             [...this._options.value].map(
                 ([id, o]) => [id, o.getAsString(this._textKey)]
             );
+        // Sort items
+        options.sort((a,b) => a[1].localeCompare(b[1]))
         // Add null option
         options.push([null, "No Value"]);
         // Return complete set of options
