@@ -35,7 +35,7 @@ export type MappingObjectConfiguration = {
     /**
      * The mapping object's comments.
      */
-    comments: StringProperty;
+    comments?: StringProperty;
 
     /**
      * The mapping object's mapping type.

@@ -148,7 +148,7 @@ export class MappingObject {
                 ["url", new StringProperty("URL")]
             ]))
         )
-        this.comments = config.comments;
+        this.comments = config.comments ?? new StringProperty("Comments");
         this.scoreCategory = config.scoreCategory ?? new ListItemProperty(
             "Score Category", "id", "name", 
             new ListProperty(
@@ -169,8 +169,7 @@ export class MappingObject {
                 ]))
             )
         ),
-        this.relatedScore = config.relatedScore ?? 
-            this.targetObject.duplicate("Related Score");
+        this.relatedScore = config.relatedScore ?? this.targetObject.duplicate("Related Score");
         this.file = null;
     }
 

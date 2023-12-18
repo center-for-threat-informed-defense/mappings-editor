@@ -76,8 +76,7 @@ export class MappingFileAuthority {
             targetObject       : await this.createFrameworkObjectProp(tf, tv),
             author             : new StringProperty("Author", file.author),
             authorContact      : new StringProperty("Author E-mail", file.author_contact),
-            authorOrganization : new StringProperty("Author Organization", file.author_organization),
-            comments           : new StringProperty("Comments", file.author_contact),
+            authorOrganization : new StringProperty("Author Organization", file.author_organization)
         });
         
         // Create mapping file
@@ -143,6 +142,8 @@ export class MappingFileAuthority {
         // Create new file
         const newFile = await this.createEmptyMappingFile(file);
         
+        // TODO: Load these dictionaries in createEmptyMappingFile()
+
         // Load dictionaries into file lists
         const stringTransform 
             = (id: string, name: string) => ({ id, name });
