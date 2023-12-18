@@ -1,10 +1,26 @@
+import { SetStringProperty } from "./SetStringProperty";
 import { SetListItemProperty } from "./SetListItemProperty";
+import { AddItemToListProperty } from "./AddItemToListProperty";
+import { DeleteItemFromListProperty } from "./DeleteItemFromListProperty";
 import { SetFrameworkObjectPropertyId } from "./SetFrameworkObjectPropertyId";
 import { SetFrameworkObjectPropertyText } from "./SetFrameworkObjectPropertyText";
-import type { EditorCommand } from "..";
-import type { DynamicFrameworkObjectProperty, FrameworkObjectProperty, ListItemProperty } from "@/assets/scripts/MappingFile";
 import { EnterDynamicFrameworkObjectProperty } from "./EnterDynamicFrameworkObjectProperty";
 import { ExitDynamicFrameworkObjectProperty } from "./ExitDynamicFrameworkObjectProperty";
+import type { EditorCommand } from "..";
+import type { DynamicFrameworkObjectProperty, FrameworkObjectProperty, ListItem, ListItemProperty, ListProperty, StringProperty } from "@/assets/scripts/MappingFile";
+
+/**
+ * Sets the value of a {@link StringProperty}.
+ * @param prop
+ *  The {@link StringProperty}.
+ * @param value
+ *  The {@link StringProperty}'s new value.
+ * @returns
+ *  A command that represents the action.
+ */
+export function setStringProperty(prop: StringProperty, value: string | null): EditorCommand {
+    return new SetStringProperty(prop, value); 
+}
 
 /**
  * Sets the value of a {@link ListProperty}.
@@ -68,4 +84,32 @@ export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObject
  */
 export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EditorCommand {
     return new ExitDynamicFrameworkObjectProperty(prop);
+}
+
+/**
+ * Adds a {@link ListItem} to a {@link ListProperty}.
+ * @param prop
+ *  The {@link ListProperty}.
+ * @param value
+ *  The {@link ListItem} to add.
+ * @param index
+ *  The index to insert the item at.
+ * @returns
+ *  A command that represents the action.
+ */
+export function addItemToListProperty(prop: ListProperty, item: ListItem, index?: number): EditorCommand {
+    return new AddItemToListProperty(prop, item, index);
+}
+
+/**
+ * Deletes a {@link ListItem} from a {@link ListProperty}.
+ * @param prop
+ *  The {@link ListProperty}.
+ * @param value
+ *  The {@link ListItem} to delete.
+ * @returns
+ *  A command that represents the action.
+ */
+export function deleteItemFromListProperty(prop: ListProperty, item: ListItem): EditorCommand {
+    return new DeleteItemFromListProperty(prop, item);
 }

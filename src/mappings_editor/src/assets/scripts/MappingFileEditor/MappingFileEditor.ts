@@ -67,7 +67,7 @@ export class MappingFileEditor {
                 sectionHeight: 33,
                 sectionPaddingHeight: 10,
                 objectHeightCollapsed: 42,
-                objectHeightUncollapsed: 285,
+                objectHeightUncollapsed: 328,
                 objectPaddingHeight: 6,
                 loadMargin: 0
             }
@@ -204,6 +204,7 @@ export class MappingFileEditor {
     //  3. Phantom  ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
+
     /**
      * Creates a phantom {@link MappingFile}.
      * @returns
@@ -215,12 +216,12 @@ export class MappingFileEditor {
             creationDate: new Date(),
             modifiedDate: new Date(),
             mappingObjectTemplate: new MappingObject({
-                sourceObject: new StrictFrameworkObjectProperty(framework),
-                targetObject: new StrictFrameworkObjectProperty(framework),
-                author: new StringProperty("PHANTOM"),
-                authorContact: new StringProperty("PHANTOM@SPECTER.ORG"),
-                authorOrganization: new StringProperty("SPECTER LLC."),
-                comments: new StringProperty()
+                sourceObject: new StrictFrameworkObjectProperty("Phantom", framework),
+                targetObject: new StrictFrameworkObjectProperty("Phantom", framework),
+                author: new StringProperty("Phantom"),
+                authorContact: new StringProperty("Phantom"),
+                authorOrganization: new StringProperty("Phantom"),
+                comments: new StringProperty("Phantom")
             })
         });
     }
