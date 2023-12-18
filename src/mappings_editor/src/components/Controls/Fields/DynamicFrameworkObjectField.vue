@@ -29,6 +29,7 @@
         @keydown.stop="onObjectIdKeyDown"
         v-model="objectId"
         :placeholder="objectIdPlaceholder"
+        autocomplete="off"
       />
       <span></span>
       <input 
@@ -43,6 +44,7 @@
         v-model="objectText"
         :disabled="isObjectTextFieldDisabled"
         :placeholder="objectTextPlaceholder"
+        autocomplete="off"
       />
     </div>
   </div>
@@ -388,6 +390,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
+  height: 30px;
 }
 
 /** === Value Text === */

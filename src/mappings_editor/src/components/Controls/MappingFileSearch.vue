@@ -1,6 +1,6 @@
 <template>
   <div class="mapping-file-search-control">
-    <input name="search" type="text" placeholder="Search Mappings..."/>
+    <input name="search" type="text" placeholder="Search Mappings..." autocomplete="off" />
   </div>
 </template>
   

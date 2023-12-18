@@ -1,6 +1,6 @@
 <template>
   <div :class="['framework-options-list-field', { flip }]">
-    <ScrollBox class="scrollbox" ref="scrollbox" :style="optionsStyle" :propagateScroll="false">
+    <ScrollBox class="scrollbox" ref="scrollbox" :style="optionsStyle" :propagate-scroll="false">
       <ul class="options" v-if="hasOptions">
         <li 
           ref="items"
@@ -253,7 +253,7 @@ type FrameworkOption = {
   box-shadow: 0px -5px 5px -2px rgb(0 0 0 / 20%);
 }
 
-:deep(.scroll-bar) {
+.scrollbox :deep(.scroll-bar) {
   border-top: none !important;
 }
 

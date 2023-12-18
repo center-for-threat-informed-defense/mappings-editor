@@ -49,6 +49,7 @@
               @keyup.stop=""
               @keydown.stop="onSearchKeyDown"
               v-model="searchTerm"
+              autocomplete="off"
             />
           </div>
           <div class="drop-filter">

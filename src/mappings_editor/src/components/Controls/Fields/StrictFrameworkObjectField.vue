@@ -36,6 +36,7 @@
         @keydown.stop="onSearchKeyDown"
         v-model="searchTerm"
         v-if="showSearch"
+        autocomplete="off"
       />
       <div class="dropdown-arrow">▼</div>
     </div>
@@ -273,6 +274,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
+  height: 30px;
   border-radius: 3px;
   cursor: pointer;
 }

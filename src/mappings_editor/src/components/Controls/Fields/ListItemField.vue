@@ -30,6 +30,7 @@
         @keydown.stop="onSearchKeyDown"
         v-model="searchTerm"
         v-if="showSearch"
+        autocomplete="off"
       />
       <div class="dropdown-arrow">▼</div>
     </div>
@@ -216,7 +217,7 @@ export default defineComponent({
     },
 
     /**
-     * Updates the field's text value.
+     * Updates the field's value.
      */
     refreshValue() {
       this.select = this.property.value
@@ -245,9 +246,9 @@ export default defineComponent({
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  color: #c7c7c7;
   font-size: 10pt;
   user-select: none;
+  height: 30px;
   cursor: pointer;
 }
 
@@ -260,18 +261,19 @@ export default defineComponent({
   align-items: center;
   border-radius: 3px;
   box-sizing: border-box;
-  background: #404040;
 }
 
 .options-list:not(.flip) + .value-container.search-open {
-  border: solid 1px #575757;
+  border-style: solid;
+  border-width: 1px;
   border-bottom: none;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
 }
 
 .options-list.flip + .value-container.search-open {
-  border: solid 1px #575757;
+  border-style: solid;
+  border-width: 1px;
   border-top: none;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
@@ -290,12 +292,7 @@ export default defineComponent({
   overflow: hidden;
 }
 
-.value-text.is-null {
-  color: #a6a6a6;
-}
-
 .dropdown-arrow {
-  color: #7a7a7a;
   font-size: 5.5pt;
   font-family: "Inter", sans-serif;
   text-align: center;
@@ -334,6 +331,36 @@ export default defineComponent({
 .options-list {
   grid-area: 1 / 1;
   position: relative;
+}
+
+/** === Default Palette === */
+
+.value-container {
+  border-color: #454545;
+  background: #303030;
+}
+
+.value-text.is-null {
+  color: #999;
+}
+
+.dropdown-arrow {
+  color: #808080;
+}
+
+/** === Bright Palette === */
+
+.bright .value-container {
+  border-color: #575757;
+  background: #404040;
+}
+
+.bright .value-text.is-null {
+  color: #a6a6a6;
+}
+
+.bright .dropdown-arrow {
+  color: #7a7a7a;
 }
 
 </style>

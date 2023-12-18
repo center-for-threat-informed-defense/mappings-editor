@@ -253,7 +253,7 @@ export default defineComponent({
       }
     }
   },
-  async mounted() {
+  mounted() {
     // Configure resize observer
     this.onResizeObserver = new ResizeObserver(() => this.setEditorViewHeight());
     this.onResizeObserver.observe(this.$el);
@@ -288,6 +288,7 @@ export default defineComponent({
 .item-contents {
   flex: 1;
   display: flex;
+  min-height: 0px;
 }
 
 .item-padding {
@@ -308,6 +309,7 @@ export default defineComponent({
 }
 
 .item-separator {
+  flex-shrink: 0;
   width: 100%;
 }
 
@@ -317,7 +319,7 @@ export default defineComponent({
 
 /** === Scroll Bar === */
 
-:deep(.scroll-bar) {
+.mapping-file-control :deep(.scroll-bar) {
   background: #1c1c1c;
   border-top: solid 1px #3b3b3b;
   border-left: solid 1px #333333;
