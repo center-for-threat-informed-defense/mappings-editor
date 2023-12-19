@@ -6,21 +6,21 @@ export class SaveFileToDevice extends AppCommand {
     /**
      * The file's name.
      */
-    private _name: string;
+    public readonly name: string;
 
     /**
      * The file's extension.
      */
-    private _extension: string;
+    public readonly extension: string;
 
     /**
      * The file's contents.
      */
-    private _contents: string;
+    public readonly contents: string;
 
 
     /**
-     * Saves a mapping file to the user's file system.
+     * Saves a file to the user's file system.
      * @param name
      *  The file's name.
      * @param extension
@@ -30,9 +30,9 @@ export class SaveFileToDevice extends AppCommand {
      */
     constructor(name: string, extension: string, contents: string) {
         super();
-        this._name = name;
-        this._extension = extension;
-        this._contents = contents;
+        this.name = name;
+        this.extension = extension;
+        this.contents = contents;
     }
 
 
@@ -41,9 +41,9 @@ export class SaveFileToDevice extends AppCommand {
      */
     public execute(): void {
         Browser.downloadTextFile(
-            this._name,
-            this._contents,
-            this._extension
+            this.name,
+            this.contents,
+            this.extension
         );
     }
 
