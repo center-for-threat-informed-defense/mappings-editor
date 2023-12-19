@@ -60,10 +60,12 @@ export class MappingFileAuthority {
      * Creates a blank Mapping file.
      * @param file
      *  The file's configuration.
+     * @param id
+     *  The file's id.
      * @returns
      *  The blank Mapping File.
      */
-    public async createEmptyMappingFile(file: MappingFileExport) {
+    public async createEmptyMappingFile(file: MappingFileExport, id?: string) {
 
         const sf = file.source_framework,
               sv = file.source_version,
@@ -84,7 +86,7 @@ export class MappingFileAuthority {
             creationDate       : file.creation_date ?? new Date(),
             modifiedDate       : file.modified_date ?? new Date(),
             mappingObjectTemplate
-        });
+        }, id);
         
         return mappingFile;
 
@@ -133,14 +135,16 @@ export class MappingFileAuthority {
     /**
      * Loads a Mapping File export.
      * @param file
-     *  The exported Mapping File.
+     *  The exported file.
+     * @param id
+     *  The file's id.
      * @returns
      *  The loaded Mapping File.
      */
-    public async loadMappingFile(file: MappingFileExport): Promise<MappingFile> {
+    public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
 
         // Create new file
-        const newFile = await this.createEmptyMappingFile(file);
+        const newFile = await this.createEmptyMappingFile(file, id);
         
         // TODO: Load these dictionaries in createEmptyMappingFile()
 

@@ -128,9 +128,19 @@ export class MappingFile {
      * @param config
      *  The file's configuration.
      */
-    constructor(config: MappingFileConfiguration) {
+    constructor(config: MappingFileConfiguration);
+
+    /**
+     * Creates a new {@link MappingFile}.
+     * @param config
+     *  The file's configuration.
+     * @param id
+     *  The file's id.
+     */
+    constructor(config: MappingFileConfiguration, id?: string);
+    constructor(config: MappingFileConfiguration, id?: string) {
         const template = config.mappingObjectTemplate;
-        this.id = randomUUID();
+        this.id = id ?? randomUUID();
         this.version = ""
         this.author = template.author;
         this.authorContact = template.authorContact;

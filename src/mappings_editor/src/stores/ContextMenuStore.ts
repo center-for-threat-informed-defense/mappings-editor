@@ -24,8 +24,9 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             // Sections
             const sections: ContextMenuSection[] = [
                 this.openFileMenu,
+                this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
                 this.saveFileMenu
-            ].filter(Boolean);
+            ].filter(Boolean) as ContextMenuSection[];
             // Menu
             return { text: "File", type: MenuType.Submenu, sections };
         },
@@ -42,19 +43,80 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 id: "open_file_options",
                 items: [
                     // {
-                    //     text: `New File`,
+                    //     text: `New ${ Configuration.file_type_name }...`,
                     //     type: MenuType.Item,
-                    //     data: () => AppCommands.loadPageFromFileSystem(ctx),
-                    //     shortcut: file.new_file
+                    //     data: () => AppCommands.doNothing(),
+                    //     shortcut: file.new_file,
+                    //     disabled: true
                     // },
                     {
                         text: `Open ${ Configuration.file_type_name }...`,
                         type: MenuType.Item,
-                        data: () => AppCommands.loadPageFromFileSystem(app),
+                        data: () => AppCommands.loadFileFromFileSystem(app),
                         shortcut: file.open_file
                     }
                 ],
             }
+        },
+
+        /**
+         * Returns the 'recover file' menu section.
+         * @returns
+         *  The 'recover file' menu section.
+         */
+        recoverFileMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const files = app.fileRecoveryBank.files;
+            
+            // Build file list
+            const items: ContextMenu[] = [];
+            for(const [id, { name, date, contents }] of files) {
+                // Ignore active file
+                if(id === app.activeEditor.id) {
+                    continue;
+                }
+                // Add file
+                items.push({
+                    text: `${ name } (${ date.toLocaleString() })`,
+                    type: MenuType.Item,
+                    data: () => AppCommands.loadExistingFile(app, contents, name, id)
+                })
+            }
+            if(items.length === 0) {
+                items.push({
+                    text: "No Recovered Files",
+                    type: MenuType.Item,
+                    data: () => AppCommands.doNothing(),
+                    disabled: true
+                });
+            }
+
+            // Build submenu
+            const submenu: ContextMenu = {
+                text: "Open Recovered Files",
+                type: MenuType.Submenu,
+                sections: [
+                    { 
+                        id: "recovered_files",
+                        items
+                    },
+                    {
+                        id: "bank_controls",
+                        items: [{
+                            text: "Delete Recovered Files",
+                            type: MenuType.Item,
+                            data: () => AppCommands.clearFileRecoveryBank(app)
+                        }]
+                    }
+                ]
+            }
+
+            // Return menu
+            return { 
+                id: "recover_file_options",
+                items: [ submenu ]
+            };
+
         },
 
         /**
@@ -78,6 +140,18 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     }
                 ]
             }
+        },
+
+        /**
+         * Tests if the 'recovery file' menu should be displayed.
+         * @returns
+         *  True if the menu should be displayed, false otherwise.
+         */
+        isRecoverFileMenuShown(): boolean {
+            const app = useApplicationStore();
+            const editor = app.activeEditor;
+            const ids = [...app.fileRecoveryBank.files.keys()];
+            return (ids.length === 1 && ids[0] !== editor.id) || 1 < ids.length;
         },
 
         

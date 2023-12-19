@@ -17,9 +17,14 @@ export class MappingFileEditor {
     public readonly id: string;
 
     /**
-     * The editor's Mapping File.
+     * The editor's file.
      */
     public readonly file: MappingFile;
+
+    /**
+     * The editor's file name.
+     */
+    public readonly name: string;
 
     /**
      * The editor's file view.
@@ -38,28 +43,31 @@ export class MappingFileEditor {
 
 
     /**
-     * The editor's file name.
+     * Creates a new {@link MappingFileEditor}.
+     * @param file
+     *  The Mapping File.
      */
-    public get name(): string {
-        return `${ 
-            this.file.sourceFramework
-        }@${
-            this.file.sourceVersion
-        }_${
-            this.file.targetFramework
-        }@${
-            this.file.targetVersion
-        }`;
-    }
-
+    constructor(file: MappingFile);
 
     /**
      * Creates a new {@link MappingFileEditor}.
      * @param file
-     *  The editor's Mapping File.
+     *  The Mapping File.
+     * @param name
+     *  The Mapping File's name.
      */
-    constructor(file: MappingFile) {
+    constructor(file: MappingFile, name?: string);
+    constructor(file: MappingFile, name?: string) {
         this.id = file.id;
+        this.name = name ?? `${ 
+            file.sourceFramework
+        }@${
+            file.sourceVersion
+        }_${
+            file.targetFramework
+        }@${
+            file.targetVersion
+        }`;
         this.file = file;
         this.view = new MappingFileView(
             this.file,
@@ -86,12 +94,14 @@ export class MappingFileEditor {
      * Executes one or more editor commands.
      * @param commands
      *  The commands.
+     * @returns
+     *  The command directives.
      */
-    public execute(...commands: EditorCommand[]) {
+    public execute(...commands: EditorCommand[]): EditorDirectives {
         // Package command
         let cmd: EditorCommand;
         if(commands.length === 0) {
-            return;
+            return EditorDirectives.None;
         } else if(commands.length === 1) {
             cmd = commands[0];
         } else {
@@ -108,6 +118,7 @@ export class MappingFileEditor {
             this._undoStack.push(cmd);
         }
         this.executeDirectives(cmd, directives);
+        return directives;
     }
 
     /**
@@ -159,14 +170,18 @@ export class MappingFileEditor {
     
     /**
      * Undoes the last editor command.
+     * @param dirs
+     *  The command's editor directives.
      */
-    public undo() {
+    public undo(): EditorDirectives {
         if(this._undoStack.length) {
             const cmd = this._undoStack[this._undoStack.length - 1];
             const directives = cmd.undo();
             this._redoStack.push(this._undoStack.pop()!);
             this.executeDirectives(cmd, directives);
+            return directives;
         }
+        return EditorDirectives.None;
     }
 
     /**
@@ -180,14 +195,18 @@ export class MappingFileEditor {
 
     /**
      * Redoes the last undone editor command.
+     * @param dirs
+     *  The command's editor directives.
      */
-    public redo() {
+    public redo(): EditorDirectives  {
         if(this._redoStack.length) {
             const cmd = this._redoStack[this._redoStack.length - 1];
             const directives = cmd.redo();
             this._undoStack.push(this._redoStack.pop()!);
             this.executeDirectives(cmd, directives);
+            return directives;
         }
+        return EditorDirectives.None;
     }
 
     /**
