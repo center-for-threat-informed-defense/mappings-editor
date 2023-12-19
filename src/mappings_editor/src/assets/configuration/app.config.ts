@@ -3,7 +3,7 @@ import { UniversalSchemaMappingFileSerializer } from "./app.config.serializer";
 import type { AppConfiguration } from "@/assets/scripts/Application";
 
 const config: AppConfiguration = {
-    file_type_name: "Mappings File",
+    file_type_name: "Mapping File",
     file_type_extension: "json",
     native_frameworks_manifest: manifest,
     menus: {
