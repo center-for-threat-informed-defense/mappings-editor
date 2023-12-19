@@ -148,6 +148,8 @@ export class MappingFileAuthority {
         
         // TODO: Load these dictionaries in createEmptyMappingFile()
 
+        // TODO: After load, set template's mapping type if there's only one mapping type
+
         // Load dictionaries into file lists
         const stringTransform 
             = (id: string, name: string) => ({ id, name });
