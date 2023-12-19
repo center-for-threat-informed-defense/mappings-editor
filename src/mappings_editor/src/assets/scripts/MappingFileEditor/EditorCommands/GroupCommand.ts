@@ -17,7 +17,7 @@ export class GroupCommand extends EditorCommand {
 
 
     /**
-     * Executes a series of page commands.
+     * Executes a series of editor commands.
      */
     constructor() {
         super();

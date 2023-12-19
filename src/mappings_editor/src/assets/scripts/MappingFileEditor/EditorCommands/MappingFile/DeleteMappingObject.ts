@@ -48,7 +48,7 @@ export class DeleteMappingObject extends EditorCommand {
         // Cache object values
         this.object.sourceObject.cacheObjectValue();
         this.object.targetObject.cacheObjectValue();
-        return EditorDirectives.Record | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
     /**
@@ -62,7 +62,7 @@ export class DeleteMappingObject extends EditorCommand {
         this.object.targetObject.tryUncacheObjectValue();
         // Insert mapping object
         this.file.insertMappingObject(this.object, this.index);
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
 }

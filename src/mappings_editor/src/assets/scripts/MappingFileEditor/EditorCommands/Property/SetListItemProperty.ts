@@ -63,7 +63,7 @@ export class SetListItemProperty extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.value = this.nextValue;
-        return EditorDirectives.Record | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
     /**
@@ -77,7 +77,7 @@ export class SetListItemProperty extends EditorCommand {
         } else {
             this.prop.value = this.prevValue;
         }
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
 }

@@ -33,7 +33,7 @@ export class CreateMappingObject extends EditorCommand {
      */
     public execute(): EditorDirectives {
         this.file.insertMappingObject(this.object, 0);
-        return EditorDirectives.Record | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
     /**
@@ -43,7 +43,7 @@ export class CreateMappingObject extends EditorCommand {
      */
     public undo(): EditorDirectives {
         this.file.removeMappingObject(this.object);
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
 }

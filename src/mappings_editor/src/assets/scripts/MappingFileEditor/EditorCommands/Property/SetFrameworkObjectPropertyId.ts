@@ -53,7 +53,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.objectId = this.nextObjectId;
-        return EditorDirectives.Record | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
     /**
@@ -69,7 +69,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
                 throw new Error("Object value was expected to be set without caching.")
             }
         }
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
     }
 
 }

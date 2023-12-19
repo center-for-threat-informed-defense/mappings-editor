@@ -39,7 +39,9 @@ export class UncollapseViewItem extends EditorCommand {
      */
     public undo(): EditorDirectives {
         this.item.collapsed = true;
-        return EditorDirectives.RebuildBreakouts;
+        const record = this.item instanceof MappingObjectView ? 
+            EditorDirectives.Record : EditorDirectives.None;
+        return record | EditorDirectives.RebuildBreakouts;
     }
 
 }

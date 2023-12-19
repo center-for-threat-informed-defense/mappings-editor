@@ -41,7 +41,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.objectText = this.nextObjectText;
-        return EditorDirectives.Record;
+        return EditorDirectives.FullRecord;
     }
 
     /**
@@ -51,7 +51,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      */
     undo(): EditorDirectives {
         this.prop.objectText = this.prevObjectText;
-        return EditorDirectives.None;
+        return EditorDirectives.FullRecord;
     }
 
 }
