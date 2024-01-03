@@ -114,6 +114,23 @@ export class ListProperty extends Property {
     }
 
     /**
+     * Returns the id of the first item in the list where predicate is true,
+     * and undefined otherwise.
+     * @param predicate 
+     *  The predicate to invoke on each list item.
+     * @returns
+     *  The item's id, `undefined` if no item matched the predicate.
+     */
+    public findListItemId(predicate: (value: ListItem) => boolean): string | undefined {
+        for(const [key, value] of this.value) {
+            if(predicate(value)) {
+                return key;
+            }
+        }
+        return undefined;
+    }
+
+    /**
      * Returns the index of a list item.
      * @param id
      *  The id of the item.

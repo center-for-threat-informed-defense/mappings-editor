@@ -107,23 +107,6 @@ export class MappingFile {
 
 
     /**
-     * The file's default mapping status.
-     */
-    public get defaultMappingStatus(): string | null {
-        return this._mappingObjectTemplate.mappingStatus.value
-    }
-
-    /**
-     * The file's default mapping status setter.
-     */
-    public set defaultMappingStatus(value: string | null) {
-        const options = this._mappingObjectTemplate.mappingStatus.options;
-        const itemId = [...options.value.values()].find(o => o.getAsString("id") === value)?.id;
-        this._mappingObjectTemplate.mappingStatus.value = itemId ?? null;
-    }
-
-
-    /**
      * Creates a new {@link MappingFile}.
      * @param config
      *  The file's configuration.

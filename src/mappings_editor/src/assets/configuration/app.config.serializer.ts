@@ -117,6 +117,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             "partial"      : "Partial",
             "significant"  : "Significant"
         };
+        // Define default mapping status
+        const default_mapping_status = "in_progress";
+        // Define default mapping type
+        const types = Object.keys(meta.mapping_types);
+        const default_mapping_type = types.length === 1 ? types[0] : undefined;
         // Parse metadata
         const mappingFileExport = { 
             version                : meta.mapping_version,
@@ -134,8 +139,9 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             mapping_statuses,
             score_categories,
             score_values,
-            default_mapping_status : "in_progress",
-            mapping_objects
+            mapping_objects,
+            default_mapping_status,
+            default_mapping_type
         }
         return mappingFileExport;
     }

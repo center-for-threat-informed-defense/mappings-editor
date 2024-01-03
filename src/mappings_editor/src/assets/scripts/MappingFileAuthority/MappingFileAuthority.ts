@@ -87,6 +87,37 @@ export class MappingFileAuthority {
             modifiedDate       : file.modified_date ?? new Date(),
             mappingObjectTemplate
         }, id);
+
+        // Load dictionaries into file lists
+        const stringTransform 
+            = (id: string, name: string) => ({ id, name });
+        const objectTransform
+            = (id: string, { name, description }: any) => ({ id, name, description });
+        ([
+            [mappingFile.mappingTypes, file.mapping_types, objectTransform],
+            [mappingFile.mappingGroups, file.mapping_groups, stringTransform],
+            [mappingFile.mappingStatuses, file.mapping_statuses, stringTransform],
+            [mappingFile.scoreCategories, file.score_categories, stringTransform],
+            [mappingFile.scoreValues, file.score_values, stringTransform]
+        ] as [ListProperty, { [key: string]: any }, any][]).forEach(
+            args => this.populateListPropertyFromDictionary(...args)
+        );
+
+        // Set default mapping status
+        if((file.default_mapping_status ?? null) !== null) {
+            const mappingStatus = mappingFile.mappingStatuses.findListItemId(
+                o => o.getAsString("id") === file.default_mapping_status
+            ) ?? null;
+            mappingObjectTemplate.mappingStatus.value = mappingStatus;
+        }
+
+        // Set default mapping type
+        if((file.default_mapping_type ?? null) !== null) {
+            const mappingType = mappingFile.mappingTypes.findListItemId(
+                o => o.getAsString("id") === file.default_mapping_type
+            ) ?? null;
+            mappingObjectTemplate.mappingType.value = mappingType
+        }
         
         return mappingFile;
 
@@ -126,6 +157,27 @@ export class MappingFileAuthority {
         
     }
 
+    /**
+     * Populates a {@link ListProperty} with a dictionary of values.
+     * @param prop
+     *  The {@link ListProperty} to populate.
+     * @param object
+     *  The dictionary of values.
+     * @param defineItem
+     *  A function which accepts a dictionary key/value pair and returns an
+     *  object which defines a new list item.
+     */
+    private populateListPropertyFromDictionary (
+        prop: ListProperty,
+        object: { [key: string]: any },
+        defineItem: (key: string, value: any) => { [key: string]: any }
+    ) {
+        for(const key in object) {
+            const item = prop.createNewItem(defineItem(key, object[key]));
+            prop.insertListItem(item);
+        }
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////
     //  2. Load Mapping File  /////////////////////////////////////////////////
@@ -142,36 +194,24 @@ export class MappingFileAuthority {
      *  The loaded Mapping File.
      */
     public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
-
         // Create new file
         const newFile = await this.createEmptyMappingFile(file, id);
-        
-        // TODO: Load these dictionaries in createEmptyMappingFile()
-
-        // TODO: After load, set template's mapping type if there's only one mapping type
-
-        // Load dictionaries into file lists
-        const stringTransform 
-            = (id: string, name: string) => ({ id, name });
-        const objectTransform
-            = (id: string, { name, description }: any) => ({ id, name, description });
-        const argSets: [ListProperty, { [key: string]: any }, any][] = [
-            [newFile.mappingTypes, file.mapping_types, objectTransform],
-            [newFile.mappingGroups, file.mapping_groups, stringTransform],
-            [newFile.mappingStatuses, file.mapping_statuses, stringTransform],
-            [newFile.scoreCategories, file.score_categories, stringTransform],
-            [newFile.scoreValues, file.score_values, stringTransform]
-        ];
+        // Create list item id maps
         const [
             mappingTypeIdToItemIdMap,
             mappingGroupIdToItemIdMap,
             mappingStatusIdToItemIdMap,
             scoreCategoryIdToItemIdMap,
             scoreValuesIdToItemIdMap
-        ] = argSets.map(
-            args => this.populateListPropertyFromDictionary(...args)
-        );
-
+        ] = [
+            newFile.mappingTypes.value,
+            newFile.mappingGroups.value,
+            newFile.mappingStatuses.value,
+            newFile.scoreCategories.value,
+            newFile.scoreValues.value
+        ].map(
+            v => new Map([...v].map(([k, i]) => [i.getAsString("id"), k]))
+        )
         // Load mapping objects into file
         for(const obj of file.mapping_objects) {
             // Create mapping object
@@ -248,10 +288,6 @@ export class MappingFileAuthority {
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
-
-        // Set default mapping status
-        newFile.defaultMappingStatus = file.default_mapping_status;
-
         return newFile;
 
     }
@@ -367,32 +403,6 @@ export class MappingFileAuthority {
         } else {
             prop.cacheObjectValue(objId, objText, objFramework, objVersion);
         }
-    }
-
-    /**
-     * Populates a {@link ListProperty} with a dictionary of values.
-     * @param prop
-     *  The {@link ListProperty} to populate.
-     * @param object
-     *  The dictionary of values.
-     * @param defineItem
-     *  A function which accepts a dictionary key/value pair and returns an
-     *  object which defines a new list item.
-     * @returns
-     *  A Map that maps dictionary keys to {@link ListItem} ids. 
-     */
-    private populateListPropertyFromDictionary (
-        prop: ListProperty,
-        object: { [key: string]: any },
-        defineItem: (key: string, value: any) => { [key: string]: any }
-    ): Map<string, string> {
-        const keyToItemIdMap = new Map<string, string>();
-        for(const key in object) {
-            const item = prop.createNewItem(defineItem(key, object[key]));
-            prop.insertListItem(item);
-            keyToItemIdMap.set(key, item.id);
-        }
-        return keyToItemIdMap;
     }
 
     /**
@@ -552,7 +562,6 @@ export class MappingFileAuthority {
             mapping_statuses       : Object.fromEntries(mapping_statuses),
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
-            default_mapping_status : file.defaultMappingStatus,
             mapping_objects
         }
 
