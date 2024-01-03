@@ -1,8 +1,9 @@
 import { toRaw } from "vue";
+import { EventEmitter } from "./EventEmitter";
 import { EditableStrictFrameworkListing, MappingFile, MappingObject, StrictFrameworkObjectProperty, StringProperty } from "../MappingFile";
 import { GroupCommand, EditorCommand, MappingFileView, EditorDirectives, CameraCommand } from ".";
 
-export class MappingFileEditor {
+export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
     /**
      * The phantom mappings editor.
@@ -41,6 +42,16 @@ export class MappingFileEditor {
      */
     private _redoStack: EditorCommand[];
 
+    /**
+     * The editor's autosave interval.
+     */
+    private _autosaveInterval: number;
+
+    /**
+     * The editor's autosave timeout id.
+     */
+    private _autosaveTimeoutId: number | null;
+
 
     /**
      * Creates a new {@link MappingFileEditor}.
@@ -55,9 +66,13 @@ export class MappingFileEditor {
      *  The Mapping File.
      * @param name
      *  The Mapping File's name.
+     * @param autosaveInterval
+     *  How long a period of inactivity must be before autosaving.
+     *  (Default: 1500ms)
      */
-    constructor(file: MappingFile, name?: string);
-    constructor(file: MappingFile, name?: string) {
+    constructor(file: MappingFile, name?: string, autosaveInterval?: number);
+    constructor(file: MappingFile, name?: string, autosaveInterval: number = 1500) {
+        super()
         this.id = file.id;
         this.name = name ?? `${ 
             file.sourceFramework
@@ -82,6 +97,8 @@ export class MappingFileEditor {
         );
         this._undoStack = [];
         this._redoStack = [];
+        this._autosaveInterval = autosaveInterval;
+        this._autosaveTimeoutId = null;
     }
 
 
@@ -160,6 +177,10 @@ export class MappingFileEditor {
                 cameraCommands[0].strict
             );
         }
+        // Request save
+        if((dirs & EditorDirectives.FullRecord) === EditorDirectives.FullRecord) {
+            this.requestAutosave();
+        }
     }
 
 
@@ -220,7 +241,45 @@ export class MappingFileEditor {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  3. Phantom  ///////////////////////////////////////////////////////////
+    //  3. Autosave  //////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Requests a save.
+     */
+    private requestAutosave() {
+        if(this._autosaveTimeoutId !== null) {
+            clearTimeout(this._autosaveTimeoutId);
+        }
+        this._autosaveTimeoutId = setTimeout(() => {
+            this._autosaveTimeoutId = null;
+            this.emit("autosave", this);
+        }, this._autosaveInterval);
+    }
+
+    /**
+     * Temporarily withholds an outstanding save action (if one exists).
+     */
+    public tryDelayAutosave(): void {
+        if(this._autosaveTimeoutId !== null) {
+            this.requestAutosave();
+        }
+    }
+
+    /**
+     * Cancels an outstanding save action (if one exists).
+     */
+    public tryCancelAutosave() {
+        if(this._autosaveTimeoutId !== null) {
+            clearTimeout(this._autosaveTimeoutId);
+            this._autosaveTimeoutId = null;
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Phantom  ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -245,4 +304,8 @@ export class MappingFileEditor {
         });
     }
     
+}
+
+type MappingFileEditorEvents = {
+    "autosave": (editor: MappingFileEditor) => void
 }

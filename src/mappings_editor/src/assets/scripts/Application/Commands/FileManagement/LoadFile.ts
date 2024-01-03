@@ -2,6 +2,7 @@ import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
+import { SaveFileToRecoveryBank } from "./SaveFileToRecoveryBank";
 
 export class LoadFile extends AppCommand {
 
@@ -39,6 +40,9 @@ export class LoadFile extends AppCommand {
         super();
         this._context = context;
         this._editor = new MappingFileEditor(file, name);
+        this._editor.on("autosave", editor => {
+            context.execute(new SaveFileToRecoveryBank(context, editor))
+        })
     }
 
 

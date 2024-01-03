@@ -1,12 +1,11 @@
-import Configuration from "@/assets/configuration/app.config";
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
 import { AppCommand } from "../AppCommand";
 import { ClearFileRecoveryBank } from "./ClearFileRecoveryBank";
 import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
-import type { MappingFile } from "@/assets/scripts/MappingFile";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
+import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 
 /**
  * Loads an empty mapping file into the application.
@@ -79,17 +78,7 @@ export async function loadFileFromUrl(context: ApplicationStore, url: string): P
  *  A command that represents the action.
  */
 export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
-    // Deconstruct file
-    const file = context.fileAuthority.exportMappingFile(context.activeEditor.file as MappingFile);
-    // Serialize file
-    const json = context.fileSerializer.serialize(file);
-    // Return command
-    return new SaveMappingFileToDevice(
-        context.activeEditor.id,
-        context.activeEditor.name,
-        Configuration.file_type_extension,
-        json
-    );
+    return new SaveMappingFileToDevice(context, context.activeEditor as MappingFileEditor);
 }
 
 /**
