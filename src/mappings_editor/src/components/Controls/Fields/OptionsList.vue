@@ -220,6 +220,7 @@ export default defineComponent({
   border-color: #3b3b3b;
   box-sizing: border-box;
   background: inherit;
+  z-index: 1;
 }
 
 .list-item-options-list-field:not(.flip) .scrollbox-container {

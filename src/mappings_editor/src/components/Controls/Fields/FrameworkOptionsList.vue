@@ -235,6 +235,7 @@ type FrameworkOption = {
   border-color: #3b3b3b;
   box-sizing: border-box;
   background: #1c1c1c;
+  z-index: 1;
 }
 
 .framework-options-list-field:not(.flip) .scrollbox-container {

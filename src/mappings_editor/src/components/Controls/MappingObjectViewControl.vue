@@ -277,7 +277,6 @@ export default defineComponent({
   align-items: center;
   color: #c7c7c7;
   height: 40px;
-  z-index: 1;
 }
 
 .source-object,
