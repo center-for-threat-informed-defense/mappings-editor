@@ -28,7 +28,7 @@ export class HotkeyObserver<T> {
     /**
      * The function to call when a hotkey sequence is matched.
      */
-    private _callback: (command: T) => void;
+    private _callback: (command: T | undefined) => void;
 
     /**
      * The DOM element the hotkey observer is watching.
@@ -51,7 +51,7 @@ export class HotkeyObserver<T> {
      * @param callback
      *  The function to call once a hotkey sequence is triggered.
      */
-    constructor(callback: (command: T) => void) {
+    constructor(callback: (command: T | undefined) => void) {
         this._boundOnKeyDown = this.onKeyDown.bind(this);
         this._boundOnKeyUp = this.onKeyUp.bind(this);
         this._callback = callback;
@@ -165,7 +165,7 @@ export class HotkeyObserver<T> {
                 e.preventDefault();
             }
             // Execute shortcut
-            this._callback(hotkey.data!);
+            this._callback(hotkey.data);
         } else {
             // If no key matched, block browser behavior by default
             e.preventDefault();

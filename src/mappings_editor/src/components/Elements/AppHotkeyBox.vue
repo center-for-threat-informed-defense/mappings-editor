@@ -45,7 +45,10 @@ export default defineComponent({
      * @param emitter
      *  The hotkey's command emitter.
      */
-    async onHotkeyFired(emitter: CommandEmitter) {
+    async onHotkeyFired(emitter?: CommandEmitter) {
+      if(!emitter) {
+        return;
+      }
       try {
         let cmd = emitter();
         if(cmd instanceof Promise) {

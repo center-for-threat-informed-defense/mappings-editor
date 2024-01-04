@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { type Hotkey, HotkeyObserver } from "@/assets/scripts/Utilities/HotkeyObserver";
-import { defineComponent, markRaw, type PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   name: "HotkeyBox",
@@ -44,9 +44,9 @@ export default defineComponent({
   },
   data() {
     return {
-      observer: markRaw(new HotkeyObserver(
-        (id: string, data?: any) => this.$emit("fire", id, data)
-      ))
+      observer: new HotkeyObserver(
+        (emitter?: any) => this.$emit("fire", emitter)
+      )
     };
   },
   emits: ["fire"],
