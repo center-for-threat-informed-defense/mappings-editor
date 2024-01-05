@@ -39,6 +39,26 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     shortcut: "Control+Shift+R",
                     repeatable: true,
                     allowBrowserBehavior: true
+                },
+                {
+                    shortcut: "Meta+C",
+                    repeatable: true,
+                    allowBrowserBehavior: true
+                },
+                {
+                    shortcut: "Meta+V",
+                    repeatable: true,
+                    allowBrowserBehavior: true
+                },
+                {
+                    shortcut: "Meta+X",
+                    repeatable: true,
+                    allowBrowserBehavior: true
+                },
+                {
+                    shortcut: "Meta+R",
+                    repeatable: true,
+                    allowBrowserBehavior: true
                 }
             ]
         },
