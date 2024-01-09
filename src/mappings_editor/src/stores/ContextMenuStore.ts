@@ -39,6 +39,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         openFileMenu(): ContextMenuSection {
             const app = useApplicationStore();
             const file = app.settings.hotkeys.file;
+            const editor = app.activeEditor;
             return {
                 id: "open_file_options",
                 items: [
@@ -54,6 +55,13 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         type: MenuType.Item,
                         data: () => AppCommands.loadFileFromFileSystem(app),
                         shortcut: file.open_file
+                    },
+                    {
+                        text: `Import ${ Configuration.file_type_name }...`,
+                        type: MenuType.Item,
+                        data: () => AppCommands.importFileFromFileSystem(app),
+                        shortcut: file.import_file,
+                        disabled: editor.id === MappingFileEditor.Phantom.id
                     }
                 ],
             }

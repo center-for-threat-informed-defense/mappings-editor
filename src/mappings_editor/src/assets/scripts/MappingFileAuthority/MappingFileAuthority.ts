@@ -14,6 +14,7 @@ import {
     StringProperty,
 } from "../MappingFile";
 import { randomUUID } from "../Utilities";
+import type { MappingFileEditor } from "../MappingFileEditor";
 
 export class MappingFileAuthority {
 
@@ -462,9 +463,48 @@ export class MappingFileAuthority {
         return migratedFile;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Import Mapping File  ////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Exports the current MappingFileEditor to a MappingFileExport and the current imported Mapping file.
+     * @param openedFile
+     *  The current MappingFileEditor.
+     * @param importedFile
+     * The imported MappingFileExport
+     * @returns
+     *  The merged Mapping File.
+     */
+    public async importMappingFile(openedFile: MappingFileEditor, importedFile: MappingFileExport, id?: string): Promise<MappingFile> {
+        let openedFileExport = this.exportMappingFile(openedFile.file)
+        return await this.mergeFiles(openedFileExport, importedFile);
+    }
+    
+    /**
+     * Adds the imported Mapping File's mapping_objects to the current Mapping File's mapping_objects
+     * @param openedFile
+     *  The current Mapping File as a MappingFileExport.
+     * @param importedFile
+     * The imported MappingFileExport
+     * @returns
+     *  The merged Mapping File.
+     */
+    public async mergeFiles(openedFile: MappingFileExport, importedFile: MappingFileExport): Promise<MappingFile> {
+        if (openedFile.source_framework !== importedFile.source_framework || openedFile.target_framework !== importedFile.target_framework) {
+            throw new Error(`The imported file's mapping framework must be the same as the active file's mapping framework.`)
+        }
+        openedFile.mapping_objects.push(importedFile.mapping_objects);
+        openedFile.mapping_objects = openedFile.mapping_objects.flat();
+        let mergedFile = await this.loadMappingFile(openedFile);
+        return mergedFile;
+    }
+
+    
     
     ///////////////////////////////////////////////////////////////////////////
-    //  4. Audit Mapping File  ////////////////////////////////////////////////
+    //  5. Audit Mapping File  ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -477,7 +517,7 @@ export class MappingFileAuthority {
 
     
     ///////////////////////////////////////////////////////////////////////////
-    //  5. Export Mapping File  ///////////////////////////////////////////////
+    //  6. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 

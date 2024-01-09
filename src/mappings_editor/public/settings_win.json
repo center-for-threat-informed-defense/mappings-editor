@@ -3,6 +3,7 @@
         "file": {
             "new_file": "Control+N",
             "open_file": "Control+O",
+            "import_file": "Control+I",
             "save_file": "Control+S"
         },
         "edit": {

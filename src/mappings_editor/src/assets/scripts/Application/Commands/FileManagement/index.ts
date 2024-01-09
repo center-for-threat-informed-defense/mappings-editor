@@ -45,6 +45,15 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
     return new LoadFile(context, mappingFile, name);
 }
 
+export async function importFile(context: ApplicationStore, file: string, name?: string, id?: string): Promise<AppCommand> {
+    // Deserialize file
+    const json = context.fileSerializer.deserialize(file);
+    // Construct file
+    const mappingFile = await context.fileAuthority.importMappingFile(context.activeEditor, json, id);
+    // Return command
+    return new LoadFile(context, mappingFile, name);
+}
+
 /**
  * Loads a mapping file from the file system, into the application.
  * @param context
@@ -55,6 +64,18 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
 export async function loadFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
     const { filename, contents } = await Browser.openTextFileDialog();
     return loadExistingFile(context, contents as string, filename);
+}
+
+/**
+ * Imports a mapping file from the file system and merges it with the currently opened file, into the application.
+ * @param context
+ *  The application's context.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
+    const { filename, contents } = await Browser.openTextFileDialog();
+    return importFile(context, contents as string, filename);
 }
 
 /**
