@@ -20,7 +20,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     /**
      * The editor's file.
      */
-    public readonly file: MappingFile;
+    public file: MappingFile;
 
     /**
      * The editor's file name.
@@ -85,7 +85,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         }`;
         this.file = file;
         this.view = new MappingFileView(
-            this.file,
+            this,
             {
                 sectionHeight: 33,
                 sectionPaddingHeight: 10,

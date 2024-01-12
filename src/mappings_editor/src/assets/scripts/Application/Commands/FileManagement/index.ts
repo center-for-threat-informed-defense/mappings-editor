@@ -6,6 +6,7 @@ import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { SwapMappingFile } from "@/assets/scripts/MappingFileEditor/EditorCommands/Editor/SwapFileCommand";
 
 /**
  * Loads an empty mapping file into the application.
@@ -45,13 +46,26 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
     return new LoadFile(context, mappingFile, name);
 }
 
-export async function importFile(context: ApplicationStore, file: string, name?: string, id?: string): Promise<AppCommand> {
+/**
+ * Imports another mapping file and merges it with the opened file .
+ * @param context
+ *  The application's context.
+ * @param file
+ *  The file export.
+ * @param name
+ *  The file's name.
+ * @param id
+ *  The file's id.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importFile(context: ApplicationStore, file: string): Promise<AppCommand> {
     // Deserialize file
     const json = context.fileSerializer.deserialize(file);
     // Construct file
-    const mappingFile = await context.fileAuthority.importMappingFile(context.activeEditor, json, id);
+    const mappingFile = await context.fileAuthority.importMappingFile(context.activeEditor.file, json);
     // Return command
-    return new LoadFile(context, mappingFile, name);
+    return new SwapMappingFile(mappingFile, context);
 }
 
 /**

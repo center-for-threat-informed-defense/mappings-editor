@@ -1,4 +1,5 @@
-import { type MappingFile, MappingObject } from "../../MappingFile";
+import { MappingFileEditor } from '@/assets/scripts/MappingFileEditor';
+import { MappingFile, MappingObject } from "../../MappingFile";
 import { MappingObjectDiscriminator } from "./MappingObjectDiscriminator";
 import { 
     BreakoutControl,
@@ -61,8 +62,10 @@ export class MappingFileView {
 
     /**
      * The view's mapping file.
+     * Can be from a MappingFileEditor
+     * or a MappingFile
      */
-    public readonly file: MappingFile;
+    private readonly _source: MappingFileEditor | MappingFile;
 
     /**
      * The view's available breakouts.
@@ -121,6 +124,16 @@ export class MappingFileView {
         return selected;
     }
 
+    /**
+     * The mapping view's file
+     */
+    public get file(): MappingFile {
+        if(this._source instanceof MappingFile) {
+            return this._source;
+        }
+        return this._source.file;
+    }
+
 
     /**
      * Creates a new {@link MappingFileView}.
@@ -129,7 +142,7 @@ export class MappingFileView {
      * @param sizing
      *  The view's sizing configuration.
      */
-    constructor(file: MappingFile, sizing: SizingConfiguration) {
+    constructor(source: MappingFileEditor | MappingFile, sizing: SizingConfiguration) {
         this._sizing = sizing;
         this._rootItem = null;
         this._mappingObjects = new Map();
@@ -138,9 +151,9 @@ export class MappingFileView {
         this._contentHeight = 0;
         this._viewPosition = 0;
         this._maxLevel = 0;
-        this.file = file;
+        this._source = source;
         this.breakouts = this.defineBreakouts();
-        this.filterSets = this.defineFilterSets(file);
+        this.filterSets = this.defineFilterSets(this.file);
         this.visibleItems = [];
         this.rebuildBreakouts();
     }

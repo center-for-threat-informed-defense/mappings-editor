@@ -14,7 +14,9 @@ import {
     StringProperty,
 } from "../MappingFile";
 import { randomUUID } from "../Utilities";
-import type { MappingFileEditor } from "../MappingFileEditor";
+import type { ApplicationStore } from '@/stores/ApplicationStore';
+import { EditorCommand } from '../MappingFileEditor';
+import { swapMappingFile } from "../MappingFileEditor/EditorCommands/Editor";
 
 export class MappingFileAuthority {
 
@@ -477,9 +479,10 @@ export class MappingFileAuthority {
      * @returns
      *  The merged Mapping File.
      */
-    public async importMappingFile(openedFile: MappingFileEditor, importedFile: MappingFileExport, id?: string): Promise<MappingFile> {
-        let openedFileExport = this.exportMappingFile(openedFile.file)
-        return await this.mergeFiles(openedFileExport, importedFile);
+    public async importMappingFile(openedMappingFile: MappingFile, importedFile: MappingFileExport): Promise<MappingFile> {
+        let openedFileExport = this.exportMappingFile(openedMappingFile)
+        let mergeFile = await this.mergeFiles(openedFileExport, importedFile);
+        return mergeFile;
     }
     
     /**
@@ -492,13 +495,32 @@ export class MappingFileAuthority {
      *  The merged Mapping File.
      */
     public async mergeFiles(openedFile: MappingFileExport, importedFile: MappingFileExport): Promise<MappingFile> {
+        // Throw error if the imported file's source framework does not match the current file's source framework
         if (openedFile.source_framework !== importedFile.source_framework || openedFile.target_framework !== importedFile.target_framework) {
             throw new Error(`The imported file's mapping framework must be the same as the active file's mapping framework.`)
         }
+        // if versions do not match, explicitly set the imported file's mapping objects to the version
+        if (openedFile.source_version !== importedFile.source_version) {
+            importedFile.mapping_objects.forEach(mappingObject => {
+                mappingObject.source_version = importedFile.source_version
+            })
+        }
+        if (openedFile.target_version !== importedFile.target_version) {
+            importedFile.mapping_objects.forEach(mappingObject => {
+                mappingObject.target_version = importedFile.target_version
+            })
+        }
+        // add imported file's metadata
+        Object.entries(importedFile.mapping_types).forEach(([key, value]) => {
+            !openedFile.mapping_types[key] && (openedFile.mapping_types[key] = value);
+        })
+        Object.entries(importedFile.mapping_groups).forEach(([key, value]) => {
+            !openedFile.mapping_groups[key] && (openedFile.mapping_groups[key] = value);
+        })
+        // add imported file's mapping objects to current file's mapping objects
         openedFile.mapping_objects.push(importedFile.mapping_objects);
         openedFile.mapping_objects = openedFile.mapping_objects.flat();
-        let mergedFile = await this.loadMappingFile(openedFile);
-        return mergedFile;
+        return await this.loadMappingFile(openedFile)
     }
 
     
