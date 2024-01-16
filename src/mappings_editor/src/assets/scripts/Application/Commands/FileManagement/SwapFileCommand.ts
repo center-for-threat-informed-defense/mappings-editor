@@ -31,14 +31,19 @@ export class SwapMappingFile extends GroupCommand {
 
 
     /**
-     * Executes the editor command.
+     * Executes the command.
      */
     public execute(): void {
+        // swap file
         this.context.activeEditor.file = this.mappingFile;
+        // rebuild brekouts to reflect change in view
         this.context.activeEditor.view.rebuildBreakouts();
+        // get ids of mapping objects that were added
         let mappingObjectIds = Array.from(this.mappingFile.mappingObjects.keys())
         let newMappingObjectIds = mappingObjectIds.slice(mappingObjectIds.length - this.amountNewMappingObjects);
+        // unselect all currently selected objects
         this.context.activeEditor.view.unselectAllViewItems();
+        // select all new objects and move view to the first new object
         let moved = false;
         this.mappingFile.mappingObjects.forEach((mappingObject, id)=> {
             if (newMappingObjectIds.includes(id)){
