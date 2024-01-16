@@ -22,11 +22,10 @@ export class SwapMappingFile extends GroupCommand {
      * @param file
      *  The mapping file to operate on.
      */
-    constructor(file: MappingFile, context: ApplicationStore, amountNewMappingObjects: Array) {
+    constructor(file: MappingFile, context: ApplicationStore) {
         super();
         this.context = context;
         this.mappingFile = file;
-        this.amountNewMappingObjects = amountNewMappingObjects;
     }
 
 
@@ -38,16 +37,13 @@ export class SwapMappingFile extends GroupCommand {
         this.context.activeEditor.file = this.mappingFile;
         // rebuild brekouts to reflect change in view
         this.context.activeEditor.view.rebuildBreakouts();
-        // get ids of mapping objects that were added
-        let mappingObjectIds = Array.from(this.mappingFile.mappingObjects.keys())
-        let newMappingObjectIds = mappingObjectIds.slice(mappingObjectIds.length - this.amountNewMappingObjects);
         // unselect all currently selected objects
         this.context.activeEditor.view.unselectAllViewItems();
         // select all new objects and move view to the first new object
         let moved = false;
-        this.mappingFile.mappingObjects.forEach((mappingObject, id)=> {
-            if (newMappingObjectIds.includes(id)){
-                this.context.activeEditor.view.selectViewItem(id)
+        this.mappingFile.mappingObjects.forEach(mappingObject => {
+            if (mappingObject.imported){
+                this.context.activeEditor.view.selectViewItem(mappingObject.id)
                 !moved && (this.context.activeEditor.view.moveToViewItem(mappingObject.id, 0, true, false));
                 moved = true;
             }

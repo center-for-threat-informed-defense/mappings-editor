@@ -16,7 +16,6 @@ import {
 import { randomUUID } from "../Utilities";
 import type { ApplicationStore } from '@/stores/ApplicationStore';
 import { EditorCommand } from '../MappingFileEditor';
-import { swapMappingFile } from '../Application/Commands/FileManagement';
 
 export class MappingFileAuthority {
 
@@ -288,6 +287,9 @@ export class MappingFileAuthority {
             } else {
                 newObject.relatedScore.cacheObjectValue(obj.related_score, null);
             }
+            // Add `imported` field if this is an imported mapping object 
+            newObject.imported = obj.imported ? true : false;
+
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
@@ -516,6 +518,10 @@ export class MappingFileAuthority {
         })
         Object.entries(importedFile.mapping_groups).forEach(([key, value]) => {
             !openedFile.mapping_groups[key] && (openedFile.mapping_groups[key] = value);
+        })
+        // add imported field to mapping objects that were just imported
+        importedFile.mapping_objects.forEach(mappingObject => {
+            mappingObject.imported = true;
         })
         // add imported file's mapping objects to current file's mapping objects
         openedFile.mapping_objects.push(importedFile.mapping_objects);

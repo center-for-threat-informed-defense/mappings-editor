@@ -63,10 +63,8 @@ export async function importFile(context: ApplicationStore, file: string): Promi
     const json = context.fileSerializer.deserialize(file);
     // Construct file
     const mappingFile = await context.fileAuthority.importMappingFile(context.activeEditor.file, json);
-    // Amount of new mapping objects
-    const lenNewMappingObjects = json.mapping_objects.length;
     // Return command
-    return new SwapMappingFile(mappingFile, context, lenNewMappingObjects);
+    return new SwapMappingFile(mappingFile, context);
 }
 
 /**
