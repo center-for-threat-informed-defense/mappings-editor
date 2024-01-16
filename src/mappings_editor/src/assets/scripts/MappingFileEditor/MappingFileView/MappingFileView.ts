@@ -787,7 +787,9 @@ export class MappingFileView {
     public moveToViewItem(id: string, position: number, fromHangers: boolean, strict: boolean) {
         // Select item
         let item = this._rootItem;
+        let i = 0;
         for(; item; item = item.next) {
+            i ++;
             if(item.id === id) break;
         }
         if(!item) return;

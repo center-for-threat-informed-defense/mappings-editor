@@ -16,7 +16,7 @@ import {
 import { randomUUID } from "../Utilities";
 import type { ApplicationStore } from '@/stores/ApplicationStore';
 import { EditorCommand } from '../MappingFileEditor';
-import { swapMappingFile } from "../MappingFileEditor/EditorCommands/Editor";
+import { swapMappingFile } from '../Application/Commands/FileManagement';
 
 export class MappingFileAuthority {
 

@@ -1,3 +1,4 @@
+import { SwapMappingFile } from './SwapFileCommand';
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
 import { AppCommand } from "../AppCommand";
@@ -6,8 +7,6 @@ import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
-import { SwapMappingFile } from "@/assets/scripts/MappingFileEditor/EditorCommands/Editor/SwapFileCommand";
-
 /**
  * Loads an empty mapping file into the application.
  * @param context
@@ -64,8 +63,10 @@ export async function importFile(context: ApplicationStore, file: string): Promi
     const json = context.fileSerializer.deserialize(file);
     // Construct file
     const mappingFile = await context.fileAuthority.importMappingFile(context.activeEditor.file, json);
+    // Amount of new mapping objects
+    const lenNewMappingObjects = json.mapping_objects.length;
     // Return command
-    return new SwapMappingFile(mappingFile, context);
+    return new SwapMappingFile(mappingFile, context, lenNewMappingObjects);
 }
 
 /**
@@ -125,4 +126,16 @@ export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
  */
 export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
     return new ClearFileRecoveryBank(context)
+}
+
+
+/**
+ * Swaps the mapping file {@link MappingFile} in a Mapping Editor {@link MappingFileEditor} 
+ * @param file
+ *  The mapping file to operate on.
+ * @returns
+ *  A command that represents the action.
+ */
+export function swapMappingFile(file: MappingFile, context: ApplicationStore): EditorCommand {
+    return new SwapMappingFile(file, context); 
 }
