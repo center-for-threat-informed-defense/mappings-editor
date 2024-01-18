@@ -1,5 +1,4 @@
 import { GroupCommand } from "../GroupCommand";
-import { MappingFile } from './../../../MappingFile/MappingFile';
 import { MappingFileEditor } from '@/assets/scripts/MappingFileEditor';
 import type { MappingFile } from "@/assets/scripts/MappingFile";
 import type { ApplicationStore } from '@/stores/ApplicationStore';
@@ -16,7 +15,6 @@ export class SwapMappingFile extends GroupCommand {
      */
     private context: ApplicationStore;
 
-    private readonly amountNewMappingObjects
     /**
      * Swaps the mapping file {@link MappingFile} in a mapping file editor {@link MappingFileEditor}.
      * @param file

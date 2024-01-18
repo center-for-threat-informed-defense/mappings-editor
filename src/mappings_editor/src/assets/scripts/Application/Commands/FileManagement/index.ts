@@ -7,6 +7,7 @@ import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFile } from "@/assets/scripts/MappingFile";
 /**
  * Loads an empty mapping file into the application.
  * @param context
@@ -76,7 +77,7 @@ export async function importFile(context: ApplicationStore, file: string): Promi
  */
 export async function loadFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
     const { filename, contents } = await Browser.openTextFileDialog();
-    return loadExistingFile(context, contents as string, filename);
+    return loadExistingFile(context, contents as string);
 }
 
 /**
@@ -134,6 +135,6 @@ export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
  * @returns
  *  A command that represents the action.
  */
-export function swapMappingFile(file: MappingFile, context: ApplicationStore): EditorCommand {
+export function swapMappingFile(file: MappingFile, context: ApplicationStore): AppCommand {
     return new SwapMappingFile(file, context); 
 }
