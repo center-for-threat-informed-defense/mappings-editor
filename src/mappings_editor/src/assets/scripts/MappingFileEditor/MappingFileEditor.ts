@@ -1,7 +1,6 @@
-import { toRaw } from "vue";
 import { EventEmitter } from "./EventEmitter";
+import { GroupCommand, EditorCommand, MappingFileView, EditorDirectives } from ".";
 import { EditableStrictFrameworkListing, MappingFile, MappingObject, StrictFrameworkObjectProperty, StringProperty } from "../MappingFile";
-import { GroupCommand, EditorCommand, MappingFileView, EditorDirectives, CameraCommand } from ".";
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
@@ -124,7 +123,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         } else {
             const grp = new GroupCommand();
             for(const command of commands) {
-                grp.add(command);
+                grp.do(command);
             }
             cmd = grp;
         }
@@ -146,39 +145,8 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      *  The command's editor directives.
      */
     public executeDirectives(cmd: EditorCommand, dirs: EditorDirectives) {
-        // Update view
-        if(dirs & EditorDirectives.RebuildBreakouts) {
-            // Perform rebuild on raw object to improve performance
-            this.view.rebuildBreakouts(toRaw);
-        } else if(dirs & EditorDirectives.RecalculatePositions) {
-            // Perform rebuild on raw object to improve performance
-            this.view.recalculateViewItemPositions(toRaw);
-        }
-        // Get camera commands
-        let cameraCommands: CameraCommand[] = [];
-        if(cmd instanceof GroupCommand) {
-            cameraCommands = cmd.cameraCommands;
-        } else if(cmd instanceof CameraCommand) {
-            cameraCommands = [cmd];
-        }
-        // Select camera items
-        if(dirs & EditorDirectives.ExclusiveSelect) {
-            this.view.unselectAllViewItems();
-            for(const cmd of cameraCommands) {
-                this.view.selectViewItem(cmd.id);
-            }
-        }
-        // Move camera
-        if(dirs & EditorDirectives.MoveCamera && cameraCommands[0]) {
-            this.view.moveToViewItem(
-                cameraCommands[0].id,
-                cameraCommands[0].position,
-                cameraCommands[0].fromHangers,
-                cameraCommands[0].strict
-            );
-        }
-        // Request save
-        if((dirs & EditorDirectives.FullRecord) === EditorDirectives.FullRecord) {
+        // Request autosave
+        if(dirs & EditorDirectives.Autosave) {
             this.requestAutosave();
         }
     }

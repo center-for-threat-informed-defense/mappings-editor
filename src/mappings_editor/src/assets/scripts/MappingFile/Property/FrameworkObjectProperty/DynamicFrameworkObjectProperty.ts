@@ -150,19 +150,30 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean {
         let wasSet = true;
+        // Configure framework
+        this._objectFramework = framework ?? this._objectFramework;
+        this._objectVersion = version ?? this._objectVersion;
+        // Configure value
         if(this._framework.options.has(id)) {
             if(this._framework.options.get(id) === text) {
                 this.objectId = id;
             } else {
                 this.cacheObjectValue(id, text);
+                // If the value had to be cached, it cannot 
+                // be the same framework as the property
+                if(
+                    this._objectFramework === this.framework.id &&
+                    this._objectVersion === this.framework.version
+                ) {
+                    this._objectFramework = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_ID;
+                    this._objectVersion = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_VERSION;
+                }
                 wasSet = false;
             }
         } else {
             this.objectId = id;
             this.objectText = text;
         }
-        this._objectFramework = framework ?? this._objectFramework;
-        this._objectVersion = version ?? this._objectVersion;
         return wasSet;
     }
 

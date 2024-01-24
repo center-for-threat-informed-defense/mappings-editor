@@ -1,9 +1,16 @@
+import type { MappingFileView } from "..";
+
 export class BreakoutControl {
 
     /**
      * The control's internal set of valid breakouts.
      */
     private _options: Map<number, { text: string, enabled: boolean }>;
+
+    /**
+     * The control's {@link MappingFileView}.
+     */
+    public readonly fileView: MappingFileView;
 
 
     /**
@@ -41,14 +48,13 @@ export class BreakoutControl {
 
     /**
      * Creates a new {@link FilterControl}.
-     * @param valueKey
-     *  The property (on each list item) that acts as the filter value.
-     * @param textKey
-     *  The property (on each list item) that acts as the filter text.
+     * @param fileView
+     *  The control's {@link MappingFileView}.
      * @param options
      *  The control's valid set of options.
      */
-    constructor(options: Map<number, { text: string, enabled: boolean }>) {
+    constructor(fileView: MappingFileView, options: Map<number, { text: string, enabled: boolean }>) {
+        this.fileView = fileView;
         this._options = options;
     }
 

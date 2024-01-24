@@ -1,22 +1,12 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { MappingFileViewItem } from "../..";
 
-export class SelectViewItem extends EditorCommand {
-
-    /**
-     * The view item to select.
-     */
-    public readonly item: MappingFileViewItem;
-
+export class DoNothing extends EditorCommand {
 
     /**
-     * Selects a {@link MappingFileViewItem}.
-     * @param item
-     *  The view item to select.
+     * Does nothing.
      */
-    constructor(item: MappingFileViewItem) {
+    constructor() {
         super();
-        this.item = item;
     }
 
 
@@ -26,7 +16,6 @@ export class SelectViewItem extends EditorCommand {
      *  The command's directives.
      */
     public execute(): EditorDirectives {
-        this.item.selected = true;
         return EditorDirectives.None;
     }
 

@@ -43,7 +43,7 @@ export class AddItemToListProperty extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.insertListItem(this.item, this.index);
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
     /**
@@ -53,7 +53,7 @@ export class AddItemToListProperty extends EditorCommand {
      */
     undo(): EditorDirectives {
         this.prop.removeListItem(this.item);
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
 }

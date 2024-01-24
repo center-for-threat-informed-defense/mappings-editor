@@ -34,15 +34,30 @@ export function setStringProperty(prop: StringProperty, value: string | null): E
  * @returns
  *  A command that represents the action.
  */
-export function setListItemProperty(prop: ListItemProperty, value: string | null): EditorCommand {
-   return new SetListItemProperty(prop, value); 
+export function setListItemProperty(prop: ListItemProperty, value: string | null): EditorCommand;
+
+/**
+ * Sets the value of a {@link ListProperty}.
+ * @param prop
+ *  The {@link ListItemProperty}.
+ * @param exportValue
+ *  The {@link ListItemProperty}'s new export value.
+ * @param exportText
+ *  The {@link ListItemProperty}'s new export text.
+ * @returns
+ *  A command that represents the action.
+ */
+export function setListItemProperty(prop: ListItemProperty, exportValue: string, exportText?: string): EditorCommand;
+export function setListItemProperty(prop: ListItemProperty, param1: string | null, param2?: string): EditorCommand {
+    if(param1 === null || param2 === undefined) {
+        return new SetListItemProperty(prop, param1); 
+    } else {
+        return new SetListItemProperty(prop, param1, param2); 
+    }
 }
 
 /**
  * Sets the object id of a {@link FrameworkObjectProperty}.
- * @remarks
- *  Prefer {@link setDynamicFrameworkObjectPropertyId} when setting the object
- *  id of {@link DynamicFrameworkObjectProperty}s.
  * @param prop
  *  The {@link FrameworkObjectProperty}.
  * @param objectId
@@ -50,8 +65,26 @@ export function setListItemProperty(prop: ListItemProperty, value: string | null
  * @returns
  *  A command that represents the action.
  */
-export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null): EditorCommand {
-    return new SetFrameworkObjectPropertyId(prop, objectId); 
+export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null): EditorCommand;
+
+/**
+ * Forcibly sets the object id and text of a {@link FrameworkObjectProperty}.
+ * @param prop
+ *  The {@link FrameworkObjectProperty}.
+ * @param objectId
+ *  The {@link FrameworkObjectProperty}'s new object id.
+ * @param objectText
+ *  The {@link FrameworkObjectProperty}'s new object text.
+ * @returns
+ *  A command that represents the action.
+ */
+export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string, objectText: string | null): EditorCommand;
+export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null, objectText?: string | null): EditorCommand {
+    if(objectId === null || objectText === undefined) {
+        return new SetFrameworkObjectPropertyId(prop, objectId); 
+    } else {
+        return new SetFrameworkObjectPropertyId(prop, objectId, objectText); 
+    }
 }
 
 /**

@@ -1,4 +1,5 @@
 import * as AppCommands from "@/assets/scripts/Application/Commands";
+import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { defineStore } from 'pinia'
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
@@ -16,21 +17,6 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
         nativeHotkeys(): Hotkey<CommandEmitter>[] {
             return [
                 {
-                    shortcut: "Control+C",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
-                    shortcut: "Control+V",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
-                    shortcut: "Control+X",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
                     shortcut: "Control+R",
                     repeatable: true,
                     allowBrowserBehavior: true
@@ -41,22 +27,12 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     allowBrowserBehavior: true
                 },
                 {
-                    shortcut: "Meta+C",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
-                    shortcut: "Meta+V",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
-                    shortcut: "Meta+X",
-                    repeatable: true,
-                    allowBrowserBehavior: true
-                },
-                {
                     shortcut: "Meta+R",
+                    repeatable: true,
+                    allowBrowserBehavior: true
+                },
+                {
+                    shortcut: "Meta+Shift+R",
                     repeatable: true,
                     allowBrowserBehavior: true
                 }
@@ -105,6 +81,40 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                 {
                     data: () => AppCommands.redoEditorCommand(editor),
                     shortcut: edit.redo,
+                    repeatable: true
+                },
+                {
+                    data: () => EditorCommands.deleteSelectedMappingObjectViews(editor.view),
+                    shortcut: edit.delete,
+                    repeatable: false,
+                    disabled: !app.hasSelection
+                },
+                {
+                    data: () => EditorCommands.selectAllMappingObjectViews(editor.view),
+                    repeatable: false,
+                    shortcut: edit.select_all
+                },
+                {
+                    data: () => EditorCommands.unselectAllMappingObjectViews(editor.view),
+                    shortcut: edit.unselect_all,
+                    repeatable: false,
+                    disabled: !app.hasSelection
+                },
+                {
+                    data: () => AppCommands.cutEditorCommand(app, editor, editor.view),
+                    shortcut: edit.cut,
+                    repeatable: false,
+                    disabled: !app.hasSelection
+                },
+                {
+                    data: () => AppCommands.copySelectedMappingObjects(app, editor.view),
+                    shortcut: edit.copy,
+                    repeatable: false,
+                    disabled: !app.hasSelection
+                },
+                {
+                    data: () => AppCommands.pasteMappingObjects(app, editor),
+                    shortcut: edit.paste,
                     repeatable: true
                 }
             ];

@@ -45,6 +45,15 @@ export const useApplicationStore = defineStore('applicationStore', {
          */
         canRedo(state): boolean {
             return state.activeEditor.canRedo();
+        },
+
+        /**
+         * Tests if the active editor has a selection.
+         * @returns
+         *  True if the active editor has a selection, false otherwise.
+         */
+        hasSelection(state): boolean {
+            return 0 < state.activeEditor.view.selected.size;
         }
 
     },

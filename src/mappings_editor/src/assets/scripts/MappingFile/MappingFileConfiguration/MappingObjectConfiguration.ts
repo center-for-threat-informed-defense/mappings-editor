@@ -60,11 +60,6 @@ export type MappingObjectConfiguration = {
     /**
      * The mapping object's score value
      */
-    scoreValue?: ListItemProperty,
-
-    /**
-     * The mapping object's related score.
-     */
-    relatedScore?: FrameworkObjectProperty,
+    scoreValue?: ListItemProperty
 
 }

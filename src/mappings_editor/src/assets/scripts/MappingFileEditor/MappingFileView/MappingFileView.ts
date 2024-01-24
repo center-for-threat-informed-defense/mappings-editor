@@ -1,9 +1,10 @@
-import { type MappingFile, MappingObject } from "../../MappingFile";
+import { type MappingFile, MappingObject, Property, ListItemProperty, FrameworkObjectProperty, ComputedProperty } from "../../MappingFile";
 import { MappingObjectDiscriminator } from "./MappingObjectDiscriminator";
 import { 
     BreakoutControl,
     FilterControl, 
     FrameworkListingFilterControl,
+    GenericFilterControl,
     ListPropertyFilterControl
 } from "./Controls";
 import {
@@ -16,8 +17,14 @@ import {
     SourceObjectSectionView,
     TargetObjectSectionView
 } from "./MappingFileViewItem";
+import { clamp } from "../../Utilities";
 
 export class MappingFileView {
+
+    /**
+     * A function that unwraps `this` from a reactive context.
+     */
+    public static toRaw: <T>(obj: T) => T = obj => obj;
 
     /**
      * The view's sizing configuration.
@@ -33,6 +40,11 @@ export class MappingFileView {
      * The view's mapping objects.
      */
     private _mappingObjects: Map<string, MappingObjectView>
+
+    /**
+     * The view's breakout section objects.
+     */
+    private _sectionObjects: Map<string, BreakoutSectionView>
 
     /**
      * The view's section index.
@@ -60,6 +72,21 @@ export class MappingFileView {
     private _maxLevel: number;
 
     /**
+     * The view's internal maximum layer.
+     */
+    private _maxLayer: number;
+
+    /**
+     * The view's internal selected {@link MappingFileViewItem}s.
+     */
+    private readonly _selected: Set<string>;
+
+    /**
+     * The view's internal last selected {@link MappingFileViewItem}.
+     */
+    private _lastSelected: MappingFileViewItem | null;
+
+    /**
      * The view's mapping file.
      */
     public readonly file: MappingFile;
@@ -67,17 +94,17 @@ export class MappingFileView {
     /**
      * The view's available breakouts.
      */
-    public breakouts: BreakoutControl;
+    public readonly breakouts: BreakoutControl;
 
     /**
      * The view's available filter sets.
      */
-    public filterSets: ReadonlyMap<MappingObjectDiscriminator, FilterControl>;
+    public readonly filterSets: ReadonlyMap<MappingObjectDiscriminator, FilterControl>;
 
     /**
      * The view's visible view items.
      */
-    public visibleItems: ReadonlyArray<MappingFileViewItem>
+    public visibleItems: ReadonlyArray<MappingFileViewItem>;
 
 
     /**
@@ -102,6 +129,13 @@ export class MappingFileView {
     }
 
     /**
+     * The view's maximum position (in pixels).
+     */
+    public get maxPosition(): number {
+        return Math.max(0, this._contentHeight - this._viewHeight); 
+    }
+
+    /**
      * The view's maximum level.
      */
     public get maxLevel(): number {
@@ -109,16 +143,24 @@ export class MappingFileView {
     }
 
     /**
-     * All currently selected {@link MappingFileViewItem}s.
+     * The view's maximum layer.
      */
-    public get selected(): MappingFileViewItem[] {
-        const selected = [];
-        for(let item = this._rootItem; item; item = item.next) {
-            if(item.selected) {
-                selected.push(item);
-            }
-        }
-        return selected;
+    public get maxLayer(): number {
+        return this._maxLayer;
+    }
+
+    /**
+     * The view's selected {@link MappingFileViewItem}s.
+     */
+    public get selected(): ReadonlySet<string> {
+        return this._selected;
+    }
+
+    /**
+     * The view's last selected {@link MappingFileViewItem}.
+     */
+    public get lastSelected(): MappingFileViewItem | null {
+        return this._lastSelected;
     }
 
 
@@ -129,15 +171,22 @@ export class MappingFileView {
      * @param sizing
      *  The view's sizing configuration.
      */
-    constructor(file: MappingFile, sizing: SizingConfiguration) {
+    constructor(
+        file: MappingFile,
+        sizing: SizingConfiguration
+    ) {
         this._sizing = sizing;
         this._rootItem = null;
         this._mappingObjects = new Map();
+        this._sectionObjects = new Map();
         this._discriminatorIndex = new Map();
         this._viewHeight = 0;
         this._contentHeight = 0;
         this._viewPosition = 0;
         this._maxLevel = 0;
+        this._maxLayer = 0;
+        this._selected = new Set();
+        this._lastSelected = null;
         this.file = file;
         this.breakouts = this.defineBreakouts();
         this.filterSets = this.defineFilterSets(file);
@@ -168,12 +217,11 @@ export class MappingFileView {
     
     /**
      * Rebuilds the view's breakouts.
-     * @param toRaw
-     *  A function that unwraps `this` from a reactive context.
      */
-    public rebuildBreakouts(toRaw: <T>(obj: T) => T = obj => obj) {
+    public rebuildBreakouts() {
+
         const discriminatorIndex: DiscriminatorIndex = new Map();
-        const rawThis = toRaw(this);
+        const rawThis = MappingFileView.toRaw(this);
 
         // 1. Reload mapping objects
         const mappingObjects = new Map();
@@ -187,17 +235,20 @@ export class MappingFileView {
             mappingObjects.set(id, viewObject);
         }
         rawThis._mappingObjects = mappingObjects;
+        rawThis._sectionObjects = new Map();
 
         // 2. Breakout only by items, if applicable
         const dis = rawThis.breakouts.primaryBreakout;
         if(dis === undefined) {
 
-            // 2a. Build items list
+            // 3a. Build items list
             let firstItem: MappingObjectView | null = null;
             let lastItem: MappingObjectView | null = null;
             for(const nextItem of rawThis._mappingObjects.values()) {
                 // Filter object
                 if(!rawThis.isMappingObjectVisible(nextItem.object)) {
+                    // Unselect filtered objects
+                    nextItem.select(false);
                     continue;
                 }
                 firstItem ??= nextItem;
@@ -214,84 +265,99 @@ export class MappingFileView {
                 nextItem.level = 1;
             }
 
-            // 2b. Set penultimate level
+            // 3b. Set penultimate level
             this._maxLevel = 0;
 
-            // 2c. Update root item
+            // 3c. Update root item
             this._rootItem = firstItem; 
 
-            // 2d. Recalculate item positions
-            this.recalculateViewItemPositions(toRaw);
+        } else {
 
-            return;
+            // 3a. Build primary breakout
+            const values = rawThis.getAllDiscriminatorValues(this.file, dis);
+            for(const value of values) {
+                // Check if section is filtered
+                if(!rawThis.isDiscriminatorValueVisible(value, dis)) {
+                    continue;
+                }
+                // Create view
+                rawThis.getClosestViewFromDiscriminatorValueSet(
+                    discriminatorIndex, [dis], rawThis._sectionObjects, [value]
+                );
+            }
+
+            // 3b. Build secondary breakouts
+            const activeDiscriminators = rawThis.breakouts.activeBreakouts;
+            for(const objectView of rawThis._mappingObjects.values()) {
+                // Filter object
+                if(!rawThis.isMappingObjectVisible(objectView.object)) {
+                    // Unselect filtered objects
+                    objectView.select(false);
+                    continue;
+                }
+                // Get discriminator values
+                const values = activeDiscriminators.map(
+                    d => rawThis.getDiscriminatorProperty(objectView.object, d)
+                )
+                // Get section view
+                const sectionView = rawThis.getClosestViewFromDiscriminatorValueSet(
+                    discriminatorIndex, activeDiscriminators, rawThis._sectionObjects, values
+                )
+                // If section view is uncollapsed...
+                if(!sectionView.collapsed) {
+                    // ...update object view level
+                    objectView.level = sectionView.level + 1;
+                    // Insert object view into section view
+                    objectView.insertAtEndOf(sectionView);
+                } else {
+                    // Unselect collapsed objects
+                    objectView.select(false);
+                }
+            }
+
+            // 3c. Sort discriminator index
+            rawThis.sortDiscriminatorIndex(discriminatorIndex);
+
+            // 3d. Link all sections
+            rawThis.linkDiscriminatorIndex(discriminatorIndex);
+
+            // 3e. Update discriminator index
+            rawThis._discriminatorIndex = discriminatorIndex;
+
+            // 3f. Set maximum level
+            this._maxLevel = [...rawThis.breakouts.options.values()]
+                .reduce((a,b) => a + (b.enabled ? 1 : 0), 0);
+
+            // 3g. Configure root item
+            this._rootItem = this._discriminatorIndex
+                // Get first section index
+                .values().next().value
+                // Try to get first section
+                ?.values().next().value
+                // Try to get first section view
+                ?.view ?? null; 
+        
         }
 
-        // 3. Build primary breakout
-        const values = rawThis.getAllDiscriminatorValues(this.file, dis);
-        for(const value of values) {
-            // Check if section is filtered
-            if(!rawThis.isDiscriminatorValueVisible(value, dis)) {
-                continue;
-            }
-            // Create view
-            rawThis.getClosestViewFromDiscriminatorValueSet(
-                discriminatorIndex, [dis], [value]
-            );
+        // 4. Update selection
+        let ls = null;
+        this._selected.clear();
+        for(const item of rawThis.getItems(o => o.selected)) {
+            this._selected.add(item.id)
+            ls = item;
+        }
+        const _ls = rawThis._lastSelected;
+        if(!_ls || !rawThis._selected.has(_ls.id)) {
+            this._lastSelected = ls;
         }
 
-        // 4. Build secondary breakouts
-        const activeDiscriminators = rawThis.breakouts.activeBreakouts;
-        for(const objectView of rawThis._mappingObjects.values()) {
-            // Filter object
-            if(!rawThis.isMappingObjectVisible(objectView.object)) {
-                continue;
-            }
-            // Get discriminator values
-            const values = activeDiscriminators.map(
-                d => rawThis.getDiscriminatorValue(objectView.object, d)
-            )
-            // Get section view
-            const sectionView = rawThis.getClosestViewFromDiscriminatorValueSet(
-                discriminatorIndex, activeDiscriminators, values
-            )
-            // If section view is uncollapsed...
-            if(!sectionView.collapsed) {
-                // ...update object view level
-                objectView.level = sectionView.level + 1;
-                // Insert object view into section view
-                objectView.insertAtEndOf(sectionView);
-            }
-        }
-
-        // 5. Sort discriminator index
-        rawThis.sortDiscriminatorIndex(discriminatorIndex);
-
-        // 6. Link all sections
-        rawThis.linkDiscriminatorIndex(discriminatorIndex);
-
-        // 7. Update discriminator index
-        rawThis._discriminatorIndex = discriminatorIndex;
-
-        // 8. Set maximum level
-        this._maxLevel = [...rawThis.breakouts.options.values()]
-            .reduce((a,b) => a + (b.enabled ? 1 : 0), 0);
-
-        // 9. Configure root item
-        this._rootItem = this._discriminatorIndex
-            // Get first section index
-            .values().next().value
-            // Try to get first section
-            ?.values().next().value
-            // Try to get first section view
-            ?.view ?? null; 
-
-        // 10. Recalculate item positions
-        this.recalculateViewItemPositions(toRaw);
+        // 5. Recalculate item positions
+        this.recalculateViewItemPositions();
 
     }
 
     /**
-     * Tests is a {@link MappingObject} is visible.
+     * Tests if a {@link MappingObject} is visible.
      * @param obj
      *  The {@link MappingObject} to test.
      * @returns
@@ -300,131 +366,152 @@ export class MappingFileView {
     private isMappingObjectVisible(obj: MappingObject) {
         let isVisible = true;
         for(const discriminator of this.filterSets.keys()) {
-            const value = this.getDiscriminatorValue(obj, discriminator);
-            isVisible &&= this.isDiscriminatorValueVisible(value, discriminator);
+            const prop = this.getDiscriminatorProperty(obj, discriminator);
+            isVisible &&= this.isDiscriminatorValueVisible(prop, discriminator);
         }
         return isVisible;
     }
 
     /**
-     * Tests if a discriminator value is visible. 
-     * @param value
-     *  The discriminator value.
-     * @param dis
-     *  The {@link MappingObjectDiscriminator}
-     * @returns
-     *  True if the discriminator value is visible, false otherwise.
-     */
-    private isDiscriminatorValueVisible(
-        value: string | null,
-        dis: MappingObjectDiscriminator
-    ): boolean {
-        const control = this.filterSets.get(dis)
-        if(control) {
-            return control.isShown(value);
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Returns the value of a {@link MappingObjectDiscriminator} from a
+     * Returns a {@link MappingObjectDiscriminator}'s {@link Property} from a
      * {@link MappingObject}.
      * @param obj
      *  The {@link MappingObject}.
      * @param dis
      *  The {@link MappingObjectDiscriminator}.
      * @returns
-     *  The value of the {@link MappingObjectDiscriminator}.
+     *  The {@link MappingObjectDiscriminator}'s {@link Property}.
      */
-    private getDiscriminatorValue(
+    private getDiscriminatorProperty(
         obj: MappingObject,
         dis: MappingObjectDiscriminator
-    ): string | null {
+    ): Property {
         switch(dis) {
             case MappingObjectDiscriminator.MappingType:
-                return obj.mappingType.value;
+                return obj.mappingType;
             case MappingObjectDiscriminator.MappingGroup:
-                return obj.mappingGroup.value;
+                return obj.mappingGroup;
             case MappingObjectDiscriminator.MappingStatus:
-                return obj.mappingStatus.value;
+                return obj.mappingStatus;
             case MappingObjectDiscriminator.SourceObject:
-                return obj.sourceObject.objectId;
+                return obj.sourceObject;
             case MappingObjectDiscriminator.TargetObject:
-                return obj.targetObject.objectId;
+                return obj.targetObject;
+            case MappingObjectDiscriminator.IsValid:
+                return obj.isValid;
         }
     }
 
     /**
-     * Returns all possible values for a discriminator from a
-     * {@link MappingFile}.
+     * Tests if a discriminator value is visible. 
+     * @param prop
+     *  The discriminator's {@link Property}.
+     * @param dis
+     *  The {@link MappingObjectDiscriminator}
+     * @returns
+     *  True if the discriminator value is visible, false otherwise.
+     */
+    private isDiscriminatorValueVisible(
+        prop: Property,
+        dis: MappingObjectDiscriminator
+    ): boolean {
+        const control = this.filterSets.get(dis)
+        // Check if all shown first to save time
+        if(!control || control.allShown()) {
+            return true;
+        }
+        // Check if value is shown
+        if(prop instanceof FrameworkObjectProperty) {
+            return control.isShown(prop.objectId);
+        }
+        if(
+            prop instanceof ListItemProperty ||
+            prop instanceof ComputedProperty
+        ) {
+            return control.isShown(prop.value.toString());
+        }
+        throw new Error(
+            `Cannot dereference value from '${ prop.constructor.name }'.`
+        );
+    }
+
+    /**
+     * Returns all possible values for a discriminator.
+     * @remarks
+     *  To improve efficiency, the same {@link Property} is reused and its
+     *  underlying value is swapped on each iteration of the generator. Do NOT
+     *  attempt to use the spread operator on this generator, simply use it in
+     *  the context of an ordinary for each loop.
      * @param file
      *  The {@link MappingFile} to source the values from.
      * @param dis
      *  The {@link MappingObjectDiscriminator}.
      * @returns
-     *  All possible values for the {@link MappingObjectDiscriminator}.
+     *  A {@link Property} which will contain all possible values for the
+     *  discriminator.
      */
-    private getAllDiscriminatorValues(
+    private *getAllDiscriminatorValues(
         file: MappingFile,
         dis: MappingObjectDiscriminator
-    ): (string | null)[] {
-        let options: (string | null)[];
+    ): Generator<Property> {
+        const obj = file.createMappingObject();
         switch(dis) {
             case MappingObjectDiscriminator.MappingType:
-                options = [...file.mappingTypes.value.keys()];
+                for(const value of file.mappingTypes.value.keys()) {
+                    obj.mappingType.value = value;
+                    yield obj.mappingType;
+                }
                 break; 
             case MappingObjectDiscriminator.MappingGroup:
-                options = [...file.mappingGroups.value.keys()];
+                for(const value of file.mappingGroups.value.keys()) {
+                    obj.mappingGroup.value = value;
+                    yield obj.mappingGroup;
+                }
                 break;
             case MappingObjectDiscriminator.MappingStatus:
-                options = [...file.mappingStatuses.value.keys()];
+                for(const value of file.mappingStatuses.value.keys()) {
+                    obj.mappingStatus.value = value;
+                    yield obj.mappingStatus;
+                }
                 break;
             case MappingObjectDiscriminator.SourceObject:
-                if(file.sourceFrameworkListing) {
-                    options = [...file.sourceFrameworkListing.options.keys()]
-                } else {
-                    options = [...new Set(
-                        [...file.mappingObjects.values()].map(
-                            o => o.sourceObject.objectId
-                        )
-                    )]
+                for(const value of file.sourceFrameworkListing.options.keys()) {
+                    obj.sourceObject.objectId = value;
+                    yield obj.sourceObject;
                 }
                 break;
             case MappingObjectDiscriminator.TargetObject:
-                if(file.targetFrameworkListing) {
-                    options = [...file.targetFrameworkListing.options.keys()]
-                } else {
-                    options = [...new Set(
-                        [...file.mappingObjects.values()].map(
-                            o => o.targetObject.objectId
-                        )
-                    )]
+                for(const value of file.targetFrameworkListing.options.keys()) {
+                    obj.targetObject.objectId = value;
+                    yield obj.targetObject;
                 }
                 break;
         }
-        return options;
     }
 
     /**
-     * Gets the closest accessible {@link BreakoutSectionView} from a discriminator
-     * index using a set of discriminator values. If the view doesn't exist in
-     * the index, the function attempts to update the index using a view from
-     * the {@link MappingFileView}'s existing discriminator index. If neither
-     * have the view, a new one is created and added to the index. 
+     * Gets the closest accessible {@link BreakoutSectionView} from a
+     * discriminator index using a set of discriminator values. If the view
+     * doesn't exist in the index, the function attempts to update the index
+     * using a view from the {@link MappingFileView}'s existing discriminator
+     * index. If neither have the view, a new one is created and added to the
+     * index. In both cases, the view is added to the `sectionObjects` map.
      * @param discriminatorIndex
      *  The discriminator index.
      * @param discriminators
      *  The list of {@link MappingObjectDiscriminator}.
-     * @param values
-     *  The list of discriminator values.
+     * @param sectionObjects
+     *  The {@link BreakoutSectionView} map.
+     * @param properties
+     *  The list of discriminator properties.
      * @returns
      *  The retrieved {@link BreakoutSectionView}.
      */
     private getClosestViewFromDiscriminatorValueSet(
         discriminatorIndex: DiscriminatorIndex,
         discriminators: MappingObjectDiscriminator[],
-        values: (string | null)[]
+        sectionObjects: Map<string, BreakoutSectionView>,
+        properties: Property[]
     ): BreakoutSectionView {
         let nextSection: SectionInfo;
         let nextDiscriminatorIndex: DiscriminatorIndex;
@@ -437,15 +524,16 @@ export class MappingFileView {
             throw new Error("At least one discriminator must be specified.");
         }
         // Validate discriminators and values align
-        if(discriminators.length !== values.length) {
-            throw new Error("The number of discriminators and values must match.");
+        if(discriminators.length !== properties.length) {
+            throw new Error("The number of discriminators and properties must match.");
         }
 
         // Iterate discriminator index
         nextDiscriminatorIndex = discriminatorIndex;
         existingDiscriminatorIndex = this._discriminatorIndex;
         for(let i = 0; i < discriminators.length; i++) {
-            const value = values[i];
+            const prop = properties[i];
+            const sectionHash = this.getSectionHash(prop);
             const discriminator = discriminators[i];
             
             // Traverse next section index
@@ -457,12 +545,13 @@ export class MappingFileView {
             existingSectionIndex = existingDiscriminatorIndex?.get(discriminator);
 
             // Try to retrieve an existing section
-            const existingSection: SectionInfo | undefined = existingSectionIndex?.get(value)!;
+            const existingSection: SectionInfo | undefined 
+                = existingSectionIndex?.get(sectionHash)!;
 
             // If the next section index already has the section...
-            if(nextSectionIndex.has(value)) {
+            if(nextSectionIndex.has(sectionHash)) {
                 // ...use it
-                nextSection = nextSectionIndex.get(value)!
+                nextSection = nextSectionIndex.get(sectionHash)!
             }
             // Otherwise, try to use the existing section
             else if(existingSection) {
@@ -473,19 +562,23 @@ export class MappingFileView {
                     view: existingSection.view,
                     discriminators: new Map()
                 }
+                // Add section to map
+                sectionObjects.set(nextSection.view.id, nextSection.view);
             }
             // Otherwise, create a completely new section
             else {
                 nextSection = {
-                    view: this.createViewFromDiscriminatorValue(value, discriminator),
+                    view: this.createViewFromDiscriminatorValue(prop, discriminator),
                     discriminators: new Map()
                 }
                 // Set level
                 nextSection.view.level = i;
+                // Add section to map
+                sectionObjects.set(nextSection.view.id, nextSection.view);
             }
             
             // Update next section index
-            nextSectionIndex.set(value, nextSection);
+            nextSectionIndex.set(sectionHash, nextSection);
 
             // Traverse next discriminator index
             nextDiscriminatorIndex = nextSection.discriminators
@@ -506,66 +599,66 @@ export class MappingFileView {
     }
 
     /**
+     * Returns the value of a {@link Property}.
+     * @param prop
+     *  The property.
+     * @returns
+     *  The property's value.
+     */
+    private getSectionHash(prop: Property): string | null {
+        if(prop instanceof FrameworkObjectProperty) {
+            return prop.objectId ? `${ prop.objectId }:${ prop.objectText }` : null;
+        }
+        if(
+            prop instanceof ListItemProperty ||
+            prop instanceof ComputedProperty    
+        ) {
+            return prop.value !== null ? `${ prop.value }` : null
+        }
+        throw new Error(
+            `Cannot dereference value from '${ prop.constructor.name }'.`
+        );
+    }
+
+    /**
      * Creates a {@link BreakoutSectionView} from a discriminator value.
      * @param value
-     *  The discriminator value.
+     *  The discriminator property or value.
      * @param dis
      *  The {@link MappingObjectDiscriminator}.
      * @returns
      *  The {@link BreakoutSectionView}.
      */
     private createViewFromDiscriminatorValue(
-        value: null | string,
-        dis: MappingObjectDiscriminator,
+        prop: Property,
+        dis: MappingObjectDiscriminator
     ): BreakoutSectionView {
-        const err = `Invalid discriminator value '${ value }'.`;
-        let name, type;
+        // Configure name and value
+        let value, text;
+        if(prop instanceof ListItemProperty) {
+            value = prop.isValueCached() ? prop.exportValue : prop.value;
+            text  = prop.exportText;
+        } else if (prop instanceof FrameworkObjectProperty){
+            value = prop.objectId;
+            text  = prop.objectText;
+        } else {
+            text = `Error: Unhandled Property Type '${ prop.constructor.name}'`,
+            value = null
+        }
+        // Create section
         switch(dis) {
             case MappingObjectDiscriminator.MappingType:
-                if(value == null) {
-                    name = "No Mapping Type";
-                } else if((type = this.file.mappingTypes.value.get(value))) {
-                    name = type.getAsString("name")
-                } else {
-                    throw new Error(err);
-                }
-                return new MappingTypeSectionView(this, name, value);
+                return new MappingTypeSectionView(this, value, text);
             case MappingObjectDiscriminator.MappingGroup:
-                if(value == null) {
-                    name = "No Mapping Group";
-                } else if((type = this.file.mappingGroups.value.get(value))) {
-                    name = type.getAsString("name")
-                } else {
-                    throw new Error(err);
-                }
-                return new MappingGroupSectionView(this, name, value);
+                return new MappingGroupSectionView(this, value, text);
             case MappingObjectDiscriminator.MappingStatus:
-                if(value == null) {
-                    name = "No Mapping Status";
-                } else if((type = this.file.mappingStatuses.value.get(value))) {
-                    name = type.getAsString("name")
-                } else {
-                    throw new Error(err);
-                }
-                return new MappingStatusSectionView(this, name, value);
+                return new MappingStatusSectionView(this, value, text);
             case MappingObjectDiscriminator.SourceObject:
-                if(value == null) {
-                    name = "No Source";
-                } else if ((type = this.file.sourceFrameworkListing?.options.get(value))) {
-                    name = `${ value }: ${ type }`;
-                } else {
-                    name = value
-                }
-                return new SourceObjectSectionView(this, name, value);
+                return new SourceObjectSectionView(this, value, text);
             case MappingObjectDiscriminator.TargetObject:
-                if(value == null) {
-                    name = "No Target";
-                } else if ((type = this.file.targetFrameworkListing?.options.get(value))) {
-                    name = `${ value }: ${ type }`;
-                } else {
-                    name = value
-                }
-                return new TargetObjectSectionView(this, name, value);
+                return new TargetObjectSectionView(this, value, text);
+            default:
+                throw new Error(`Unhandled Discriminator '${ dis }'.`);   
         }
     }
 
@@ -576,7 +669,7 @@ export class MappingFileView {
      */
     private sortDiscriminatorIndex(index: DiscriminatorIndex) {
         for(const [dis, sectionIndex] of index) {
-            index.set(dis, this.sortSectionIndex(sectionIndex, dis));
+            index.set(dis, this.sortSectionIndex(sectionIndex));
             for(const section of sectionIndex.values()) {
                 this.sortDiscriminatorIndex(section.discriminators);
             }
@@ -587,50 +680,15 @@ export class MappingFileView {
      * Sorts a {@link SectionIndex}.
      * @param index
      *  The {@link SectionIndex}.
-     * @param dis
-     *  The {@link SectionIndex}'s {@link MappingObjectDiscriminator}.
      * @returns
      *  The sorted {@link SectionIndex}
      */
-    private sortSectionIndex(
-        index: SectionIndex,
-        dis: MappingObjectDiscriminator
-    ): SectionIndex {
-        const sections = [...index];
-        switch(dis) {
-            case MappingObjectDiscriminator.MappingType:
-                return new Map(sections.sort(([a], [b]) => {
-                    if(a === null) return -1;
-                    if(b === null) return 1;
-                    const types = this.file.mappingTypes.value;
-                    a = types.get(a)!.get("id").toString();
-                    b = types.get(b)!.get("id").toString(); 
-                    return a.localeCompare(b);
-                }))
-            case MappingObjectDiscriminator.MappingGroup:
-                return new Map(sections.sort(([a], [b]) => {
-                    if(a === null) return -1;
-                    if(b === null) return 1;
-                    const types = this.file.mappingGroups.value;
-                    a = types.get(a)!.get("id").toString();
-                    b = types.get(b)!.get("id").toString(); 
-                    return a.localeCompare(b);
-                }))
-            case MappingObjectDiscriminator.MappingStatus:
-                return new Map(sections.sort(([a], [b]) => {
-                    if(a === null) return -1;
-                    if(b === null) return 1;
-                    const types = this.file.mappingStatuses.value;
-                    a = types.get(a)!.get("name").toString();
-                    b = types.get(b)!.get("name").toString(); 
-                    return a.localeCompare(b);
-                }))
-            case MappingObjectDiscriminator.SourceObject:
-            case MappingObjectDiscriminator.TargetObject:
-                return new Map(sections.sort(([a],[b]) => 
-                    a === null ? -1 : b === null ? 1 : a.localeCompare(b)
-                ));
-        }
+    private sortSectionIndex(index: SectionIndex): SectionIndex {
+        return new Map([...index].sort((a, b) => {
+            const [v1, { view: s1 }] = a;
+            const [v2, { view: s2 }] = b;
+            return v1 === null ? -1 : v2 === null ? 1 : s1.name.localeCompare(s2.name);
+        }));
     }
 
     /**
@@ -661,7 +719,7 @@ export class MappingFileView {
         return lastItem;
     }
     
-    
+
     ///////////////////////////////////////////////////////////////////////////
     ///  3. Recalculate View  /////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -669,11 +727,9 @@ export class MappingFileView {
 
     /**
      * Recalculates all {@link MappingFileViewItem} positions.
-     * @param toRaw
-     *  A function that unwraps `this` from a reactive context.
      */
-    public recalculateViewItemPositions(toRaw: <T>(obj: T) => T = obj => obj) {
-        const rawThis = toRaw(this);
+    public recalculateViewItemPositions() {
+        const rawThis = MappingFileView.toRaw(this);
         // Recalculate view item positions
         let offset = 0;
         let maxLayer = 0;
@@ -683,7 +739,7 @@ export class MappingFileView {
         for(let item = rawThis._rootItem; item; item = item.next){
             item.headOffset = offset;
             if(item instanceof BreakoutSectionView) {
-                item.layer = ++maxLayer;
+                item.layer = maxLayer++;
                 item.height = _sizing.sectionHeight;
                 item.padding = _sizing.sectionPaddingHeight;
                 for(let i = sections.length - 1; 0 <= i && i >= item.level; i--) {
@@ -721,6 +777,7 @@ export class MappingFileView {
         for(let item = rawThis._rootItem; item; item = item.next){ 
             item.layer = maxLayer - item.layer;
         }
+        this._maxLayer = maxLayer;
         this._contentHeight = offset;
         // Update view position
         this.setViewPosition(this._viewPosition);
@@ -733,27 +790,73 @@ export class MappingFileView {
 
 
     /**
-     * Selects a {@link MappingFileViewItem}.
-     * @remarks
-     *  Currently, only {@link MappingObjectView}s are selectable.
+     * Selects / Unselects a {@link MappingFileViewItem}.
      * @param id
      *  The view item's id.
+     * @param value
+     *  True to select the item, false to unselect the item.
      */
-    public selectViewItem(id: string) {
-        const obj = this._mappingObjects.get(id);
-        if(obj) {
-            obj.selected = true;
+    public setItemSelect(id: string, value: boolean): void;
+
+    /**
+     * Selects / Unselects a {@link MappingFileViewItem}.
+     * @param item
+     *  The view item.
+     * @param value
+     *  True to select the item, false to unselect the item.
+     */
+    public setItemSelect(item: MappingFileViewItem, value: boolean): void;
+    public setItemSelect(item: MappingFileViewItem | string, value: boolean) {
+        const id = typeof item === "string" ? item : item.id;
+        const obj = this.getItem(id);
+        // Flag the selection
+        if(value) {
+            this._selected.add(id);
+            this._lastSelected = obj;
+        } else {
+            this._selected.delete(id);
+            if(this._lastSelected?.id === id) {
+                this._lastSelected = null;
+            }
+        }
+        // Set the selection 
+        if(obj.selected !== value) {
+            obj.select(value, false);
         }
     }
+
+    /**
+     * Selects / Unselects all view items.
+     * @param value
+     *  True to select the item, false to unselect the item.
+     */
+    public setAllItemsSelect(value: boolean): void;
     
     /**
-     * Unselects all {@link MappingFileViewItem}s.
-     * @remarks
-     *  Currently, only {@link MappingObjectView}s are unselectable.
+     * Selects / Unselects all view items that match the predicate.
+     * @param value
+     *  True to select the item, false to unselect the item.
+     * @param predicate
+     *  The predicate to execute on each item.
      */
-    public unselectAllViewItems() {
-        for(const obj of this._mappingObjects.values()) {
-            obj.selected = false;
+    public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
+    public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
+        const rawThis = MappingFileView.toRaw(this);
+        if(!value) {
+            for(const id of rawThis.selected) {
+                const _mo = rawThis._mappingObjects;
+                const _so = rawThis._sectionObjects;
+                const item = (_mo.get(id) ?? _so.get(id))!
+                if(predicate(item)) {
+                    this.setItemSelect(item, false);
+                }
+            }
+        } else {
+            for(const item of rawThis.getItems()) {
+                if(predicate(item)) {
+                    this.setItemSelect(item, true);
+                }
+            }
         }
     }
 
@@ -817,9 +920,10 @@ export class MappingFileView {
      *  The view's current position (in pixels).
      */
     public setViewPosition(position: number) {
+        // Round position
+        position = Math.round(position);
         // Update position
-        const maxPosition = this._contentHeight - this._viewHeight; 
-        this._viewPosition = Math.min(position, Math.max(0, maxPosition));
+        this._viewPosition = clamp(position, 0, this.maxPosition);
         // Update visible elements
         this.updateVisibleItems();
     }
@@ -828,34 +932,117 @@ export class MappingFileView {
      * Updates the set of visible items.
      */
     private updateVisibleItems() {
+        const rawThis = MappingFileView.toRaw(this);
         const margin = this._sizing.loadMargin;
         const topBoundary = this._viewPosition - margin;
         const botBoundary = this._viewPosition + this._viewHeight + margin;
-        const visibleItems = [];
+        this.visibleItems = [...rawThis.getItemsVisibleAt(topBoundary, botBoundary)]
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///  5. Query View  ///////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    
+    /**
+     * Returns a view item.
+     * @param id
+     *  The {@link MappingFileViewItem}'s id.
+     * @returns
+     *  The view item.
+     */
+    public getItem(id: string): MappingFileViewItem {
+        const obj = this._mappingObjects.get(id) ?? this._sectionObjects.get(id);
+        if(!obj) {
+            throw Error(`'${ id }' does not exist within the file view.`);
+        }
+        return obj;
+    }
+
+    /**
+     * Returns all view items.
+     * @returns
+     *  All view items.
+     */
+    public getItems(): Generator<MappingFileViewItem>;
+
+    /**
+     * Returns all view items that match the predicate.
+     * @param predicate 
+     *  The predicate to execute on each item.
+     * @returns
+     *  All view items that match the predicate.
+     */
+    public getItems(predicate: (item: MappingFileViewItem) => boolean): Generator<MappingFileViewItem>;
+    public *getItems(predicate: (item: MappingFileViewItem) => boolean = () => true): Generator<MappingFileViewItem> {
+        for(let item = this._rootItem; item; item = item.next) {
+            if(predicate(item)){
+                yield item;
+            }
+        }
+    }
+
+    /**
+     * Returns all view items that overlap the specified region.
+     * @param beg
+     *  The region's start (in pixels).
+     * @param end
+     *  The region's end (in pixels).
+     * @returns
+     *  The view items that overlap the specified region.
+     */
+    public *getItemsAt(beg: number, end: number): Generator<MappingFileViewItem> {
+        let encounteredBeg = false;
         let encounteredEnd = false;
-        let encounteredStart = false;
+        for(let item = this._rootItem; item; item = item.next) {
+            const ordinalBaseOffset = item.headOffset + item.height + item.padding;
+            if(item.headOffset < end && beg < ordinalBaseOffset) {
+                encounteredBeg = true;
+                yield item;
+            } else if(encounteredBeg) {
+                encounteredEnd = true;
+            }
+            if(encounteredBeg && encounteredEnd) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Returns all view items that appear in the specified region.
+     * @param beg
+     *  The region's start (in pixels).
+     * @param end
+     *  The region's end (in pixels).
+     * @returns
+     *  The view items that appear in the specified region.
+     */
+    public *getItemsVisibleAt(beg: number, end: number): Generator<MappingFileViewItem> {
+        let encounteredBeg = false;
+        let encounteredEnd = false;
         for(let item = this._rootItem; item; item = item.next) {
             if(item instanceof BreakoutSectionView) {
-                if(item.headOffset < botBoundary && topBoundary < item.baseOffset) {
-                    visibleItems.push(item);
+                if(item.headOffset < end && beg < item.baseOffset) {
+                    yield item;
                 }
             } else if(item instanceof MappingObjectView) {
-                if(item.headOffset < botBoundary && topBoundary < item.baseOffset) {
-                    encounteredStart = true;
-                    visibleItems.push(item);
-                } else if(encounteredStart) {
+                if(item.headOffset < end && beg < item.baseOffset) {
+                    encounteredBeg = true;
+                    yield item;
+                } else if(encounteredBeg) {
                     encounteredEnd = true;
                 }
             }
-            if(encounteredStart && encounteredEnd) break;
+            if(encounteredBeg && encounteredEnd) {
+                break;
+            }
         }
-        // Update visible items
-        this.visibleItems = visibleItems;
     }
 
     
     ///////////////////////////////////////////////////////////////////////////
-    ///  5. Define Breakouts and Filter Sets  /////////////////////////////////
+    ///  6. Define Breakouts and Filter Sets  /////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -866,6 +1053,7 @@ export class MappingFileView {
      */
     private defineBreakouts(): BreakoutControl {
         return new BreakoutControl(
+            this, 
             new Map([
                 [
                     MappingObjectDiscriminator.MappingGroup,
@@ -902,23 +1090,30 @@ export class MappingFileView {
         const filterSets = new Map<MappingObjectDiscriminator, FilterControl>([
             [
                 MappingObjectDiscriminator.MappingGroup,
-                new ListPropertyFilterControl("name", file.mappingGroups)
+                new ListPropertyFilterControl(this, "name", file.mappingGroups)
             ],
             [
                 MappingObjectDiscriminator.MappingStatus,
-                new ListPropertyFilterControl("name", file.mappingStatuses)
+                new ListPropertyFilterControl(this, "name", file.mappingStatuses)
             ],
             [
                 MappingObjectDiscriminator.MappingType,
-                new ListPropertyFilterControl("name", file.mappingTypes)
+                new ListPropertyFilterControl(this, "name", file.mappingTypes)
             ],
             [
                 MappingObjectDiscriminator.SourceObject,
-                new FrameworkListingFilterControl(file.sourceFrameworkListing)
+                new FrameworkListingFilterControl(this, file.sourceFrameworkListing)
             ],
             [
                 MappingObjectDiscriminator.TargetObject,
-                new FrameworkListingFilterControl(file.targetFrameworkListing)
+                new FrameworkListingFilterControl(this, file.targetFrameworkListing)
+            ],
+            [
+                MappingObjectDiscriminator.IsValid,
+                new GenericFilterControl(this, new Map([
+                    ["true", "Valid"],
+                    ["false", "Invalid"]
+                ]))
             ]
         ]);
         return filterSets;

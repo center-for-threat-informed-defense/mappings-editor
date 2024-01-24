@@ -10,7 +10,15 @@ export const BaseAppSettings: AppSettings = {
         },
         edit: {
             undo: "",
-            redo: ""
+            redo: "",
+            paint_select: "",
+            multi_select: "",
+            delete: "",
+            select_all: "",
+            unselect_all: "",
+            cut: "",
+            copy: "",
+            paste: ""
         },
         layout: {
         },
@@ -46,7 +54,15 @@ export type FileHotkeys = {
  */
 export type EditHotkeys = {
     undo: string,
-    redo: string
+    redo: string,
+    paint_select: string,
+    multi_select: string,
+    delete: string,
+    select_all: string,
+    unselect_all: string,
+    cut: string,
+    copy: string,
+    paste: string,
 }
 
 /**

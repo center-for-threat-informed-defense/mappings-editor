@@ -39,4 +39,18 @@ export abstract class FrameworkListing {
         this.version = version;
     }
 
+
+    /**
+     * Tests if the framework contains the specified object.
+     * @param objectId
+     *  The object's id.
+     * @param objectText
+     *  The object's text.
+     * @returns
+     *  True if the framework contains the object, false otherwise.
+     */
+    public has(objectId: string | null, objectText: string | null) {
+        return this.options.get(objectId) === objectText;
+    }
+
 }

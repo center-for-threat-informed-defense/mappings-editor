@@ -1,12 +1,12 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { MappingFileEditor } from "../..";
+import type { MappingFileView } from "../..";
 
-export class SetEditorViewPosition extends EditorCommand {
+export class SetMappingFileViewPosition extends EditorCommand {
 
     /**
-     * The file editor.
+     * The mapping file view.
      */
-    public readonly editor: MappingFileEditor;
+    public readonly fileView: MappingFileView;
 
     /**
      * The view's position.
@@ -15,15 +15,15 @@ export class SetEditorViewPosition extends EditorCommand {
 
 
     /**
-     * Sets a {@link MappingFileEditor}'s view position.
-     * @param editor
-     *  The editor to operate on.
+     * Sets a {@link MappingFileView}'s view position.
+     * @param fileView
+     *  The mapping file view to operate on.
      * @param position
      *  The view's position (in pixels).
      */
-    constructor(editor: MappingFileEditor, position: number) {
+    constructor(fileView: MappingFileView, position: number) {
         super();
-        this.editor = editor;
+        this.fileView = fileView;
         this.position = position;
     }
 
@@ -34,7 +34,7 @@ export class SetEditorViewPosition extends EditorCommand {
      *  The command's directives.
      */
     public execute(): EditorDirectives {
-        this.editor.view.setViewPosition(this.position);
+        this.fileView.setViewPosition(this.position);
         return EditorDirectives.None;
     }
 

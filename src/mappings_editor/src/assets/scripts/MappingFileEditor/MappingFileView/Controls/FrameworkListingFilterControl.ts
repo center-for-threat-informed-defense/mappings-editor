@@ -1,4 +1,5 @@
 import { FilterControl } from ".";
+import type { MappingFileView } from "..";
 import type { FrameworkListing } from "@/assets/scripts/MappingFile";
 
 export class FrameworkListingFilterControl extends FilterControl {
@@ -38,15 +39,13 @@ export class FrameworkListingFilterControl extends FilterControl {
     
     /**
      * Creates a new {@link FilterControl}.
-     * @param valueKey
-     *  The property (on each list item) that acts as the filter value.
-     * @param textKey
-     *  The property (on each list item) that acts as the filter text.
+     * @param fileView
+     *  The control's {@link MappingFileView}.
      * @param framework
      *  The control's valid set of options.
      */
-    constructor(framework: FrameworkListing) {
-        super();
+    constructor(fileView: MappingFileView, framework: FrameworkListing) {
+        super(fileView);
         this._framework = framework;
     }
 

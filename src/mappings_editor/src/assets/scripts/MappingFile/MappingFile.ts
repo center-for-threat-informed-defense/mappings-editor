@@ -96,14 +96,21 @@ export class MappingFile {
     public readonly scoreValues: ListProperty;
 
     /**
-     * The file's mapping objects.
+     * The file's internal mapping objects.
      */
-    public mappingObjects: ReadonlyMap<string, MappingObject>;
+    private _mappingObjects: Map<string, MappingObject>;
 
     /**
      * The file's mapping object template.
      */
     private readonly _mappingObjectTemplate: MappingObject;
+
+    /**
+     * The file's mapping objects.
+     */
+    public get mappingObjects(): ReadonlyMap<string, MappingObject> {
+        return this._mappingObjects;
+    }
 
 
     /**
@@ -135,7 +142,7 @@ export class MappingFile {
         this.mappingStatuses = template.mappingStatus.options;
         this.scoreCategories = template.scoreCategory.options;
         this.scoreValues = template.scoreValue.options;
-        this.mappingObjects = new Map<string, MappingObject>();
+        this._mappingObjects = new Map<string, MappingObject>();
         this._mappingObjectTemplate = template;
         // Configure source information
         const sourceListing = template.sourceObject.framework;
@@ -168,25 +175,36 @@ export class MappingFile {
     }
     
     /**
-     * Returns the index of a mapping object in the file.
+     * Returns the mapping object placed before the provided object.
      * @param id
      *  The mapping object's id.
      * @returns
-     *  The index of a mapping object in the file.
+     *  The mapping object placed before the provided object.
      */
-    public getMappingObjectIndex(id: string): number;
+    public getMappingObjectBefore(id: string): MappingObject | undefined;
 
     /**
-     * Returns the index of a mapping object in the file.
+     * Returns the mapping object placed before the provided object.
      * @param id
      *  The mapping object.
      * @returns
-     *  The index of a mapping object in the file.
+     *  The mapping object placed before the provided object.
      */
-    public getMappingObjectIndex(obj: MappingObject): number;
-    public getMappingObjectIndex(obj: MappingObject | string): number {
+    public getMappingObjectBefore(obj: MappingObject): MappingObject | undefined;
+    public getMappingObjectBefore(obj: MappingObject | string): MappingObject | undefined {
+        // Resolve id
         const id = typeof obj === "string" ? obj : obj.id;
-        return [...this.mappingObjects.keys()].findIndex(o => o === id);
+        if(!this._mappingObjects.has(id)) {
+            throw new Error(`Mapping file doesn't contain object '${ id }'.`);
+        }
+        // Resolve object
+        const items = [...this._mappingObjects];
+        const index = items.findIndex(([objId]) => objId === id) - 1;
+        if(-1 < index) {
+            return items[index][1];
+        } else {
+            return undefined;
+        }
     }
 
     /**
@@ -194,31 +212,51 @@ export class MappingFile {
      * @param object
      *  The mapping object to insert.
      */
-    public insertMappingObject(object: MappingObject): void;
-    
-    /**
-     * Inserts a mapping object into the mapping file.
-     * @param object
-     *  The mapping object to insert.
-     * @param index
-     *  The index to insert the object at.
-     */
-    public insertMappingObject(object: MappingObject, index: number): void;
-    public insertMappingObject(object: MappingObject, index?: number) {
-        if(this.mappingObjects.has(object.id)) {
+    public insertMappingObject(object: MappingObject) {
+        if(this._mappingObjects.has(object.id)) {
             throw new Error(`Mapping file already contains object '${ object.id }'.`);
         }
+        // Try uncache source and target objects
+        object.sourceObject.tryUncacheObjectValue();
+        object.targetObject.tryUncacheObjectValue();
         // Configure object's file
         object.file = this;
         // Configure file's object
-        if(index !== undefined) {
-            const items = [...this.mappingObjects];
-            items.splice(index, 0, [object.id, object]);
-            this.mappingObjects = new Map(items);
-        } else {
-            (this.mappingObjects as Map<string, MappingObject>)
-                .set(object.id, object);
+        this._mappingObjects.set(object.id, object);
+    }
+
+    /**
+     * Inserts a mapping object after another mapping object.
+     * @param object
+     *  The mapping object to insert.
+     * @param destination
+     *  The destination object's id.
+     */
+    public insertMappingObjectAfter(object: MappingObject, id?: string): void;
+
+    /**
+     * Inserts a mapping object after another mapping object.
+     * @param object
+     *  The mapping object to insert.
+     * @param destination
+     *  The destination object.
+     */
+    public insertMappingObjectAfter(object: MappingObject, destination?: string): void;
+    public insertMappingObjectAfter(object: MappingObject, destination?: MappingObject | string) {
+        const id = typeof destination === "string" ? destination : (destination?.id ?? null)
+        if(this._mappingObjects.has(object.id)) {
+            throw new Error(`Mapping file already contains object '${ object.id }'.`);
         }
+        // Try uncache source and target objects
+        object.sourceObject.tryUncacheObjectValue();
+        object.targetObject.tryUncacheObjectValue();
+        // Configure object's file
+        object.file = this;
+        // Configure file's object
+        const items = [...this._mappingObjects];
+        const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);
+        items.splice(index + 1, 0, [object.id, object]);
+        this._mappingObjects = new Map(items);
     }
 
     /**
@@ -240,12 +278,15 @@ export class MappingFile {
     public removeMappingObject(obj: MappingObject): void;
     public removeMappingObject(obj: MappingObject | string) {
         const id = typeof obj === "string" ? obj : obj.id;
-        if(this.mappingObjects.has(id)) {
-            obj = this.mappingObjects.get(id)!;
+        if(this._mappingObjects.has(id)) {
+            obj = this._mappingObjects.get(id)!;
+            // Cache source and target objects
+            obj.sourceObject.cacheObjectValue();
+            obj.targetObject.cacheObjectValue();
             // Configure object's file
             obj.file = null;
             // Configure file's object.
-            (this.mappingObjects as Map<string, MappingObject>).delete(id);
+            this._mappingObjects.delete(id);
         }
     }
 

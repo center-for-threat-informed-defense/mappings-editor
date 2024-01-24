@@ -1,7 +1,12 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { FilterControl } from "../..";
+import type { FilterControl, MappingFileView } from "../..";
 
 export class SetFilterState extends EditorCommand {
+    
+    /**
+     * The mapping file view.
+     */
+    public readonly fileView: MappingFileView;
 
     /**
      * The filter control.
@@ -30,6 +35,7 @@ export class SetFilterState extends EditorCommand {
      */
     constructor(control: FilterControl, id: string | null, value: boolean) {
         super();
+        this.fileView = control.fileView;
         this.control = control;
         this.id = id;
         this.value = value;
@@ -47,7 +53,7 @@ export class SetFilterState extends EditorCommand {
         } else {
             this.control.hide(this.id);
         }
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.None;
     }
 
     /**

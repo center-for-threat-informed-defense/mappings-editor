@@ -1,8 +1,13 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { BreakoutControl } from "../..";
+import type { BreakoutControl, MappingFileView } from "../..";
 
 export class MoveBreakout extends EditorCommand {
 
+    /**
+     * The mapping file view.
+     */
+    public readonly fileView: MappingFileView;
+    
     /**
      * The breakout control.
      */
@@ -30,6 +35,7 @@ export class MoveBreakout extends EditorCommand {
      */
     constructor(control: BreakoutControl, id: number, dst: number) {
         super();
+        this.fileView = control.fileView;
         this.control = control;
         this.id = id;
         this.dst = dst;
@@ -43,7 +49,7 @@ export class MoveBreakout extends EditorCommand {
      */
     public execute(): EditorDirectives {
         this.control.moveBreakout(this.id, this.dst);
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.None;
     }
 
     /**

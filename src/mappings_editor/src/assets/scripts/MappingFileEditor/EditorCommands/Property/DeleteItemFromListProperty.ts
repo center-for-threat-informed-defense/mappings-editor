@@ -44,7 +44,7 @@ export class DeleteItemFromListProperty extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.removeListItem(this.item);
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
     /**
@@ -54,7 +54,7 @@ export class DeleteItemFromListProperty extends EditorCommand {
      */
     undo(): EditorDirectives {
         this.prop.insertListItem(this.item, this.index);
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
 }

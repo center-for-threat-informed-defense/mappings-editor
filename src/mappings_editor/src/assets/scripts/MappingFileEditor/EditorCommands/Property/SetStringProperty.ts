@@ -41,7 +41,7 @@ export class SetStringProperty extends EditorCommand {
      */
     execute(): EditorDirectives {
         this.prop.value = this.nextValue;
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
     /**
@@ -51,7 +51,7 @@ export class SetStringProperty extends EditorCommand {
      */
     undo(): EditorDirectives {
         this.prop.value = this.prevValue;
-        return EditorDirectives.FullRecord;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
 }

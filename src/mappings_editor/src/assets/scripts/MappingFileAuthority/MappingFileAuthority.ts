@@ -1,39 +1,19 @@
 import { MappingFile } from "../MappingFile/MappingFile";
-import type { FrameworkRegistry } from "./FrameworkRegistry";
-import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
 import { 
     DynamicFrameworkObjectProperty, 
     EditableDynamicFrameworkListing, 
     EditableStrictFrameworkListing, 
     FrameworkObjectProperty,
     ListItem,
-    ListItemProperty, 
     ListProperty, 
     MappingObject,
     StrictFrameworkObjectProperty,
     StringProperty,
 } from "../MappingFile";
-import { randomUUID } from "../Utilities";
+import type { FrameworkRegistry } from "./FrameworkRegistry";
+import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
 
 export class MappingFileAuthority {
-
-    /**
-     * The unknown framework identifier.
-     * @remarks
-     *  A UUID is used to ensure the unknown framework never accidentally
-     *  collides with a known framework.
-     */
-    public static UNKNOWN_FRAMEWORK_ID: string
-        = `[UNKNOWN_FRAMEWORK:${ randomUUID() }]`;
-
-    /**
-     * The unknown framework version.
-     * @remarks
-     *  A UUID is used to ensure the unknown framework version never
-     *  accidentally collides with a known framework version.
-     */
-    public static UNKNOWN_FRAMEWORK_VERSION: string
-        = `[UNKNOWN_VERSION:${ randomUUID() }]`;
 
     /**
      * The mapping authority's framework registry.
@@ -65,7 +45,7 @@ export class MappingFileAuthority {
      * @returns
      *  The blank Mapping File.
      */
-    public async createEmptyMappingFile(file: MappingFileExport, id?: string) {
+    public async createEmptyMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
 
         const sf = file.source_framework,
               sv = file.source_version,
@@ -196,250 +176,67 @@ export class MappingFileAuthority {
     public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
         // Create new file
         const newFile = await this.createEmptyMappingFile(file, id);
-        // Create list item id maps
-        const [
-            mappingTypeIdToItemIdMap,
-            mappingGroupIdToItemIdMap,
-            mappingStatusIdToItemIdMap,
-            scoreCategoryIdToItemIdMap,
-            scoreValuesIdToItemIdMap
-        ] = [
-            newFile.mappingTypes.value,
-            newFile.mappingGroups.value,
-            newFile.mappingStatuses.value,
-            newFile.scoreCategories.value,
-            newFile.scoreValues.value
-        ].map(
-            v => new Map([...v].map(([k, i]) => [i.getAsString("id"), k]))
-        )
         // Load mapping objects into file
         for(const obj of file.mapping_objects) {
-            // Create mapping object
-            const newObject = newFile.createMappingObject();
-            // Load framework object property values
-            this.populateFrameworkObjectProperty(
-                newObject.sourceObject,
-                obj.source_id,
-                obj.source_text,
-                obj.source_framework ?? newFile.sourceFramework,
-                obj.source_version ?? newFile.sourceVersion
-            );
-            this.populateFrameworkObjectProperty(
-                newObject.targetObject,
-                obj.target_id,
-                obj.target_text,
-                obj.target_framework ?? newFile.targetFramework,
-                obj.target_version ?? newFile.targetVersion
-            );
-            // Configure author
-            newObject.author.value ??= file.author;
-            newObject.authorContact.value ??= file.author_contact;
-            newObject.authorOrganization.value ??= file.author_organization;
-            // Configure references
-            for(const url of obj.references) {
-                newObject.references.insertListItem(
-                    newObject.references.createNewItem({ url })
-                )
-            }
-            // Configure comments
-            newObject.comments.value = obj.comments;
-            // Configure mapping type
-            this.populateListItemProperty(
-                newObject.mappingType, obj.mapping_type, mappingTypeIdToItemIdMap,
-                mapping_type => ({
-                    name        : `Unknown Mapping Type '${ mapping_type }'`,
-                    description : `Unknown Mapping Type '${ mapping_type }'`,
-                })
-            )
-            // Configure mapping group
-            this.populateListItemProperty(
-                newObject.mappingGroup, obj.mapping_group, mappingGroupIdToItemIdMap,
-                mapping_group => ({ 
-                    name : `Unknown Mapping Group '${ mapping_group }'`
-                })
-            )
-            // Configure mapping status
-            this.populateListItemProperty(
-                newObject.mappingStatus, obj.mapping_status, mappingStatusIdToItemIdMap,
-                mapping_status => ({ 
-                    name : `Unknown Mapping Status '${ mapping_status }'`
-                })
-            )
-            // Configure score category
-            this.populateListItemProperty(
-                newObject.scoreCategory, obj.score_category, scoreCategoryIdToItemIdMap,
-                score_category => ({ 
-                    name : `Unknown Score Category '${ score_category }'`
-                })
-            );
-            // Configure score value
-            this.populateListItemProperty(
-                newObject.scoreValue, obj.score_value, scoreValuesIdToItemIdMap,
-                score_value => ({ 
-                    name : `Unknown Score Value '${ score_value }'`
-                })
-            );
-            // Configure related score
-            if(newObject.targetObject.framework.options.has(obj.related_score)) {
-                newObject.relatedScore.objectId = obj.related_score;
-            } else {
-                newObject.relatedScore.cacheObjectValue(obj.related_score, null);
-            }
+            // Load mapping object
+            const newObject = this.initializeMappingObjectExport(obj, newFile);
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
         return newFile;
-
     }
 
     /**
-     * Populates a {@link FrameworkObjectProperty} with a value.
-     * @param prop
-     *  The {@link FrameworkObjectProperty} to populate.
-     * @param objId
-     *  The framework object's id.
-     * @param objText
-     *  The framework object's text.
-     * @param objFramework
-     *  The framework object's framework.
-     * @param objVersion
-     *  The framework object's framework version.
+     * Initializes a {@link MappingObject} from a {@link MappingFileExport}.
+     * @param obj
+     *  The exported object.
+     * @param file
+     *  The {@link MappingFile} the {@link MappingFileExport} belongs to.
+     * @returns
+     *  The newly created {@link MappingObject}.
      */
-    private populateFrameworkObjectProperty (
-        prop: FrameworkObjectProperty,
-        objId: string | null,
-        objText: string | null,
-        objFramework: string,
-        objVersion: string
-    ) {
-        // Attempt to load strict value
-        if(prop instanceof StrictFrameworkObjectProperty) {
-            this.populateStrictFrameworkObjectProperty(
-                prop, objId, objText, objFramework, objVersion
-            );
+    public initializeMappingObjectExport(obj: MappingObjectExport, file: MappingFile): MappingObject {
+        // Create mapping object
+        const newObject = file.createMappingObject();
+        // Load framework object property values
+        newObject.sourceObject.cacheObjectValue(
+            obj.source_id,
+            obj.source_text,
+            obj.source_framework,
+            obj.source_version
+        );
+        newObject.targetObject.cacheObjectValue(
+            obj.target_id,
+            obj.target_text,
+            obj.target_framework,
+            obj.target_version
+        );
+        // Configure author
+        if(obj.author) {
+            newObject.author.value = obj.author;
         }
-        // Attempt to load dynamic value
-        else if(prop instanceof DynamicFrameworkObjectProperty) {
-            this.populateDynamicFrameworkObjectProperty(
-                prop, objId, objText, objFramework, objVersion
-            );
-        } else {
-            throw new Error(`Cannot load framework object into type '${ prop.constructor.name }'.`);
+        if(obj.author_contact) {
+            newObject.authorContact.value = obj.author_contact
         }
-    }
-
-    /**
-     * Populates a {@link StrictFrameworkObjectProperty} with a value.
-     * @param prop
-     *  The {@link StrictFrameworkObjectProperty} to populate.
-     * @param objId
-     *  The framework object's id.
-     * @param objText
-     *  The framework object's text.
-     * @param objFramework
-     *  The framework object's framework.
-     * @param objVersion
-     *  The framework object's framework version.
-     */
-    private populateStrictFrameworkObjectProperty(
-        prop: StrictFrameworkObjectProperty,
-        objId: string | null,
-        objText: string | null,
-        objFramework: string,
-        objVersion: string
-    ) {
-        const frameworkMatches = prop.framework.id === objFramework;
-        const versionMatches = prop.framework.version === objVersion;
-        if(frameworkMatches && versionMatches) {
-            if(prop.framework.options.has(objId)) {
-                const text = prop.framework.options.get(objId);
-                if(text === objText) {
-                    prop.objectId = objId;
-                    return;
-                }
-            }
-            objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
-            objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION;
+        if(obj.author_organization) {
+            newObject.authorOrganization.value = obj.author_organization;
         }
-        prop.cacheObjectValue(objId, objText, objFramework, objVersion);
-    }
-
-    /**
-     * Populates a {@link DynamicFrameworkObjectProperty} with a value.
-     * @param prop
-     *  The {@link DynamicFrameworkObjectProperty} to populate.
-     * @param objId
-     *  The framework object's id.
-     * @param objText
-     *  The framework object's text.
-     * @param objFramework
-     *  The framework object's framework.
-     * @param objVersion
-     *  The framework object's framework version.
-     */
-    private populateDynamicFrameworkObjectProperty(
-        prop: DynamicFrameworkObjectProperty,
-        objId: string | null,
-        objText: string | null,
-        objFramework: string,
-        objVersion: string
-    ) {
-        const frameworkMatches = prop.framework.id === objFramework;
-        const versionMatches = prop.framework.version === objVersion;
-        if(frameworkMatches && versionMatches) {
-            if(prop.framework.options.has(objId)) {
-                const text = prop.framework.options.get(objId);
-                if(text === objText) {
-                    prop.objectId = objId;
-                } else {
-                    objFramework = MappingFileAuthority.UNKNOWN_FRAMEWORK_ID;
-                    objVersion = MappingFileAuthority.UNKNOWN_FRAMEWORK_VERSION
-                    prop.cacheObjectValue(objId, objText, objFramework, objVersion);
-                }
-            } else {
-                prop.objectId = objId;
-                prop.objectText = objText;
-            }
-        } else {
-            prop.cacheObjectValue(objId, objText, objFramework, objVersion);
+        // Configure references
+        for(const url of obj.references) {
+            newObject.references.insertListItem(
+                newObject.references.createNewItem({ url })
+            )
         }
-    }
-
-    /**
-     * Populates a {@link ListItemProperty} with a value.
-     * @param prop
-     *  The {@link ListItemProperty} to populate.
-     * @param exportValue
-     *  The export value. 
-     * @param exportValueToItemId
-     *  A Map that maps export values to {@link ListItem} ids.
-     * @param defineUnknownItem
-     *  A function which accepts the export value and returns an object which
-     *  defines a new list item (in the case where the specified export
-     *  value is not a valid option).
-     */
-    private populateListItemProperty(
-        prop: ListItemProperty,
-        exportValue: string | null,
-        exportValueToItemId: Map<string, string>,
-        defineUnknownItem: (exportValue: string | null) => { [key: string]: any }
-    ) {
-        let itemId;
-        if(exportValue) {
-            itemId = exportValueToItemId.get(exportValue);
-            if(!itemId) {
-                const item = prop.options.createNewItem({
-                    ...defineUnknownItem(exportValue),
-                    [prop.exportValueKey]: exportValue,
-                });
-                exportValueToItemId.set(exportValue, item.id);
-                prop.options.insertListItem(item);
-                itemId = item.id;
-            }
-        } else {
-            itemId = null;
-        }
-        prop.value = itemId;
+        // Configure comments
+        newObject.comments.value = obj.comments;
+        // Configure mapping type
+        newObject.mappingType.exportValue   = obj.mapping_type;
+        newObject.mappingGroup.exportValue  = obj.mapping_group;
+        newObject.mappingStatus.exportValue = obj.mapping_status;
+        newObject.scoreCategory.exportValue = obj.score_category;
+        newObject.scoreValue.exportValue    = obj.score_value;
+        // Return object
+        return newObject;
     }
     
 
@@ -468,13 +265,12 @@ export class MappingFileAuthority {
     ///////////////////////////////////////////////////////////////////////////
 
 
-
     public auditMappingObject(object: MappingObject) {
         if(object.file === null) {
             throw new Error(`Mapping '${ object.id }' must be belong to a Mapping File to be audited.`)
         }
     }
-
+    
     
     ///////////////////////////////////////////////////////////////////////////
     //  5. Export Mapping File  ///////////////////////////////////////////////
@@ -488,7 +284,19 @@ export class MappingFileAuthority {
      * @returns
      *  The exported Mapping File.
      */
-    public exportMappingFile(file: MappingFile): MappingFileExport {
+    public exportMappingFile(file: MappingFile): MappingFileExport;
+    
+    /**
+     * Exports a Mapping File to a plain JSON object.
+     * @param file
+     *  The Mapping File to export.
+     * @param includeObjects
+     *  True to include the mapping objects, false otherwise.
+     * @returns
+     *  The exported Mapping File.
+     */
+    public exportMappingFile(file: MappingFile, includeObjects: boolean): MappingFileExport;
+    public exportMappingFile(file: MappingFile, includeObjects: boolean = true): MappingFileExport {
         
         // Convert list properties to maps
         const stringTransform 
@@ -514,37 +322,13 @@ export class MappingFileAuthority {
         ] = argSets.map(
             args => this.convertListPropertyToDictionary(...args)
         );
-
-        // Compile mapping objects list
-        const mapping_objects: MappingObjectExport[] = [];
-        for(const object of file.mappingObjects.values()) {
-            // Compile references
-            const references = [...object.references.value.values()]
-                .map(o => o.getAsString("url"))
-            // Compile mapping object
-            mapping_objects.push({
-                source_id           : object.sourceObject.objectId,
-                source_text         : object.sourceObject.objectText,
-                source_version      : object.sourceObject.objectVersion,
-                source_framework    : object.sourceObject.objectFramework,
-                target_id           : object.targetObject.objectId,
-                target_text         : object.targetObject.objectText,
-                target_version      : object.targetObject.objectVersion,
-                target_framework    : object.targetObject.objectFramework,
-                author              : object.author.value,
-                author_contact      : object.authorContact.value,
-                author_organization : object.authorOrganization.value,
-                references,
-                comments            : object.comments.value,
-                mapping_type        : object.mappingType.exportValue,
-                mapping_group       : object.mappingGroup.exportValue,
-                mapping_status      : object.mappingStatus.exportValue,
-                score_category      : object.scoreCategory.exportValue,
-                score_value         : object.scoreValue.exportValue,
-                related_score       : object.relatedScore.objectId
-            });
-        }
         
+        // Compile objects
+        let mapping_objects: MappingObjectExport[] = [];
+        if(includeObjects) {
+            mapping_objects = this.exportMappingObjects([...file.mappingObjects.values()])
+        }
+
         // Compile file
         return {
             version                : file.version,
@@ -566,6 +350,45 @@ export class MappingFileAuthority {
         }
 
     }
+
+    /**
+     * Exports Mapping Objects to plain JSON objects.
+     * @param objs
+     *  The Mapping Objects to export.
+     * @returns
+     *  The exported Mapping Objects.
+     */
+    public exportMappingObjects(objs: MappingObject[]): MappingObjectExport[] {
+        const mappingObjects = [];
+        for(const obj of objs) {
+            // Compile references
+            const references = [...obj.references.value.values()]
+                .map(o => o.getAsString("url"))
+            // Compile mapping object
+            mappingObjects.push({
+                source_id           : obj.sourceObject.objectId,
+                source_text         : obj.sourceObject.objectText,
+                source_version      : obj.sourceObject.objectVersion,
+                source_framework    : obj.sourceObject.objectFramework,
+                target_id           : obj.targetObject.objectId,
+                target_text         : obj.targetObject.objectText,
+                target_version      : obj.targetObject.objectVersion,
+                target_framework    : obj.targetObject.objectFramework,
+                author              : obj.author.value,
+                author_contact      : obj.authorContact.value,
+                author_organization : obj.authorOrganization.value,
+                references,
+                comments            : obj.comments.value,
+                mapping_type        : obj.mappingType.exportValue,
+                mapping_group       : obj.mappingGroup.exportValue,
+                mapping_status      : obj.mappingStatus.exportValue,
+                score_category      : obj.scoreCategory.exportValue,
+                score_value         : obj.scoreValue.exportValue
+            })
+        }
+        return mappingObjects;
+    }
+
 
     /**
      * Coverts a {@link ListProperty} to a dictionary of values. 

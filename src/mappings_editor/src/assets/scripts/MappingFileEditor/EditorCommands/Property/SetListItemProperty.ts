@@ -4,29 +4,24 @@ import { EditorCommand, EditorDirectives } from "..";
 export class SetListItemProperty extends EditorCommand {
 
     /**
-     * The property's previous value.
+     * The property's previous value or export value.
      */
     public readonly prevValue: string | null;
 
     /**
-     * The property's previous export value.
-     */
-    public readonly prevExportValue: string | null;
-
-    /**
      * The property's previous export text.
      */
-    public readonly prevExportText: string | null;
+    public readonly prevExportText: string | undefined;
 
     /**
-     * True if the previous value was cached, false otherwise.
-     */
-    public readonly prevWasCached: boolean;
-
-    /**
-     * The property's next value.
+     * The property's next value or export value.
      */
     public readonly nextValue: string | null;
+
+    /**
+     * The property's next export text.
+     */
+    public readonly nextExportText: string | undefined;
 
     /**
      * The property.
@@ -41,17 +36,32 @@ export class SetListItemProperty extends EditorCommand {
      * @param value
      *  The {@link ListItemProperty}'s new value.
      */
-    constructor(prop: ListItemProperty, value: string | null){
+    constructor(prop: ListItemProperty, value: string | null);
+
+    /**
+     * Forcibly sets the value of a {@link ListItemProperty}.
+     * @param prop
+     *  The {@link ListItemProperty}.
+     * @param exportValue
+     *  The {@link ListItemProperty}'s new export value.
+     * @param exportText
+     *  The {@link SetListItemProperty}'s new export text.
+     */
+    constructor(prop: ListItemProperty, exportValue: string, exportText: string);
+    constructor(prop: ListItemProperty, param1: string | null, param2?: string){
         super();
         this.prop = prop;
-        this.prevValue = prop.value;
-        this.prevExportValue = prop.exportValue;
-        this.prevExportText = prop.exportText;
-        this.prevWasCached = prop.isValueCached();
-        if(value === null || this.prop.options.value.has(value)) {
-            this.nextValue = value;
+        // Configure next value
+        this.nextValue = param1;
+        if(param2 !== undefined) {
+            this.nextExportText = param2;
+        } 
+        // Configure prev value
+        if(prop.isValueCached()) {
+            this.prevValue = prop.exportValue;
+            this.prevExportText = prop.exportText!;
         } else {
-            throw new Error(`Invalid list item value '${ value }'.`)
+            this.prevValue = prop.value;
         }
     }
     
@@ -62,8 +72,12 @@ export class SetListItemProperty extends EditorCommand {
      *  The command's directives.
      */
     execute(): EditorDirectives {
-        this.prop.value = this.nextValue;
-        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
+        if(this.nextValue && this.nextExportText !== undefined) {
+            this.prop.setValue(this.nextValue, this.nextExportText);
+        } else {
+            this.prop.value = this.nextValue;
+        }
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
     /**
@@ -72,12 +86,12 @@ export class SetListItemProperty extends EditorCommand {
      *  The command's directives.
      */
     undo(): EditorDirectives {
-        if(this.prevWasCached) {
-            this.prop.cacheValue(this.prevExportValue, this.prevExportText);
+        if(this.prevValue && this.prevExportText !== undefined) {
+            this.prop.setValue(this.prevValue, this.prevExportText);
         } else {
             this.prop.value = this.prevValue;
         }
-        return EditorDirectives.FullRecord | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
 }

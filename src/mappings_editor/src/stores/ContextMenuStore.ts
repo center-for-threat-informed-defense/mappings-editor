@@ -1,5 +1,6 @@
 import Configuration from "@/assets/configuration/app.config";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
+import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { MenuType } from '@/assets/scripts/Application';
 import { defineStore } from 'pinia'
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
@@ -170,7 +171,10 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 text: "Edit",
                 type: MenuType.Submenu,
                 sections: [
-                    this.undoRedoMenu
+                    this.undoRedoMenu,
+                    this.clipboardMenu,
+                    this.deleteMappingMenu,
+                    this.selectMappingMenu
                 ]
             }
         },
@@ -200,6 +204,94 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         data: () => AppCommands.redoEditorCommand(editor),
                         shortcut: edit.redo,
                         disabled: !app.canRedo
+                    }
+                ],
+            }
+        },
+
+        /**
+         * Returns the clipboard menu section.
+         * @returns
+         *  The clipboard menu section.
+         */
+        clipboardMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const edit = app.settings.hotkeys.edit;
+            const editor = app.activeEditor as MappingFileEditor;
+            return {
+                id: "clipboard_options",
+                items: [
+                    {
+                        text: "Cut",
+                        type: MenuType.Item,
+                        data: () => AppCommands.cutEditorCommand(app, editor, editor.view),
+                        shortcut: edit.cut,
+                        disabled: !app.hasSelection
+                    },
+                    {
+                        text: "Copy",
+                        type: MenuType.Item,
+                        data: () => AppCommands.copySelectedMappingObjects(app, editor.view),
+                        shortcut: edit.copy,
+                        disabled: !app.hasSelection
+                    },
+                    {
+                        text: "Paste",
+                        type: MenuType.Item,
+                        data: () => AppCommands.pasteMappingObjects(app, editor),
+                        shortcut: edit.paste
+                    }
+                ],
+            }
+        },
+
+        /**
+         * Returns the delete mapping menu section.
+         * @returns
+         *  The delete mapping menu section.
+         */
+        deleteMappingMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const edit = app.settings.hotkeys.edit;
+            const editor = app.activeEditor as MappingFileEditor;
+            return {
+                id: "delete_mapping",
+                items: [
+                    {
+                        text: "Delete",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.deleteSelectedMappingObjectViews(editor.view),
+                        shortcut: edit.delete,
+                        disabled: !app.hasSelection
+                    }
+                ],
+            }
+        },
+
+        /**
+         * Returns the select mapping menu section.
+         * @returns
+         *  The select mapping menu section.
+         */
+        selectMappingMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const edit = app.settings.hotkeys.edit;
+            const editor = app.activeEditor as MappingFileEditor;
+            return {
+                id: "select_mapping",
+                items: [
+                    {
+                        text: "Select All",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.selectAllMappingObjectViews(editor.view),
+                        shortcut: edit.select_all
+                    },
+                    {
+                        text: "Unselect All",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.unselectAllMappingObjectViews(editor.view),
+                        shortcut: edit.unselect_all,
+                        disabled: !app.hasSelection
                     }
                 ],
             }

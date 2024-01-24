@@ -1,21 +1,28 @@
+import type { MappingFileView } from "..";
+
 export abstract class FilterControl {
-
-    /**
-     * The control's set of valid options.
-     */
-    abstract get options(): ReadonlyMap<string | null, string>;
-
-    /**
-     * The control's number of valid options.
-     */
-    abstract get size(): number;
 
     /**
      * The control's internal applied filters.
      */
     protected _appliedFilters: Set<string | null>;
     
-    
+    /**
+     * The control's {@link MappingFileView}.
+     */
+    public readonly fileView: MappingFileView;
+
+
+    /**
+     * The control's set of valid options.
+     */
+    public abstract get options(): ReadonlyMap<string | null, string>;
+
+    /**
+     * The control's number of valid options.
+     */
+    public abstract get size(): number;
+
     /**
      * The control's applied filters. 
      */
@@ -26,8 +33,11 @@ export abstract class FilterControl {
 
     /**
      * Creates a new {@link FilterControl}.
+     * @param fileView
+     *  The control's {@link MappingFileView}.
      */
-    constructor() {
+    constructor(fileView: MappingFileView) {
+        this.fileView = fileView;
         this._appliedFilters = new Set();
     }
 

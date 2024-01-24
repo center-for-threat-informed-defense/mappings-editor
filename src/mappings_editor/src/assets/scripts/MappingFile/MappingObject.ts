@@ -1,5 +1,5 @@
 import { randomUUID } from "../Utilities";
-import { StringProperty, ListItemProperty, ListProperty, ListItem } from ".";
+import { StringProperty, ListItemProperty, ListProperty, ListItem, ComputedProperty } from ".";
 import type { MappingFile } from "./MappingFile";
 import type { FrameworkObjectProperty } from "./Property/FrameworkObjectProperty/FrameworkObjectProperty";
 import type { MappingObjectConfiguration } from "./MappingFileConfiguration";
@@ -72,29 +72,14 @@ export class MappingObject {
     public readonly scoreValue: ListItemProperty;
 
     /**
-     * The mapping object's related score.
+     * The mapping object's validity.
      */
-    public readonly relatedScore: FrameworkObjectProperty;
+    public readonly isValid: ComputedProperty<boolean>;
 
     /**
      * The mapping file the mapping object belongs to.
      */
     public file: MappingFile | null;
-
-    /**
-     * True if the mapping is valid within its mapping file, false otherwise.
-     */
-    public get isValid() {
-        // If mapping isn't associated with a file, it can never be valid.
-        if(this.file === null) return false;
-        const isFrameworkValid = 
-            this.sourceObject.objectFramework === this.file.sourceFramework &&
-            this.targetObject.objectFramework === this.file.targetFramework;
-        const isVersionValid = 
-            this.targetObject.objectVersion === this.file.targetVersion &&
-            this.sourceObject.objectVersion === this.file.sourceVersion
-        return isFrameworkValid && isVersionValid;
-    }
 
 
     /**
@@ -168,8 +153,28 @@ export class MappingObject {
                     ["name", new StringProperty("Name")]
                 ]))
             )
-        ),
-        this.relatedScore = config.relatedScore ?? this.targetObject.duplicate("Related Score");
+        )
+        this.isValid = new ComputedProperty(
+            "Is Valid",
+            () => {
+                // If mapping isn't associated with a file, it can never be valid.
+                if(this.file === null) {
+                    return false;
+                }
+                // Validate source object
+                return this.sourceObject.objectFramework === this.file.sourceFramework
+                    && this.targetObject.objectFramework === this.file.targetFramework
+                // Validate target object
+                    && this.targetObject.objectVersion === this.file.targetVersion
+                    && this.sourceObject.objectVersion === this.file.sourceVersion
+                // Validate ListItemProperties
+                    && !this.mappingType.isValueCached()
+                    && !this.mappingGroup.isValueCached()
+                    && !this.mappingStatus.isValueCached()
+                    && !this.scoreCategory.isValueCached()
+                    && !this.scoreValue.isValueCached();
+            }
+        )
         this.file = null;
     }
 
@@ -192,8 +197,7 @@ export class MappingObject {
             mappingGroup       : this.mappingGroup.duplicate(),
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
-            scoreValue         : this.scoreValue.duplicate(),
-            relatedScore       : this.relatedScore.duplicate(),
+            scoreValue         : this.scoreValue.duplicate()
         })
     }
 
