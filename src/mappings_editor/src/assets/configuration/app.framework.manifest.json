@@ -2,224 +2,224 @@
     "path": "frameworks",
     "files": [
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@14.1",
-            "filename": "mitre_attack_enterprise@14.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "14.1",
+            "filename": "mitre_attack_enterprise_14.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@14.0",
-            "filename": "mitre_attack_enterprise@14.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "14.0",
+            "filename": "mitre_attack_enterprise_14.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@13.1",
-            "filename": "mitre_attack_enterprise@13.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "13.1",
+            "filename": "mitre_attack_enterprise_13.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@13.0",
-            "filename": "mitre_attack_enterprise@13.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "13.0",
+            "filename": "mitre_attack_enterprise_13.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@12.1",
-            "filename": "mitre_attack_enterprise@12.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "12.1",
+            "filename": "mitre_attack_enterprise_12.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@12.0",
-            "filename": "mitre_attack_enterprise@12.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "12.0",
+            "filename": "mitre_attack_enterprise_12.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@11.2",
-            "filename": "mitre_attack_enterprise@11.2.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "11.2",
+            "filename": "mitre_attack_enterprise_11.2.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@11.1",
-            "filename": "mitre_attack_enterprise@11.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "11.1",
+            "filename": "mitre_attack_enterprise_11.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@11.0",
-            "filename": "mitre_attack_enterprise@11.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "11.0",
+            "filename": "mitre_attack_enterprise_11.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@10.1",
-            "filename": "mitre_attack_enterprise@10.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "10.1",
+            "filename": "mitre_attack_enterprise_10.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@10.0",
-            "filename": "mitre_attack_enterprise@10.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "10.0",
+            "filename": "mitre_attack_enterprise_10.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@9.0",
-            "filename": "mitre_attack_enterprise@9.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "9.0",
+            "filename": "mitre_attack_enterprise_9.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@8.2",
-            "filename": "mitre_attack_enterprise@8.2.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "8.2",
+            "filename": "mitre_attack_enterprise_8.2.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@8.1",
-            "filename": "mitre_attack_enterprise@8.1.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "8.1",
+            "filename": "mitre_attack_enterprise_8.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "enterprise@8.0",
-            "filename": "mitre_attack_enterprise@8.0.json"
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "8.0",
+            "filename": "mitre_attack_enterprise_8.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@14.1",
-            "filename": "mitre_attack_ics@14.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "14.1",
+            "filename": "mitre_attack_ics_14.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@14.0",
-            "filename": "mitre_attack_ics@14.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "14.0",
+            "filename": "mitre_attack_ics_14.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@13.1",
-            "filename": "mitre_attack_ics@13.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "13.1",
+            "filename": "mitre_attack_ics_13.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@13.0",
-            "filename": "mitre_attack_ics@13.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "13.0",
+            "filename": "mitre_attack_ics_13.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@12.1",
-            "filename": "mitre_attack_ics@12.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "12.1",
+            "filename": "mitre_attack_ics_12.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@12.0",
-            "filename": "mitre_attack_ics@12.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "12.0",
+            "filename": "mitre_attack_ics_12.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@11.3",
-            "filename": "mitre_attack_ics@11.3.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "11.3",
+            "filename": "mitre_attack_ics_11.3.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@11.2",
-            "filename": "mitre_attack_ics@11.2.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "11.2",
+            "filename": "mitre_attack_ics_11.2.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@11.1",
-            "filename": "mitre_attack_ics@11.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "11.1",
+            "filename": "mitre_attack_ics_11.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@11.0",
-            "filename": "mitre_attack_ics@11.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "11.0",
+            "filename": "mitre_attack_ics_11.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@10.1",
-            "filename": "mitre_attack_ics@10.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "10.1",
+            "filename": "mitre_attack_ics_10.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@10.0",
-            "filename": "mitre_attack_ics@10.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "10.0",
+            "filename": "mitre_attack_ics_10.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@9.0",
-            "filename": "mitre_attack_ics@9.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "9.0",
+            "filename": "mitre_attack_ics_9.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@8.2",
-            "filename": "mitre_attack_ics@8.2.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "8.2",
+            "filename": "mitre_attack_ics_8.2.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@8.1",
-            "filename": "mitre_attack_ics@8.1.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "8.1",
+            "filename": "mitre_attack_ics_8.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "ics@8.0",
-            "filename": "mitre_attack_ics@8.0.json"
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "8.0",
+            "filename": "mitre_attack_ics_8.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@14.1",
-            "filename": "mitre_attack_mobile@14.1.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "14.1",
+            "filename": "mitre_attack_mobile_14.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@14.0",
-            "filename": "mitre_attack_mobile@14.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "14.0",
+            "filename": "mitre_attack_mobile_14.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@13.1",
-            "filename": "mitre_attack_mobile@13.1.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "13.1",
+            "filename": "mitre_attack_mobile_13.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@13.0",
-            "filename": "mitre_attack_mobile@13.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "13.0",
+            "filename": "mitre_attack_mobile_13.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@12.1",
-            "filename": "mitre_attack_mobile@12.1.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "12.1",
+            "filename": "mitre_attack_mobile_12.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@12.0",
-            "filename": "mitre_attack_mobile@12.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "12.0",
+            "filename": "mitre_attack_mobile_12.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@11.3",
-            "filename": "mitre_attack_mobile@11.3.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "11.3",
+            "filename": "mitre_attack_mobile_11.3.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@10.1",
-            "filename": "mitre_attack_mobile@10.1.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "10.1",
+            "filename": "mitre_attack_mobile_10.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@10.0",
-            "filename": "mitre_attack_mobile@10.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "10.0",
+            "filename": "mitre_attack_mobile_10.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@9.0",
-            "filename": "mitre_attack_mobile@9.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "9.0",
+            "filename": "mitre_attack_mobile_9.0.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@8.2",
-            "filename": "mitre_attack_mobile@8.2.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "8.2",
+            "filename": "mitre_attack_mobile_8.2.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@8.1",
-            "filename": "mitre_attack_mobile@8.1.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "8.1",
+            "filename": "mitre_attack_mobile_8.1.json"
         },
         {
-            "frameworkId": "mitre_attack",
-            "frameworkVersion": "mobile@8.0",
-            "filename": "mitre_attack_mobile@8.0.json"
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "8.0",
+            "filename": "mitre_attack_mobile_8.0.json"
         }
     ]
 }
