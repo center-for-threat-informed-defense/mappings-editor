@@ -1,10 +1,5 @@
 <template>
-  <FocusBox
-    class="list-item-field"
-    pointerEvent="pointerdown"
-    @focusin="onFocusIn"
-    @focusout="onFocusOut"
-  >
+  <div class="list-item-field">
     <OptionsList 
       ref="optionsList"
       class="options-list"
@@ -34,17 +29,16 @@
       />
       <div class="dropdown-arrow">▼</div>
     </div>
-  </FocusBox>
+  </div>
 </template>
 
 <script lang="ts">
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 // Dependencies
-import { unsignedMod } from "@/assets/scripts/Utilities";
-import { defineComponent, type PropType } from "vue";
+import { RawFocusBox, unsignedMod } from "@/assets/scripts/Utilities";
+import { defineComponent, markRaw, type PropType } from "vue";
 import type { ListItemProperty } from "@/assets/scripts/MappingFile";
 // Components
-import FocusBox from "@/components/Containers/FocusBox.vue";
 import OptionsList from "./OptionsList.vue";
 
 export default defineComponent({
@@ -68,7 +62,8 @@ export default defineComponent({
       select: this.property.value,
       showMenu: false,
       showSearch: false,
-      searchTerm: ""
+      searchTerm: "",
+      focusBox: markRaw(new RawFocusBox("pointerdown"))
     }
   },
   computed: {
@@ -234,7 +229,17 @@ export default defineComponent({
       this.refreshValue();
     }
   },
-  components: { FocusBox, OptionsList }
+  mounted() {
+    this.focusBox.mount(
+      this.$el,
+      this.onFocusIn,
+      this.onFocusOut
+    );
+  },
+  unmounted() {
+    this.focusBox.destroy()
+  },
+  components: { OptionsList }
 });
 </script>
 

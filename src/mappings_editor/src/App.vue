@@ -1,14 +1,26 @@
 <template>
-  <AppHotkeyBox id="main">
-    <AppTitleBar id="app-title-bar"/>
+  <AppHotkeyBox id="main" @execute="onExecute">
+    <AppTitleBar id="app-title-bar" @execute="onExecute"/>
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
         <div class="resize-handle" @pointerdown="startResize($event, Handle.Left)"></div>
-        <ViewFilterSidebar id="view-filter-sidebar" @execute="onExecute"/>
+        <ViewFilterSidebar
+          id="view-filter-sidebar"
+          @execute="onExecute"
+        />
       </div>
       <div class="frame center">
-        <MappingFileSearch id="file-search" :editor="activeEditor" />
-        <MappingFileViewControl id="file-editor" :editor="activeEditor" @execute="onExecute" />
+        <MappingFileSearch
+          id="file-search"
+          :editor="activeEditor"
+        />
+        <MappingFileViewControl
+          id="file-editor"
+          :editor="activeEditor"
+          :paintSelectKeySequence="paintSelectKeySequence"
+          :multiSelectKeySequence="multiSelectKeySequence"
+          @execute="onExecute"
+        />
       </div>
       <div class="frame right">
         <div class="resize-handle" @pointerdown="startResize($event, Handle.Right)"></div>
@@ -89,6 +101,24 @@ export default defineComponent({
     activeEditor(): MappingFileEditor {
       // Have to cast because Pinia seems to struggle with type inference
       return this.application.activeEditor as MappingFileEditor;
+    },
+
+    /**
+     * Returns the paint select key sequence.
+     * @returns
+     *  The paint select key sequence.
+     */
+    paintSelectKeySequence(): string {
+      return this.application.settings.hotkeys.edit.paint_select;
+    },
+
+    /**
+     * Returns the multiselect key sequence.
+     * @returns
+     *  The multiselect key sequence.
+     */
+    multiSelectKeySequence(): string {
+      return this.application.settings.hotkeys.edit.multi_select;
     }
 
   },

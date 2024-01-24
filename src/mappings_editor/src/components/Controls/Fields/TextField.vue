@@ -28,11 +28,16 @@ export default defineComponent({
     placeholder: {
       type: String,
       default: "-"
+    },
+    updateDelay: {
+      type: Number,
+      default: 500
     }
   },
   data() {
     return {
-      value: ""
+      value: "",
+      timeoutId: -1
     }
   },
   emits: ["execute"],
@@ -42,6 +47,17 @@ export default defineComponent({
      * Field input behavior.
      */
     onInput() {
+      // Reissue update request
+      clearTimeout(this.timeoutId);
+      this.timeoutId = setTimeout(() => {
+        this.updateValue();
+      }, this.updateDelay)
+    },
+
+    /**
+     * Updates the field's value.
+     */
+    updateValue() {
       let value = this.value || null;
       if(value !== this.property.value) {
         let cmd = EditorCommands.setStringProperty(this.property, value);
@@ -69,6 +85,10 @@ export default defineComponent({
   },
   mounted() {
     this.refreshValue();
+  },
+  unmounted() {
+    clearTimeout(this.timeoutId);
+    this.updateValue();
   }
 });
 </script>

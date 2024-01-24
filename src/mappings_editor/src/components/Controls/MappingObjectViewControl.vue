@@ -1,8 +1,15 @@
 <template>
-  <div :class="['mapping-object-view-control', { selected: view.selected }]">
+  <div class="mapping-object-view-control">
     <div class="mapping-object-header">
-      <div class="collapse-icon" @click="toggleViewCollapse">
-        <CollapseArrowLarge :collapsed="view.collapsed" />
+      <div class="collapse-icon" :class="{ collapsed: view.collapsed }" @click="toggleViewCollapse">
+        <svg width="11.314" height="7.0711"  viewBox="0 0 2.9934 1.8709">
+          <g transform="translate(-.49321 -1.3794)">
+            <path
+              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225 
+              1.1225-1.1225-1.1225-0.37418 0.37418 1.1225 1.1225z"
+            />
+          </g>
+        </svg>
       </div>
       <component
         class="source-object"
@@ -10,22 +17,33 @@
         :property="view.object.sourceObject"
         @execute="alterProperty"
       />
-      <div class="mapping-arrow"><MappingArrow/></div>
+      <div class="mapping-arrow">
+        <img src="@/components/Icons/MappingArrow.svg"/>
+      </div>
       <component
         class="source-object bright"
         :is="getPropertyField(view.object.mappingType)"
         :property="view.object.mappingType"
         @execute="alterProperty"
       />
-      <div class="mapping-arrow"><MappingArrow/></div>
+      <div class="mapping-arrow">
+        <img src="@/components/Icons/MappingArrow.svg"/>
+      </div>
       <component
         class="target-object bright"
         :is="getPropertyField(view.object.targetObject)"
         :property="view.object.targetObject"
         @execute="alterProperty"
       />
-      <div class="trash-mapping" @click="deleteView()">
-        <TrashCan />
+      <div class="move-mapping" move-handle>
+        <svg width="10" height="7" viewBox="0 0 2.6458 1.8521">
+          <path
+            d="m0 0v0.52917h0.52917v-0.52917zm1.0583 0v0.52917h0.52917v-0.52917z
+            m1.0583 0v0.52917h0.52917v-0.52917zm-2.1167 1.3229v0.52917h0.52917
+            v-0.52917zm1.0583 0v0.52917h0.52917v-0.52917zm1.0583 0v0.52917
+            h0.52917v-0.52917z"
+          />
+        </svg>
       </div>
     </div>
     <div class="mapping-object-body" v-if="!view.collapsed">
@@ -64,7 +82,10 @@
 <script lang="ts">
 
 /**
- * This file is a mess. I will fix it.
+ * Developer's Note:
+ * SVGs are directly embedded in this component to improve render performance.
+ * Currently, Vue has no way to directly import SVGs without wrapping them in a
+ * component.
  */
 
 // Dependencies
@@ -77,13 +98,10 @@ import {
 } from "@/assets/scripts/MappingFile";
 import type { EditorCommand, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
 // Components
-import TrashCan from "../Icons/TrashCan.vue";
 import TextField from "./Fields/TextField.vue";
 import ListField from "./Fields/ListField.vue";
-import MappingArrow from "../Icons/MappingArrow.vue";
 import ListItemField from "./Fields/ListItemField.vue";
 import TextAreaField from "./Fields/TextAreaField.vue";
-import CollapseArrowLarge from '../Icons/CollapseArrowLarge.vue';
 import StrictFrameworkObjectField from "./Fields/StrictFrameworkObjectField.vue";
 import DynamicFrameworkObjectField from "./Fields/DynamicFrameworkObjectField.vue";
 
@@ -105,21 +123,6 @@ export default defineComponent({
     properties(): { key: string, prop: Property, type: string }[] {
       let object = this.view.object;
       return [
-        // {
-        //   key: "author-name",
-        //   prop: object.author,
-        //   type: this.getPropertyField(object.author)
-        // },
-        // {
-        //   key: "author-contact",
-        //   prop: object.authorContact,
-        //   type: this.getPropertyField(object.author)
-        // },
-        // { 
-        //   key: "author-organization",
-        //   prop: object.authorOrganization,
-        //   type: this.getPropertyField(object.authorOrganization)
-        // },
         { 
           key: "comments",
           prop: object.comments,
@@ -167,7 +170,7 @@ export default defineComponent({
      *  The command that alter's a property.
      */
     alterProperty(command: EditorCommand) {
-      this.execute(EditorCommands.alterMappingObjectViewProperty(this.view, command));
+      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command));
     },
 
     /**
@@ -238,9 +241,8 @@ export default defineComponent({
 
   },
   components: { 
-    TrashCan, TextField, MappingArrow, CollapseArrowLarge, ListItemField,
-    TextAreaField, StrictFrameworkObjectField, DynamicFrameworkObjectField,
-    ListField
+    TextField, ListItemField, ListField, TextAreaField,
+    StrictFrameworkObjectField, DynamicFrameworkObjectField,
   }
 });
 </script>
@@ -264,16 +266,12 @@ export default defineComponent({
   background: #292929;
 }
 
-.mapping-object-view-control.selected {
-  border-color: #637bc9;
-}
-
 /** === Mapping Object Header === */
 
 .mapping-object-header {
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 36px 225px 36px minmax(0, 1fr) 43px;
+  grid-template-columns: 40px minmax(0, 1fr) 36px 225px 36px minmax(0, 1fr) 40px;
   align-items: center;
   color: #c7c7c7;
   height: 40px;
@@ -287,6 +285,7 @@ export default defineComponent({
 
 .collapse-icon,
 .mapping-arrow,
+.move-mapping,
 .trash-mapping {
   display: flex;
   align-items: center;
@@ -295,18 +294,37 @@ export default defineComponent({
   user-select: none;
 }
 
-.collapse-icon svg,
-.mapping-arrow svg,
-.trash-mapping svg {
-  display: block;
-}
-
 .collapse-icon,
 .trash-mapping {
   cursor: pointer;
 }
 
+.move-mapping {
+  cursor: grab;
+}
+
+.collapse-icon svg,
+.mapping-arrow svg,
+.move-mapping svg,
+.trash-mapping svg {
+  display: block;
+  pointer-events: none;
+}
+
+.collapse-icon svg {
+  fill: #8c8c8c
+}
+
+.collapse-icon.collapsed svg { 
+  transform: rotate(270deg);
+}
+
+.move-mapping svg {
+  fill: #737373;
+}
+
 .collapse-icon:hover svg,
+.move-mapping:hover svg,
 .trash-mapping:hover svg {
   fill: #b3b3b3 !important;
 }

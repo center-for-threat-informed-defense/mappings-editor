@@ -2,7 +2,7 @@
   <ul class="breakout-controller" ref="breakouts">
     <li class="breakout" v-for="[key, breakout] of control.options" :key="key">
       <div class="reorder-handle" @pointerdown="onStartDrag(key, $event)">
-        <MoveDots />
+        <MoveDots color="#666666" />
       </div>
       <CheckboxBar :text="breakout.text" :checked="breakout.enabled" @click="onClickBreakout(key, breakout)"/>
     </li>

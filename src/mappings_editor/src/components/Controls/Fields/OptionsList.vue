@@ -1,32 +1,32 @@
 <template>
   <div :class="['list-item-options-list-field', { flip }]">
-    <ScrollBox class="scrollbox" ref="scrollbox" :style="style" :propagate-scroll="false">
-      <ul class="options" v-if="hasOptions">
-        <li 
-          ref="items"
-          v-for="option in options"
-          :key="option.value ?? 'null'"
-          :list-id="option.value"
-          :class="{ active: isActive(option), null: isNull(option) }"
-          @pointerdown="$emit('select', option.value)"
-          @mouseenter="setActive(option)"
-          exit-focus-box
-        >
-          {{ option.text }}
-        </li>
-      </ul>
-      <div class="no-options" v-else>
-        No results found
-      </div> 
-    </ScrollBox>
+    <div ref="scrollbox" :style="style">
+      <div ref="content">
+        <ul class="options" v-if="hasOptions">
+          <li 
+            ref="items"
+            v-for="option in options"
+            :key="option.value ?? 'null'"
+            :list-id="option.value"
+            :class="{ active: isActive(option), null: isNull(option) }"
+            @pointerdown="$emit('select', option.value)"
+            @mouseenter="setActive(option)"
+            exit-focus-box
+          >
+            {{ option.text }}
+          </li>
+        </ul>
+        <div class="no-options" v-else>
+          No results found
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-// Dependencies
-import { defineComponent, type PropType } from "vue";
-// Components
-import ScrollBox from "@/components/Containers/ScrollBox.vue";
+import { RawScrollBox } from "@/assets/scripts/Utilities";
+import { defineComponent, markRaw, type PropType } from "vue";
 
 export default defineComponent({
   name: "OptionsList",
@@ -45,7 +45,8 @@ export default defineComponent({
   },
   data() {
     return {
-      flip: false
+      flip: false,
+      scrollbox: markRaw(new RawScrollBox(false, false))
     }
   },
   computed: {
@@ -109,8 +110,7 @@ export default defineComponent({
       // Update scroll position
       if(item) {
         // -6px for the <ul>'s padding
-        (this.$refs.scrollbox as any)
-          .moveScrollPosition(item.offsetTop - 6)
+        this.scrollbox.moveScrollPosition(item.offsetTop - 6)
       }
     },
 
@@ -121,19 +121,19 @@ export default defineComponent({
      */
     bringItemIntoFocus(value: string | null) {
       let item = this.getItemElement(value);
-      let scrollbox = this.$refs.scrollbox as any;
+      let scrollbox = this.$refs.scrollbox as HTMLElement;
       // Update scroll position
       if(item) {
         let { top: itTop, bottom: itBottom } = item.getBoundingClientRect();
-        let { top: elTop, bottom: elBottom } = scrollbox.$el.getBoundingClientRect();
+        let { top: elTop, bottom: elBottom } = scrollbox.getBoundingClientRect();
         // -6px for the <ul>'s padding
         if((itTop - 6) < elTop) {
-          scrollbox.moveScrollPosition(item.offsetTop - 6)
+          this.scrollbox.moveScrollPosition(item.offsetTop - 6)
         }
         // -7px for the <ul>'s padding and scrollbox border
         else if(elBottom < (itBottom + 7)) {
           let offsetHeight = (elBottom - elTop) - (itBottom - itTop) - 7;
-          scrollbox.moveScrollPosition(item.offsetTop - offsetHeight);
+          this.scrollbox.moveScrollPosition(item.offsetTop - offsetHeight);
         }
       }
     },
@@ -172,7 +172,7 @@ export default defineComponent({
     
     // Resolve parent
     let sc = "scroll-content";
-    let ele = (this.$refs.scrollbox as any).$el as HTMLElement;
+    let ele = this.$refs.scrollbox as HTMLElement;
     let par = this.$el.parentElement;
     let body = document.body;
     while(par !== body && !par.classList.contains(sc)) {
@@ -186,12 +186,20 @@ export default defineComponent({
     } else {
       this.flip = false;
     }
+    // Configure scrollbox
+    this.scrollbox.mount(
+      this.$refs.scrollbox as HTMLElement,
+      this.$refs.content as HTMLElement,
+      this.$options.__scopeId
+    )
     // Focus selection
     if(this.select !== undefined) {
       this.focusItemTop(this.select);
     }
   },
-  components: { ScrollBox }
+  unmounted() {
+    this.scrollbox.destroy();
+  }
 });
 
 /**
@@ -212,7 +220,7 @@ export default defineComponent({
   background: #1c1c1c;
 }
 
-.scrollbox {
+.scroll-box {
   position: absolute;
   width: 100%;
   font-size: 10pt;
@@ -223,7 +231,7 @@ export default defineComponent({
   z-index: 1;
 }
 
-.list-item-options-list-field:not(.flip) .scrollbox-container {
+.list-item-options-list-field:not(.flip) .scroll-box {
   top: 100%;
   border-style: none solid solid solid;
   border-bottom-left-radius: 3px;
@@ -231,7 +239,7 @@ export default defineComponent({
   box-shadow: 0px 5px 5px -2px rgb(0 0 0 / 20%);
 }
 
-.list-item-options-list-field.flip .scrollbox-container {
+.list-item-options-list-field.flip .scroll-box {
   bottom: 100%;
   border-style: solid solid none solid;
   border-top-left-radius: 3px;
@@ -239,8 +247,8 @@ export default defineComponent({
   box-shadow: 0px -5px 5px -2px rgb(0 0 0 / 20%);
 }
 
-.scrollbox :deep(.scroll-bar) {
-  border-top: none !important;
+.scroll-bar {
+  border-left: solid 1px #333333;
 }
 
 /** === Options List === */

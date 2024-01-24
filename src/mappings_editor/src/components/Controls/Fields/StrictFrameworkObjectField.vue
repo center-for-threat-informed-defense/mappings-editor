@@ -1,10 +1,5 @@
 <template>
-  <FocusBox
-    class="strict-object-framework-field"
-    pointerEvent="pointerdown"
-    @focusin="onFocusIn"
-    @focusout="onFocusOut"
-  >
+  <div class="strict-object-framework-field">
     <FrameworkOptionsList 
       ref="optionsList"
       class="options-list"
@@ -40,17 +35,16 @@
       />
       <div class="dropdown-arrow">▼</div>
     </div>
-  </FocusBox>
+  </div>
 </template>
 
 <script lang="ts">
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 // Dependencies
-import { unsignedMod } from "@/assets/scripts/Utilities";
-import { defineComponent, type PropType } from "vue";
+import { RawFocusBox, unsignedMod } from "@/assets/scripts/Utilities";
+import { defineComponent, markRaw, type PropType } from "vue";
 import type { StrictFrameworkObjectProperty } from "@/assets/scripts/MappingFile";
 // Components
-import FocusBox from "@/components/Containers/FocusBox.vue";
 import FrameworkOptionsList from "./FrameworkOptionsList.vue";
 
 export default defineComponent({
@@ -78,7 +72,8 @@ export default defineComponent({
       select: this.property.objectId,
       showMenu: false,
       showSearch: false,
-      searchTerm: ""
+      searchTerm: "",
+      focusBox: markRaw(new RawFocusBox("pointerdown"))
     }
   },
   computed: {
@@ -262,7 +257,17 @@ export default defineComponent({
       this.refreshValue();
     }
   },
-  components: { FocusBox, FrameworkOptionsList }
+  mounted() {
+    this.focusBox.mount(
+      this.$el,
+      this.onFocusIn,
+      this.onFocusOut
+    );
+  },
+  unmounted() {
+    this.focusBox.destroy()
+  },
+  components: { FrameworkOptionsList }
 });
 </script>
 

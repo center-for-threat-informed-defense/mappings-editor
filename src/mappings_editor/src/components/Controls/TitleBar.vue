@@ -1,5 +1,5 @@
 <template>
-  <FocusBox class="title-bar-control" pointerEvent="click" @focusout="menuClose">
+  <div class="title-bar-control">
     <li class="icon">
       <slot name="icon"></slot>
     </li>
@@ -18,15 +18,15 @@
         v-if="isActive(menu)"
       />
     </li>
-  </FocusBox> 
+  </div> 
 </template>
 
 <script lang="ts">
 // Dependencies
-import { defineComponent, type PropType } from 'vue';
+import { RawFocusBox } from '@/assets/scripts/Utilities';
+import { defineComponent, markRaw, type PropType } from 'vue';
 import type { ContextMenuSubmenu } from "@/assets/scripts/Application/ContextMenuTypes";
 // Components
-import FocusBox from "@/components/Containers/FocusBox.vue";
 import ContextMenuListing from "./ContextMenuListing.vue";
 
 export default defineComponent({
@@ -39,7 +39,8 @@ export default defineComponent({
   },
   data() {
     return {
-      activeMenu: null as string | null
+      activeMenu: null as string | null,
+      focusBox: markRaw(new RawFocusBox("click"))
     }
   },
   emits: ["select"],
@@ -93,7 +94,17 @@ export default defineComponent({
     }
 
   },
-  components: { FocusBox, ContextMenuListing }
+  mounted() {
+    this.focusBox.mount(
+      this.$el,
+      undefined,
+      this.menuClose
+    )
+  },
+  unmounted() {
+    this.focusBox.destroy();
+  },
+  components: { ContextMenuListing }
 });
 </script>
 

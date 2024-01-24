@@ -50,19 +50,14 @@ export default defineComponent({
         return;
       }
       try {
-        let cmd = emitter();
-        if(cmd instanceof Promise) {
-          let test = await cmd;
-          this.application.execute(test);
-        } else {
-          this.application.execute(cmd);
-        }
+        this.$emit("execute", emitter());
       } catch(ex: any) {
         console.error(ex);
       }
     }
 
   },
+  emits: ["execute"],
   components: { HotkeyBox }
 });
 </script>

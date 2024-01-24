@@ -15,8 +15,8 @@
         <PlusLarge />
       </div>
     </div>
-    <ScrollBox class="list-items-container" :propagate-scroll="false">
-      <div class="list-items">
+    <div class="list-items-container" ref="scrollbox">
+      <div class="list-items" ref="content">
         <div class="list-item" v-for="[key, item] of property.value" :key="key">
           <div class="list-item-content">
             <slot :item="item">{{ item.id }}</slot>
@@ -24,23 +24,23 @@
           <div class="delete-item" @click="deleteItem(item)">✗</div>
         </div>
       </div>
-    </ScrollBox>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 // Dependencies
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, markRaw, type PropType } from 'vue';
 import { 
   DynamicFrameworkObjectProperty,
   ListItem, ListItemProperty, ListProperty, Property,
   StrictFrameworkObjectProperty, StringProperty
 } from "@/assets/scripts/MappingFile";
+import { RawScrollBox } from "@/assets/scripts/Utilities";
 import type { EditorCommand } from "@/assets/scripts/MappingFileEditor";
 // Components
 import PlusLarge from "@/components/Icons/PlusLarge.vue";
-import ScrollBox from "@/components/Containers/ScrollBox.vue";
 import TextField from "./TextField.vue";
 import ListItemField from "./ListItemField.vue";
 import TextAreaField from "./TextAreaField.vue";
@@ -62,6 +62,7 @@ export default defineComponent({
   data() {
     return {
       newItem: this.property.createNewItem(),
+      scrollbox: markRaw(new RawScrollBox(false, false))
     }
   },
   computed: {
@@ -132,10 +133,17 @@ export default defineComponent({
 
   },
   mounted() {
-    
+    this.scrollbox.mount(
+      this.$refs.scrollbox as HTMLElement,
+      this.$refs.content as HTMLElement,
+      this.$options.__scopeId
+    )
+  },
+  unmounted() {
+    this.scrollbox.destroy();
   },
   components: { 
-    PlusLarge, ScrollBox, TextField, ListItemField, TextAreaField,
+    PlusLarge, TextField, ListItemField, TextAreaField,
     StrictFrameworkObjectField, DynamicFrameworkObjectField
   }
 });
@@ -200,10 +208,8 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-.list-items-container :deep(.scroll-bar) {
-  border-top: none !important;
-  border-left: solid 1px #3b3b3b !important;
-  background: none !important;
+.list-items-container .scroll-bar {
+  border-left: solid 1px #3b3b3b;
 }
 
 .list-items {

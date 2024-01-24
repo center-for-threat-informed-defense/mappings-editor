@@ -294,7 +294,7 @@ export default defineComponent({
      * Object text field input behavior.
      */
     onObjectTextInput() {
-      this.updatePropertyObjectText(this.objectText);
+      this.updatePropertyObjectText();
     },
 
     /**
@@ -344,13 +344,11 @@ export default defineComponent({
 
     /**
      * Updates the field's property object text.
-     * @param objectText
-     *  The property's new object text.
      */
-    updatePropertyObjectText(objectText: string | null) {
+    updatePropertyObjectText() {
       // Execute update command
-      if(this.property.objectText !== objectText) {
-        let cmd = EditorCommands.setFrameworkObjectPropertyText(this.property, objectText);
+      if(this.property.objectText !== this.objectText) {
+        let cmd = EditorCommands.setFrameworkObjectPropertyText(this.property, this.objectText);
         this.$emit("execute", cmd);
       }
     },

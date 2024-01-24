@@ -5,6 +5,7 @@
         <div class="control-container">
           <p class="control-title">BREAKOUT BY</p>
           <BreakoutController :control="activeView.breakouts" @execute="execute" />
+          
           <template v-if="mappingGroupFilters">
             <span class="separator"></span>
             <p class="control-title">FILTER BY GROUP</p>
@@ -29,6 +30,11 @@
             <span class="separator"></span>
             <p class="control-title">FILTER BY TARGET</p>
             <FilterController :control="targetObjectFilters" @execute="execute" />
+          </template>
+          <template v-if="validityFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY VALIDITY</p>
+            <FilterController :control="validityFilters" @execute="execute" />
           </template>
         </div>
       </ScrollBox>
@@ -111,6 +117,15 @@ export default defineComponent({
      */
     targetObjectFilters(): FilterControl | undefined {
       return this.activeView.filterSets.get(MappingObjectDiscriminator.TargetObject);
+    },
+
+    /**
+     * Returns the validity filters.
+     * @returns
+     *  The validity filters control. `undefined` if there wasn't one.
+     */
+    validityFilters(): FilterControl | undefined {
+      return this.activeView.filterSets.get(MappingObjectDiscriminator.IsValid);
     }
 
   },
@@ -127,11 +142,11 @@ export default defineComponent({
     }
 
   },
-  components: { 
+  components: {
     ScrollBox, AccordionPane,
     AccordionBox, FilterController,
     BreakoutController
-  }
+}
 });
 </script>
   
