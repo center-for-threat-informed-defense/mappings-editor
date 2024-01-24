@@ -174,9 +174,15 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             mapping_types          : meta.mapping_types,
             mapping_groups         : meta.groups,
             mapping_statuses: {
-                "complete"     : "Complete",
-                "in_progress"  : "In Progress",
-                "non_mappable" : "Non-Mappable"
+                "complete"             : "Complete",
+                "in_progress"          : "In Progress",
+                "non_mappable"         : "Non-Mappable",
+                "Assigned"             : "Assigned",
+                "New Mitigations"      : "New Mitigations",
+                "Dropped Mitigations"  : "Dropped Mitigations",
+                "New Detections"       : "New Detections",
+                "Modified Description" : "Modified Description",
+                "New Techniques"       : "New Techniques"
             },
             score_categories: {
                 "protect"      : "Protect",
