@@ -191,7 +191,7 @@ export class MappingFileAuthority {
      * @param obj
      *  The exported object.
      * @param file
-     *  The {@link MappingFile} the {@link MappingFileExport} belongs to.
+     *  The {@link MappingFile} the {@link MappingObject} should be linked to.
      * @returns
      *  The newly created {@link MappingObject}.
      */
