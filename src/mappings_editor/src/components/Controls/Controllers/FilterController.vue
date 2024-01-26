@@ -318,6 +318,10 @@ export default defineComponent({
     
   },
   watch: {
+    // On control change
+    "control"() {
+      this.enterEditMode = false;
+    },
     // On options change
     "control.options"(){
       if(this.control.options.size <= this.maxFilters) {
