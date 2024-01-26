@@ -1,6 +1,7 @@
 {
     "hotkeys": {
         "file": {
+            "import_file": "Control+I",
             "new_file": "Control+N",
             "open_file": "Control+O",
             "save_file": "Control+S"
