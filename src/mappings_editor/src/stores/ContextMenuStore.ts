@@ -1,4 +1,5 @@
 import Configuration from "@/assets/configuration/app.config";
+import Package from "@/../package.json";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { MenuType } from '@/assets/scripts/Application';
@@ -382,7 +383,18 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 text: "Help",
                 type: MenuType.Submenu,
                 sections: [
-                    { id: "help_links", items }
+                    { id: "help_links", items },
+                    { 
+                        id: "version",
+                        items: [
+                            {
+                                text: `Mapping Editor v${ Package.version }`,
+                                type: MenuType.Item,
+                                data: () => {},
+                                disabled: true
+                            }
+                        ]
+                    }
                 ]
             };
         }
