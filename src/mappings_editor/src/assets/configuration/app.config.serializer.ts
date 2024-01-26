@@ -27,10 +27,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             o => this.toUniversalMappingObject(o, file)
         );
         // Parse mapping file
+        const domain = /mitre_attack_(.*)/i.exec(file.target_framework);
         const unifiedSchemaFile: UniversalSchemaMappingFile = {
             metadata: {
                 mapping_version           : file.version,
-                technology_domain         : /mitre_attack_(.*)/i.exec(file.target_framework)![1],
+                technology_domain         : domain !== null ? domain[1] : file.target_framework,
                 attack_version            : file.target_version,
                 mapping_framework         : file.source_framework,
                 mapping_framework_version : file.source_version,
