@@ -2,13 +2,14 @@ import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
+import type { MappingFileExport } from "@/assets/scripts/MappingFileExport";
 
 export class ImportFile extends AppCommand {
 
      /**
      * The file to import.
      */
-     private _importedFile: JSON;
+     private _importedFile: MappingFileExport;
 
     /**
      * The application context.
@@ -23,7 +24,7 @@ export class ImportFile extends AppCommand {
      * @param importedFile
      *  The mapping file to load merge.
      */
-    constructor(context: ApplicationStore, importedFile: JSON) {
+    constructor(context: ApplicationStore, importedFile: MappingFileExport) {
         super();
         this._context = context;
         this._importedFile = importedFile;
