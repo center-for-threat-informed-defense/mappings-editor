@@ -1,6 +1,5 @@
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 

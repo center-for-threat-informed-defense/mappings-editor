@@ -56,7 +56,7 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     disabled: editor.id === MappingFileEditor.Phantom.id
                 },
                 {
-                    data: () => AppCommands.loadPageFromFileSystem(app),
+                    data: () => AppCommands.loadFileFromFileSystem(app),
                     shortcut: file.open_file,
                     repeatable: false
                 },
