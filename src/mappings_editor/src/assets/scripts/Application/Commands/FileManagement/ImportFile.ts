@@ -8,7 +8,7 @@ export class ImportFile extends AppCommand {
      /**
      * The file to import.
      */
-     private _importedFile: MappingFileEditor;
+     private _importedFile: JSON;
 
     /**
      * The application context.
@@ -23,7 +23,7 @@ export class ImportFile extends AppCommand {
      * @param importedFile
      *  The mapping file to load merge.
      */
-    constructor(context: ApplicationStore, importedFile: json) {
+    constructor(context: ApplicationStore, importedFile: JSON) {
         super();
         this._context = context;
         this._importedFile = importedFile;
@@ -36,10 +36,12 @@ export class ImportFile extends AppCommand {
     public execute(): void {
         // unselect any items that are currently selected
         this._context.activeEditor.view.setAllItemsSelect(false);
-        let objIds = [];
+        let objIds: string[] = [];
 
         this._importedFile.mapping_objects.forEach(mappingObj => {
-            const mappingObjExport = this._context.fileAuthority.initializeMappingObjectExport(mappingObj, this._context.activeEditor.file);
+            const mappingObjExport = this._context.fileAuthority.initializeMappingObjectExport(
+                mappingObj, this._context.activeEditor.file as MappingFile
+            );
             this._context.activeEditor.file.insertMappingObject(mappingObjExport);
             // store ids of inserted objects
             objIds.push(mappingObjExport.id);
