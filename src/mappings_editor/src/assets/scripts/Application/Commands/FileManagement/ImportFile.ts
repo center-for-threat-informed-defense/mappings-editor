@@ -1,4 +1,3 @@
-import { MappingFile } from './../../../MappingFile/MappingFile';
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
@@ -18,13 +17,13 @@ export class ImportFile extends AppCommand {
 
 
     /**
-     * Loads a {@link MappingFile} into the application.
+     * Loads a new mapping objects from an imported file into the application.
      * @param context
      *  The application context.
-     * @param file
-     *  The mapping file to load.
+     * @param importedFile
+     *  The mapping file to load merge.
      */
-    constructor(context: ApplicationStore, importedFile: json, currentFile: MappingFile) {
+    constructor(context: ApplicationStore, importedFile: json) {
         super();
         this._context = context;
         this._importedFile = importedFile;

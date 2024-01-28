@@ -101,7 +101,7 @@ export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
  *  A command that represents the action.
  */
 export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
-    const { filename, contents } = await Browser.openTextFileDialog();
+    const { contents } = await Browser.openTextFileDialog();
      // Deserialize file
      const json = context.fileSerializer.deserialize(contents);
      // Return command
