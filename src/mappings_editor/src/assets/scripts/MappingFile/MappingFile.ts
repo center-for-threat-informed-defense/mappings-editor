@@ -226,6 +226,34 @@ export class MappingFile {
     }
 
     /**
+     * Inserts a multiple mapping objects into the beginning of the mapping file.
+     * @param object
+     *  The mapping object to insert.
+     */
+    public insertMappingObjectsAfter(objects: MappingObject[], destination?: string): void;
+    public insertMappingObjectsAfter(objects: MappingObject[], destination?: MappingObject | string) {
+        const id = typeof destination === "string" ? destination : (destination?.id ?? null)
+        const newEntries: [string, MappingObject][] = [];
+        objects.forEach(object => {
+            if(this._mappingObjects.has(object.id)) {
+                throw new Error(`Mapping file already contains object '${ object.id }'.`);
+            }
+            // Try uncache source and target objects
+            object.sourceObject.tryUncacheObjectValue();
+            object.targetObject.tryUncacheObjectValue();
+            // Configure object's file
+            object.file = this;
+            newEntries.push([object.id, object]);
+        })
+        // Configure file's object
+        const items = [...this._mappingObjects];
+        const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);
+        items.splice(index + 1, 0, ...newEntries);
+        this._mappingObjects = new Map(items);
+        
+    }
+
+    /**
      * Inserts a mapping object after another mapping object.
      * @param object
      *  The mapping object to insert.

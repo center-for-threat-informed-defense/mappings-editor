@@ -1,7 +1,8 @@
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFile } from "@/assets/scripts/MappingFile";
+import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
+import { MappingFileEditor, MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
 
 export class ImportFile extends AppCommand {
 
@@ -37,18 +38,28 @@ export class ImportFile extends AppCommand {
         // unselect any items that are currently selected
         this._context.activeEditor.view.setAllItemsSelect(false);
         let objIds: string[] = [];
-
+        let objects: MappingObject[] = [];
+        
+        let rawFile = MappingFileView.toRaw(this._context.activeEditor.file);
+        let rawFileAuthority = MappingFileView.toRaw(this._context.fileAuthority)
         this._importedFile.mapping_objects.forEach(mappingObj => {
-            const mappingObjExport = this._context.fileAuthority.initializeMappingObjectExport(
-                mappingObj, this._context.activeEditor.file as MappingFile
+            const mappingObjExport = rawFileAuthority.initializeMappingObjectExport(
+                mappingObj, rawFile as MappingFile
             );
-            this._context.activeEditor.file.insertMappingObject(mappingObjExport);
+            objects.push(mappingObjExport)
             // store ids of inserted objects
             objIds.push(mappingObjExport.id);
         })
+        rawFile.insertMappingObjectsAfter(objects);
         this._context.activeEditor.view.rebuildBreakouts();
-        // move view to the first inserted object
-        this._context.activeEditor.view.moveToViewItem(objIds[0], 0, true, false);
+
+        // move view to the item in imported items that has the lowest headOffset
+        const items = [...this._context.activeEditor.view.getItems(
+            o => o instanceof MappingObjectView && objIds.includes(o.id)
+        )] as MappingObjectView[];
+        const lowestHeadOffset = Object.values(items).reduce((a, b) => b.headOffset < a.headOffset? b : a);
+        this._context.activeEditor.view.moveToViewItem(lowestHeadOffset.object.id, 0, true, false);
+
         // select each inserted object
         objIds.forEach(objId => {
             this._context.activeEditor.view.getItem(objId).select(true);
