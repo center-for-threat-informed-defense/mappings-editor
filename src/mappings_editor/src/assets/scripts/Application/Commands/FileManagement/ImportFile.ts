@@ -2,7 +2,7 @@ import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
-import { MappingFileEditor, MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
+import { MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
 
 export class ImportFile extends AppCommand {
 
@@ -37,6 +37,7 @@ export class ImportFile extends AppCommand {
     public execute(): void {
         // unselect any items that are currently selected
         this._context.activeEditor.view.setAllItemsSelect(false);
+
         let objIds: string[] = [];
         let objects: MappingObject[] = [];
         
@@ -54,10 +55,10 @@ export class ImportFile extends AppCommand {
         this._context.activeEditor.view.rebuildBreakouts();
 
         // move view to the item in imported items that has the lowest headOffset
-        const items = [...this._context.activeEditor.view.getItems(
+        const importedMappingObjects = [...this._context.activeEditor.view.getItems(
             o => o instanceof MappingObjectView && objIds.includes(o.id)
         )] as MappingObjectView[];
-        const lowestHeadOffset = Object.values(items).reduce((a, b) => b.headOffset < a.headOffset? b : a);
+        const lowestHeadOffset = Object.values(importedMappingObjects).reduce((a, b) => b.headOffset < a.headOffset? b : a);
         this._context.activeEditor.view.moveToViewItem(lowestHeadOffset.object.id, 0, true, false);
 
         // select each inserted object
