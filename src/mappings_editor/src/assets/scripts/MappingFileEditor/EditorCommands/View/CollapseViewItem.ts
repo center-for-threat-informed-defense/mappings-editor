@@ -45,7 +45,7 @@ export class CollapseViewItem extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer): void {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.item.collapsed = this.nextValue;
         if(this.item instanceof MappingObjectView) {
             issueDirective(EditorDirective.Record);

@@ -71,7 +71,7 @@ export class SetListItemProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer): void {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         if(this.nextValue && this.nextExportText !== undefined) {
             this.prop.setValue(this.nextValue, this.nextExportText);
         } else {
@@ -85,7 +85,7 @@ export class SetListItemProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer): void {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         if(this.prevValue && this.prevExportText !== undefined) {
             this.prop.setValue(this.prevValue, this.prevExportText);
         } else {

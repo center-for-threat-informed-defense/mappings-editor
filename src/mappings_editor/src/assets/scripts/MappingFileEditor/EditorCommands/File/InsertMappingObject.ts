@@ -33,7 +33,7 @@ export class InsertMappingObject extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer): void {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.file.insertMappingObjectAfter(this.object);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
         issueDirective(EditorDirective.Reindex, this.object.id);
@@ -44,7 +44,7 @@ export class InsertMappingObject extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer): void {
+    public undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.file.removeMappingObject(this.object);
         issueDirective(EditorDirective.Autosave);
         issueDirective(EditorDirective.Reindex, this.object.id);

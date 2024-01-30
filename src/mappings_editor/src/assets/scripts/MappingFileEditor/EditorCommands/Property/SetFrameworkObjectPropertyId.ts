@@ -70,7 +70,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer): void {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         if(this.nextObjectId && this.nextObjectText !== undefined) {
             this.prop.setObjectValue(this.nextObjectId, this.nextObjectText);
         } else {
@@ -84,7 +84,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer): void {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         if(this.prevObjectId && this.prevObjectText !== undefined) {
             this.prop.setObjectValue(this.prevObjectId, this.prevObjectText);
         } else {

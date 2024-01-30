@@ -65,7 +65,7 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer): void {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         this._execute("execute", issueDirective);
     }
 
@@ -74,7 +74,7 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public redo(issueDirective: DirectiveIssuer): void {
+    public redo(issueDirective: DirectiveIssuer = () => {}): void {
         this._execute("redo", issueDirective);
     }
 
@@ -83,7 +83,7 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer): void {
+    public undo(issueDirective: DirectiveIssuer = () => {}): void {
         // Run first phase
         if(this._reverseCommandsOnUndo) {
             const l = this._commands.length - 1;
@@ -114,11 +114,11 @@ export class GroupCommand extends EditorCommand {
             if(this._rollbackOnFailure) {
                 if(this._reverseCommandsOnUndo) {
                     for(i--; 0 <= i; i--) {
-                        this._commands[i].undo(() => {});
+                        this._commands[i].undo();
                     }
                 } else {
                     for(let j = 0; j < i; j++) {
-                        this._commands[j].undo(() => {});
+                        this._commands[j].undo();
                     }
                 }
             }

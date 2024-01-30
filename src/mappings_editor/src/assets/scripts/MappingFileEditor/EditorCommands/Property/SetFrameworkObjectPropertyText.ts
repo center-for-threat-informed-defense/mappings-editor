@@ -39,7 +39,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer): void {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.objectText = this.nextObjectText;
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -49,7 +49,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer): void {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.objectText = this.prevObjectText;
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }

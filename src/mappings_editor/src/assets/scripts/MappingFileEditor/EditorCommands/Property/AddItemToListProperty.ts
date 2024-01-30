@@ -41,7 +41,7 @@ export class AddItemToListProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer): void {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.insertListItem(this.item, this.index);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -51,7 +51,7 @@ export class AddItemToListProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer): void {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.removeListItem(this.item);
         issueDirective(EditorDirective.Autosave);
     }

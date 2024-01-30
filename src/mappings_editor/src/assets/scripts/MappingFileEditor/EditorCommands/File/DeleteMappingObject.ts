@@ -45,7 +45,7 @@ export class DeleteMappingObject extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer): void {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         // Remove mapping object
         this.file.removeMappingObject(this.object.id);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
@@ -57,7 +57,7 @@ export class DeleteMappingObject extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer): void {
+    public undo(issueDirective: DirectiveIssuer = () => {}): void {
         // Insert mapping object
         this.file.insertMappingObjectAfter(this.object, this.location);
         issueDirective(EditorDirective.Autosave);

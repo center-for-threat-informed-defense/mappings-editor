@@ -39,7 +39,7 @@ export class SetStringProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer): void {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.value = this.nextValue;
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -49,7 +49,7 @@ export class SetStringProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer): void {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.value = this.prevValue;
         issueDirective(EditorDirective.Autosave);
     }
