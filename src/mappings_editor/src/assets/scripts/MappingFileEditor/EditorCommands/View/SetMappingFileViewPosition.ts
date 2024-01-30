@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { MappingFileView } from "../..";
 
 export class SetMappingFileViewPosition extends EditorCommand {
@@ -30,21 +30,14 @@ export class SetMappingFileViewPosition extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
+    public execute(): void {
         this.fileView.setViewPosition(this.position);
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    public undo(): void {}
 
 }

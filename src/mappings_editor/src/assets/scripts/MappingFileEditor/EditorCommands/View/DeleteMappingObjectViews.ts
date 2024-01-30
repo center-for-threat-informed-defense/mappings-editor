@@ -1,4 +1,4 @@
-import { DeleteMappingObject } from "../MappingFile/DeleteMappingObject";
+import { DeleteMappingObject } from "../File/DeleteMappingObject";
 import { SelectMappingObjectViews } from "./SelectMappingObjectViews";
 import { RestoreMappingObjectViews } from "./RestoreMappingObjectViews";
 import { MappingObjectView, GroupCommand } from "../..";

@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from ".";
+import { EditorCommand, type DirectiveIssuer } from ".";
 
 export class GroupCommand extends EditorCommand {
 
@@ -62,73 +62,68 @@ export class GroupCommand extends EditorCommand {
 
     /**
      * Applies the set of commands.
-     * @returns
-     *  The editor's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public execute(): EditorDirectives {
-        return this._execute("execute");
+    public execute(issueDirective: DirectiveIssuer): void {
+        this._execute("execute", issueDirective);
     }
 
     /**
      * Reapplies the set of commands.
-     * @returns
-     *  The editor's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public redo(): EditorDirectives {
-        return this._execute("redo");
+    public redo(issueDirective: DirectiveIssuer): void {
+        this._execute("redo", issueDirective);
     }
 
     /**
      * Reverts the set of commands.
-     * @returns
-     *  The editor's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public undo(): EditorDirectives {
-        let directives = EditorDirectives.None;
+    public undo(issueDirective: DirectiveIssuer): void {
         // Run first phase
         if(this._reverseCommandsOnUndo) {
             const l = this._commands.length - 1;
             for(let i = l; 0 <= i; i--) {
-                directives |= this._commands[i].undo();
+                this._commands[i].undo(issueDirective);
             }
         } else {
             for(let i = 0; i < this._commands.length; i++) {
-                directives |= this._commands[i].undo();
+                this._commands[i].undo(issueDirective);
             }
         }
-        // Return directives
-        return directives;
     }
 
     /**
      * Applies the set of commands.
      * @param func
      *  The command function to apply.
-     * @returns
-     *  The editor's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    private _execute(func: "execute" | "redo"){ 
+    private _execute(func: "execute" | "redo", issueDirective: DirectiveIssuer) { 
         let i = 0;
-        let directives = EditorDirectives.None;
         try {
             for(; i < this._commands.length; i++) {
-                directives |= this._commands[i][func]();
+                this._commands[i][func](issueDirective);
             }
         } catch (ex) {
             if(this._rollbackOnFailure) {
                 if(this._reverseCommandsOnUndo) {
                     for(i--; 0 <= i; i--) {
-                        this._commands[i].undo();
+                        this._commands[i].undo(() => {});
                     }
                 } else {
                     for(let j = 0; j < i; j++) {
-                        this._commands[j].undo();
+                        this._commands[j].undo(() => {});
                     }
                 }
             }
             throw ex;
         }
-        return directives;
     } 
 
 }

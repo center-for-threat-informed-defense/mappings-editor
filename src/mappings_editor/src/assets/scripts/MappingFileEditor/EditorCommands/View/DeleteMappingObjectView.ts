@@ -1,5 +1,5 @@
 import { GroupCommand } from "..";
-import { DeleteMappingObject } from "../MappingFile/DeleteMappingObject";
+import { DeleteMappingObject } from "../File/DeleteMappingObject";
 import { RestoreMappingObjectViews } from "./RestoreMappingObjectViews";
 import type { MappingFileView, MappingObjectView } from "../..";
 import { SelectMappingObjectViews } from "./SelectMappingObjectViews";

@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { MappingObjectView } from "../..";
 
 export class RestoreMappingObjectViews extends EditorCommand {
@@ -31,26 +31,19 @@ export class RestoreMappingObjectViews extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    public execute(): void {}
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
+    public undo(): void {
         if(this.views.length) {
             const file = this.views[0].fileView;
             for(const view of this.views) {
                 file.restoreMappingObjectView(view);
             }
         }
-        return EditorDirectives.None;
     }
 
 }

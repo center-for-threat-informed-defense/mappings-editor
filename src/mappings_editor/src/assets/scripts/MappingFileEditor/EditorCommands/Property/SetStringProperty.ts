@@ -1,5 +1,5 @@
 import type { StringProperty } from "@/assets/scripts/MappingFile";
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 
 export class SetStringProperty extends EditorCommand {
 
@@ -36,22 +36,22 @@ export class SetStringProperty extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    execute(): EditorDirectives {
+    execute(issueDirective: DirectiveIssuer): void {
         this.prop.value = this.nextValue;
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    undo(): EditorDirectives {
+    undo(issueDirective: DirectiveIssuer): void {
         this.prop.value = this.prevValue;
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Autosave);
     }
 
 }

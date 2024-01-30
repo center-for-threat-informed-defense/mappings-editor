@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { FilterControl, MappingFileView } from "../..";
 
 export class SetFilterState extends EditorCommand {
@@ -44,25 +44,18 @@ export class SetFilterState extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
+    public execute(): void {
         if(this.value) {
             this.control.show(this.id);
         } else {
             this.control.hide(this.id);
         }
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    public undo(): void {}
 
 }

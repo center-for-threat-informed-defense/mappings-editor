@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives, type MappingFileView } from "../..";
+import { EditorCommand, type MappingFileView } from "../..";
 
 export class RebuildViewBreakouts extends EditorCommand {
 
@@ -21,22 +21,16 @@ export class RebuildViewBreakouts extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
+    public execute(): void {
         this.fileView.rebuildBreakouts();
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
+    public undo(): void {
         this.fileView.rebuildBreakouts();
-        return EditorDirectives.None;
     }
 
 }

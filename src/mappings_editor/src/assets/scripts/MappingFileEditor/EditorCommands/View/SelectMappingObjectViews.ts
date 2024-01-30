@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives, MappingFileView, MappingObjectView } from "../..";
+import { EditorCommand, MappingFileView, MappingObjectView } from "../..";
 
 export class SelectMappingObjectViews extends EditorCommand {
 
@@ -164,41 +164,33 @@ export class SelectMappingObjectViews extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
-        return this.select(this.execSelect);
+    public execute(): void {
+        this.select(this.execSelect);
     }
 
     /**
      * Redoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public redo(): EditorDirectives {
-        return this.select(this.redoSelect);
+    public redo(): void {
+        this.select(this.redoSelect);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return this.select(this.undoSelect);
+    public undo(): void {
+        this.select(this.undoSelect);
     }
 
     /**
      * Executes a select option.
      * @param selectOption
      *  The select option.
-     * @returns
-     *  The command's directives.
      */
-    private select(selectOption?: SelectOptions | boolean): EditorDirectives {
+    private select(selectOption?: SelectOptions | boolean) {
         if(selectOption === undefined) {
-            return EditorDirectives.None;
+            return;
         }
         let pivot, select;
         if(typeof selectOption === "object") {
@@ -224,7 +216,6 @@ export class SelectMappingObjectViews extends EditorCommand {
                 view.select(select);
             }   
         }
-        return EditorDirectives.None;
     }
 
 }

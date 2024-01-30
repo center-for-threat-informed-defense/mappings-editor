@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { BreakoutControl, MappingFileView } from "../..";
 
 export class MoveBreakout extends EditorCommand {
@@ -44,21 +44,14 @@ export class MoveBreakout extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
+    public execute(): void {
         this.control.moveBreakout(this.id, this.dst);
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    public undo(): void {}
 
 }

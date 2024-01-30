@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 import type { FrameworkObjectProperty } from "@/assets/scripts/MappingFile";
 
 export class SetFrameworkObjectPropertyId extends EditorCommand {
@@ -67,30 +67,30 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    execute(): EditorDirectives {
+    execute(issueDirective: DirectiveIssuer): void {
         if(this.nextObjectId && this.nextObjectText !== undefined) {
             this.prop.setObjectValue(this.nextObjectId, this.nextObjectText);
         } else {
             this.prop.objectId = this.nextObjectId;
         }
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    undo(): EditorDirectives {
+    undo(issueDirective: DirectiveIssuer): void {
         if(this.prevObjectId && this.prevObjectText !== undefined) {
             this.prop.setObjectValue(this.prevObjectId, this.prevObjectText);
         } else {
             this.prop.objectId = this.prevObjectId;
         }
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Autosave);
     }
 
 }

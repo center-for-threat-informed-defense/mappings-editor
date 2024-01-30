@@ -16,6 +16,7 @@ import { MoveSelectedMappingObjectViews } from "./MoveSelectedMappingObjectViews
 import { DeleteMappingObjectViews } from "./DeleteMappingObjectViews";
 import { FilterControl, MappingFileView, GroupCommand } from "../..";
 import { MappingObjectView, type BreakoutControl, type MappingFileViewItem} from "../.."
+import { ReindexMappingObjects } from "../File/ReindexMappingObjects";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -355,6 +356,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 strict: false
             }
             return [
+                new ReindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
                 new MoveCameraToViewItem(view, undefined, camera, camera)

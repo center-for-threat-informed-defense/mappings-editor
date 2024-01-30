@@ -1,4 +1,4 @@
-import type { EditorDirectives } from ".";
+import type { DirectiveIssuer } from ".";
 
 export abstract class EditorCommand {
 
@@ -10,25 +10,25 @@ export abstract class EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    abstract execute(): EditorDirectives;
+    public abstract execute(issueDirective: DirectiveIssuer): void;
 
     /**
      * Redoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public redo(): EditorDirectives {
-        return this.execute();
+    public redo(issueDirective: DirectiveIssuer) {
+        this.execute(issueDirective);
     }
  
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    abstract undo(): EditorDirectives;
+    abstract undo(issueDirective: DirectiveIssuer): void;
 
 }
