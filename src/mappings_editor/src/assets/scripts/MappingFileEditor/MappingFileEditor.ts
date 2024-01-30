@@ -52,9 +52,26 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     private _autosaveTimeoutId: number | null;
 
     /**
+     * The last time the editor autosaved.
+     */
+    private _lastAutosave: Date | null;
+
+    /**
      * The editor's invalid mapping objects.
      */
     private readonly _invalidObjects: Set<string>;
+
+
+    /**
+     * The last time the editor autosaved.
+     * @remarks
+     *  `null` indicates the editor has not autosaved.
+     *  `Invalid Date` indicates the editor failed to autosave.
+     */
+    public get lastAutosave(): Date | null {
+        return this._lastAutosave;
+    }
+
     /**
      * The editor's invalid mapping objects.
      */
@@ -109,6 +126,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         this._redoStack = [];
         this._autosaveInterval = autosaveInterval;
         this._autosaveTimeoutId = null;
+        this._lastAutosave = null;
         this._invalidObjects = new Set();
         this.reindexFile();
     }
@@ -260,7 +278,14 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         }
         this._autosaveTimeoutId = setTimeout(() => {
             this._autosaveTimeoutId = null;
-            this.emit("autosave", this);
+            try {
+                this.emit("autosave", this);
+                this._lastAutosave = new Date();
+            } catch(ex) {
+                this._lastAutosave = new Date(Number.NaN);
+                console.error("Failed to autosave:");
+                console.error(ex);
+            }
         }, this._autosaveInterval);
     }
 
