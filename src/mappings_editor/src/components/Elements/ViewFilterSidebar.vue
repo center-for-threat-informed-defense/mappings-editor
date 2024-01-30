@@ -1,10 +1,11 @@
 <template>
   <AccordionBox class="view-filter-sidebar-element">
     <AccordionPane :units="1" name="Organize Mappings" class="pane">
-      <ScrollBox class="control-scrollbox" :propagateScroll="false">
+      <ScrollBox class="control-scrollbox">
         <div class="control-container">
           <p class="control-title">BREAKOUT BY</p>
           <BreakoutController :control="activeView.breakouts" @execute="execute" />
+          
           <template v-if="mappingGroupFilters">
             <span class="separator"></span>
             <p class="control-title">FILTER BY GROUP</p>
@@ -30,6 +31,11 @@
             <p class="control-title">FILTER BY TARGET</p>
             <FilterController :control="targetObjectFilters" @execute="execute" />
           </template>
+          <template v-if="validityFilters">
+            <span class="separator"></span>
+            <p class="control-title">FILTER BY VALIDITY</p>
+            <FilterController :control="validityFilters" @execute="execute" />
+          </template>
         </div>
       </ScrollBox>
     </AccordionPane>
@@ -40,7 +46,8 @@
 // Dependencies
 import { defineComponent } from "vue";
 import { useApplicationStore } from "@/stores/ApplicationStore";
-import { MappingObjectDiscriminator, type EditorCommand, type FilterControl, type MappingFileView } from "@/assets/scripts/MappingFileEditor";
+import { MappingObjectDiscriminator } from "@/assets/scripts/MappingFileEditor";
+import type { EditorCommand, FilterControl, MappingFileView } from "@/assets/scripts/MappingFileEditor";
 // Components
 import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
@@ -110,6 +117,15 @@ export default defineComponent({
      */
     targetObjectFilters(): FilterControl | undefined {
       return this.activeView.filterSets.get(MappingObjectDiscriminator.TargetObject);
+    },
+
+    /**
+     * Returns the validity filters.
+     * @returns
+     *  The validity filters control. `undefined` if there wasn't one.
+     */
+    validityFilters(): FilterControl | undefined {
+      return this.activeView.filterSets.get(MappingObjectDiscriminator.IsValid);
     }
 
   },
@@ -126,11 +142,11 @@ export default defineComponent({
     }
 
   },
-  components: { 
+  components: {
     ScrollBox, AccordionPane,
     AccordionBox, FilterController,
     BreakoutController
-  }
+}
 });
 </script>
   
@@ -150,14 +166,14 @@ export default defineComponent({
   height: 100%;
 }
 
+.control-scrollbox :deep(.scroll-bar) {
+  background: #1c1c1c;
+  border-left: solid 1px #333333;
+}
+
 .control-container {
   padding: 0px 30px 25px;
   box-sizing: border-box;
-}
-
-:deep(.scroll-bar) {
-  background: #1c1c1c;
-  border-left: solid 1px #333333;
 }
 
 .separator {
@@ -168,4 +184,3 @@ export default defineComponent({
 }
 
 </style>
-  

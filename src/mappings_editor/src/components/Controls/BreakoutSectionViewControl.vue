@@ -1,25 +1,38 @@
 <template>
   <div class="breakout-section-view-control">
     <div class="breakout-main" @click="toggleCollapse">
-      <div class="collapse-icon-container">
-        <CollapseArrowLarge class="collapse-icon" :collapsed="view.collapsed"/>
+      <div class="collapse-icon" :class="{ collapsed: view.collapsed }">
+        <svg width="11.314" height="7.0711" viewBox="0 0 2.9934 1.8709">
+          <g transform="translate(-.49321 -1.3794)">
+            <path
+              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225 
+              1.1225-1.1225-1.1225-0.37418 0.37418 1.1225 1.1225z"
+            />
+          </g>
+        </svg>
       </div>
       <p class="breakout-name">{{ view.name }}</p>
     </div>
-    <div class="create-icon-container" @click="createMappingObject">
-      <PlusLarge class="create-icon" />
+    <div class="create-icon" @click="createMappingObject">
+      <svg fill="#737373" width="10" height="10" version="1.1" viewBox="0 0 2.6458 2.6458">
+        <path d="m1.0583 0v1.0583h-1.0583v0.52917h1.0583v1.0583h0.52917v-1.0583h1.0583v-0.52917h-1.0583v-1.0583z"/>
+      </svg>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-// Dependencies
+
+/**
+ * Developer's Note:
+ * SVGs are directly embedded in this component to improve render performance.
+ * Currently, Vue has no way to directly import SVGs without wrapping them in a
+ * component.
+ */
+
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { defineComponent, type PropType } from 'vue';
 import type { BreakoutSectionView } from "@/assets/scripts/MappingFileEditor";
-// Components
-import PlusLarge from "../Icons/PlusLarge.vue";
-import CollapseArrowLarge from '../Icons/CollapseArrowLarge.vue';
 
 export default defineComponent({
   name: 'BreakoutSectionViewControl',
@@ -52,14 +65,13 @@ export default defineComponent({
       } else {
         cmd = EditorCommands.createGroupCommand(
           EditorCommands.collapseViewItem(this.view),
-          EditorCommands.moveCameraToViewItem(this.view.id, this.view.hangHeight)
+          EditorCommands.moveCameraToViewItem(this.view, this.view.hangHeight)
         )
       }
       this.$emit("execute", cmd);
     }
 
-  },
-  components: { PlusLarge, CollapseArrowLarge }
+  }
 });
 </script>
 
@@ -97,11 +109,11 @@ export default defineComponent({
   color: #d9d9d9;
 }
 
-.breakout-main:hover .collapse-icon {
+.breakout-main:hover .collapse-icon svg {
   fill: #b3b3b3 !important;
 }
 
-.collapse-icon-container {
+.collapse-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,8 +121,13 @@ export default defineComponent({
   height: 100%;
 }
 
-.collapse-icon {
+.collapse-icon svg {
   display: block;
+  fill: #8c8c8c;
+}
+
+.collapse-icon.collapsed svg { 
+  transform: rotate(270deg);
 }
 
 .breakout-name {
@@ -120,7 +137,7 @@ export default defineComponent({
 
 /** === Create Mapping Icon === */
 
-.create-icon-container {
+.create-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +145,7 @@ export default defineComponent({
   height: 100%;
 }
 
-.create-icon-container:hover .create-icon {
+.create-icon:hover svg {
   fill: #b3b3b3 !important;
 }
 

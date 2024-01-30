@@ -88,16 +88,36 @@ export class PointerTracker {
         onMove: (e: PointerEvent, t: PointerTracker) => void,
         onRelease: (e: PointerEvent, t: PointerTracker) => void
     ): void;
+
+    /**
+     * Captures the pointer and resets the pointer tracker.
+     * @param event
+     *  The pointer down event.
+     * @param onMove
+     *  The function to call on pointer movement.
+     * @param onRelease
+     *  The function to call on pointer release.
+     * @param target
+     *  The capture target.
+     *  (Default: `event.target`)
+     */
     public capture(
         event: PointerEvent,
         onMove: (e: PointerEvent, t: PointerTracker) => void,
-        onRelease?: (e: PointerEvent, t: PointerTracker) => void
+        onRelease: (e: PointerEvent, t: PointerTracker) => void,
+        target?: HTMLElement
+    ): void;
+    public capture(
+        event: PointerEvent,
+        onMove: (e: PointerEvent, t: PointerTracker) => void,
+        onRelease?: (e: PointerEvent, t: PointerTracker) => void,
+        target?: HTMLElement
     ) {
         this._originX = event.clientX;
         this._originY = event.clientY;
         this._lastX = this._originX;
         this._lastY = this._originY;
-        this.target = event.target as HTMLElement;
+        this.target = target ?? event.target as HTMLElement;
         this.target.setPointerCapture(event.pointerId);
         this.target.onpointermove = (e) => {
             this.update(e);

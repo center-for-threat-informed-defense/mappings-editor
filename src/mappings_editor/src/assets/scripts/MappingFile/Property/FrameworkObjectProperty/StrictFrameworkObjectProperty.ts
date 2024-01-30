@@ -2,6 +2,13 @@ import { FrameworkObjectProperty } from "./FrameworkObjectProperty";
 import type { FrameworkListing } from ".";
 import type { EditableStrictFrameworkListing } from "./EditableStrictFrameworkListing";
 
+/**
+ * A {@link StrictFrameworkObjectProperty} is a special property type that
+ * represents a single "framework object". Each framework object is uniquely
+ * identified by an `id` and is described with `text`. A valid `id` / `text`
+ * pair comes from a STRICT list of options ({@link FrameworkListing}) that
+ * should not change once the listing has been provided to the property.
+ */
 export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
@@ -15,13 +22,13 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
     private _objectText: string | null;
 
     /**
-     * The property's internal framework listing.
+     * The property's internal (editable) framework listing.
      */
     private readonly _framework: EditableStrictFrameworkListing;
 
     
     /**
-     * The property's framework listing.
+     * The property's (read-only) framework listing.
      */
     public get framework(): FrameworkListing {
         return this._framework;
@@ -65,11 +72,13 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
      * Creates a new {@link StrictFrameworkObjectProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param framework
      *  The property's framework listing.
      */
-    constructor(framework: EditableStrictFrameworkListing) {
-        super(framework);
+    constructor(name: string, framework: EditableStrictFrameworkListing) {
+        super(name, framework);
         this._objectId = null;
         this._objectText = null;
         this._framework = framework;
@@ -78,7 +87,7 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
      * Sets the property's object value. If the specified object value is
-     * invalid, the value is cached instead. 
+     * invalid, the value is cached instead.
      * @param id 
      *  The framework object's id.
      * @param text 
@@ -92,14 +101,25 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean {
         let wasSet = true;
-        if(this._framework.options.has(id) && this._framework.options.get(id) === text) {
+        // Configure framework
+        this._objectFramework = framework ?? this._objectFramework;
+        this._objectVersion = version ?? this._objectVersion;
+        // Configure value
+        if(this._framework.has(id, text)) {
             this.objectId = id;
         } else {
             this.cacheObjectValue(id, text);
+            // If the value had to be cached, it cannot 
+            // be the same framework as the property
+            if(
+                this._objectFramework === this.framework.id &&
+                this._objectVersion === this.framework.version
+            ) {
+                this._objectFramework = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_ID;
+                this._objectVersion = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_VERSION;
+            }
             wasSet = false;
         }
-        this._objectFramework = framework ?? this._objectFramework;
-        this._objectVersion = version ?? this._objectVersion;
         return wasSet;
     }
 
@@ -142,12 +162,21 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
     }
 
     /**
-     * Duplicates the object property.
+     * Duplicates the property.
      * @returns
-     *  The duplicated object property.s
+     *  A duplicate of the property.
      */
-    public duplicate(): StrictFrameworkObjectProperty {
-        const duplicate = new StrictFrameworkObjectProperty(this._framework);
+    public duplicate(): StrictFrameworkObjectProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public duplicate(name?: string): StrictFrameworkObjectProperty {
+        const duplicate = new StrictFrameworkObjectProperty(name ?? this.name, this._framework);
         if(this.isObjectValueCached()) {
             duplicate.cacheObjectValue(
                 this.objectId, this.objectText,

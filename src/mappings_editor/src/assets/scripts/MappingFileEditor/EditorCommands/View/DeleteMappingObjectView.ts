@@ -1,33 +1,32 @@
-import { UnselectViewItem } from "./UnselectViewItem";
+import { GroupCommand } from "..";
 import { DeleteMappingObject } from "../MappingFile/DeleteMappingObject";
-import { RestoreMappingObjectView } from "./RestoreMappingObjectView";
-import { CameraCommand, EditorDirectives, GroupCommand } from "..";
-import type { MappingObjectView } from "../..";
+import { RestoreMappingObjectViews } from "./RestoreMappingObjectViews";
+import type { MappingFileView, MappingObjectView } from "../..";
+import { SelectMappingObjectViews } from "./SelectMappingObjectViews";
 
 export class DeleteMappingObjectView extends GroupCommand {
     
     /**
-     * Removes a {@link MappingObjectView} from its parent {@link MappingObjectFile}.
-     * @param view
-     *  The mapping object view to remove.
+     * The mapping file view.
      */
-    constructor(view: MappingObjectView) {
-        super();
-        const viewportPosition = view.headOffset - view.fileView.viewPosition;
-        this.add(new UnselectViewItem(view));
-        this.add(new CameraCommand(view.id, viewportPosition, false, false))
-        this.add(new RestoreMappingObjectView(view));
-        this.add(new DeleteMappingObject(view.object));
-    }
+    public readonly fileView: MappingFileView;
 
 
     /**
-     * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * Deletes a {@link MappingObjectView} and its underlying mapping object
+     * from its mapping file.
+     * @remarks
+     *  Do not use this command to remove multiple {@link MappingObjectView}s
+     *  at once, use {@link DeleteMappingObjectViews} instead.
+     * @param view
+     *  The mapping object view to delete.
      */
-    public undo(): EditorDirectives {
-        return super.undo() | EditorDirectives.ExclusiveSelect;
+    constructor(view: MappingObjectView) {
+        super();
+        this.fileView = view.fileView;
+        this.do(new SelectMappingObjectViews(view, false, true))
+        this.do(new DeleteMappingObject(view.object));
+        this.do(new RestoreMappingObjectViews(view));
     }
 
 }

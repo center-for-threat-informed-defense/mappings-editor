@@ -7,7 +7,15 @@
         },
         "edit": {
             "undo": "Meta+Z",
-            "redo": "Meta+Y"
+            "redo": "Meta+Y",
+            "paint_select": "Meta",
+            "multi_select": "Shift",
+            "delete": "Backspace",
+            "select_all": "Meta+A",
+            "unselect_all": "Escape",
+            "cut": "Meta+X",
+            "copy": "Meta+C",
+            "paste": "Meta+V"
         },
         "layout": {
         },

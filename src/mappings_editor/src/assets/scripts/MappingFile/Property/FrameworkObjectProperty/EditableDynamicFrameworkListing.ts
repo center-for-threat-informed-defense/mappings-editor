@@ -1,5 +1,15 @@
 import { FrameworkListing } from "./FrameworkListing";
 
+/**
+ * An {@link EditableDynamicFrameworkListing} represents a DYNAMIC list of
+ * "framework objects". Each framework object is uniquely identified by an `id`
+ * and is described with `text`. A valid `id` / `text` pair exists so long as
+ * it's referenced by at least one {@link DynamicFrameworkObjectProperty}.
+ * Once the reference count of an `id` / `text` pair reaches 0, the pair is
+ * removed from the listing. If a {@link DynamicFrameworkObjectProperty}
+ * defines a completely new `id` / `text` pair, the pair is added to the
+ * listing and given a reference count of 1.
+ */
 export class EditableDynamicFrameworkListing extends FrameworkListing {
 
     /**

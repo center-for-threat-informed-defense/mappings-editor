@@ -1,5 +1,6 @@
 import Configuration from "@/assets/configuration/app.config";
 import { defineStore } from 'pinia'
+import { FileRecoveryBank } from "@/assets/scripts/Utilities";
 import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEditor'
 import { FrameworkRegistry, FrameworksSourceUrl, MappingFileAuthority } from '@/assets/scripts/MappingFileAuthority'
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
@@ -23,6 +24,7 @@ export const useApplicationStore = defineStore('applicationStore', {
         activeEditor: MappingFileEditor.Phantom,
         fileAuthority: new MappingFileAuthority(registry),
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
+        fileRecoveryBank: new FileRecoveryBank(),
         settings: BaseAppSettings
     }),
     getters: {
@@ -43,6 +45,15 @@ export const useApplicationStore = defineStore('applicationStore', {
          */
         canRedo(state): boolean {
             return state.activeEditor.canRedo();
+        },
+
+        /**
+         * Tests if the active editor has a selection.
+         * @returns
+         *  True if the active editor has a selection, false otherwise.
+         */
+        hasSelection(state): boolean {
+            return 0 < state.activeEditor.view.selected.size;
         }
 
     },
@@ -61,6 +72,8 @@ export const useApplicationStore = defineStore('applicationStore', {
                 // Execute application command
                 command.execute();
             }
+            // Temporarily hold any autosaving
+            this.activeEditor.tryDelayAutosave();
         }
 
     }

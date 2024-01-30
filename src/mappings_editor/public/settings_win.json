@@ -7,7 +7,15 @@
         },
         "edit": {
             "undo": "Control+Z",
-            "redo": "Control+Y"
+            "redo": "Control+Y",
+            "paint_select": "Control",
+            "multi_select": "Shift",
+            "delete": "Backspace",
+            "select_all": "Control+A",
+            "unselect_all": "Escape",
+            "cut": "Control+X",
+            "copy": "Control+C",
+            "paste": "Control+V"
         },
         "layout": {
         },

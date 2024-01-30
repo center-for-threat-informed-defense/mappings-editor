@@ -1,25 +1,19 @@
 <template>
-  <FocusBox 
-    :style="offset" 
-    class="context-menu-control"
-    pointerEvent="click"
-    @focusout="$emit('focusout')"
-    @contextmenu.prevent=""
-  >
+  <div class="context-menu-control" :style="offset" @contextmenu.prevent="">
     <ContextMenuListing 
       :sections="sections" 
       :forceInsideWindow="false" 
       @select="data => $emit('select', data)"
     />
-  </FocusBox>
+  </div>
 </template>
 
 <script lang="ts">
 // Dependencies
+import { RawFocusBox } from "@/assets/scripts/Utilities";
+import { defineComponent, markRaw, type PropType } from 'vue';
 import type { ContextMenuSection } from "@/assets/scripts/Application";
-import { defineComponent, type PropType } from 'vue';
 // Components
-import FocusBox from "@/components/Containers/FocusBox.vue";
 import ContextMenuListing from "./ContextMenuListing.vue";
 
 export default defineComponent({
@@ -34,6 +28,7 @@ export default defineComponent({
     return {
       xOffset: 0,
       yOffset: 0,
+      focusBox: markRaw(new RawFocusBox("click"))
     }
   },
   computed: {
@@ -53,6 +48,12 @@ export default defineComponent({
   },
   emits: ["select", "focusout"],
   mounted() {
+    // Configure focus box
+    this.focusBox.mount(
+      this.$el,
+      undefined,
+      () => this.$emit('focusout')
+    );
     // Offset menu if outside of viewport
     let viewWidth  = window.innerWidth;
     let viewHeight = window.innerHeight;
@@ -63,7 +64,10 @@ export default defineComponent({
     // Focus context menu
     this.$el.focus();
   },
-  components: { FocusBox, ContextMenuListing }
+  unmounted() {
+    this.focusBox.destroy()
+  },
+  components: { ContextMenuListing }
 });
 </script>
 

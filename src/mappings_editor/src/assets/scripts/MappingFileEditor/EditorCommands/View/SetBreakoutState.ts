@@ -1,7 +1,12 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { BreakoutControl } from "../..";
+import type { BreakoutControl, MappingFileView } from "../..";
 
 export class SetBreakoutState extends EditorCommand {
+    
+    /**
+     * The mapping file view.
+     */
+    public readonly fileView: MappingFileView;
 
     /**
      * The breakout control.
@@ -30,6 +35,7 @@ export class SetBreakoutState extends EditorCommand {
      */
     constructor(control: BreakoutControl, id: number, value: boolean) {
         super();
+        this.fileView = control.fileView;
         this.control = control;
         this.id = id;
         this.value = value;
@@ -43,7 +49,7 @@ export class SetBreakoutState extends EditorCommand {
      */
     public execute(): EditorDirectives {
         this.control.setBreakoutState(this.id, this.value);
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.None;
     }
 
     /**

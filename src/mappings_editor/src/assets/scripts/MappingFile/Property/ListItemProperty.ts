@@ -1,5 +1,5 @@
+import { MD5 } from "../../Utilities/MD5";
 import { Property } from ".";
-import { randomUUID } from "../../Utilities";
 import type { ListProperty } from "./ListProperty";
 
 export class ListItemProperty extends Property {
@@ -75,6 +75,23 @@ export class ListItemProperty extends Property {
     }
 
     /**
+     * The property's export value setter.
+     */
+    public set exportValue(value: string | null) {
+        if(value === null) {
+            this._value = null;
+            return;
+        }
+        for(const [id, obj] of this.options.value) {
+            if(obj.getAsString(this.exportValueKey) === value) {
+                this._value = id;
+                return;
+            }
+        }
+        this.cacheValue(value, value);
+    }
+
+    /**
      * The property's export text.
      */
     public get exportText(): string | null {
@@ -92,6 +109,8 @@ export class ListItemProperty extends Property {
 
     /**
      * Creates a new {@link ListItemProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param exportValueKey
      *  The property (on each list item) that acts as the export value.
      * @param exportTextKey
@@ -99,8 +118,8 @@ export class ListItemProperty extends Property {
      * @param options
      *  The {@link ListProperty} that lists the valid options.
      */
-    constructor(exportValueKey: string, exportTextKey: string, options: ListProperty) {
-        super();
+    constructor(name: string, exportValueKey: string, exportTextKey: string, options: ListProperty) {
+        super(name);
         this._value = null;
         this._cachedExportValue = null;
         this._cachedExportText = null;
@@ -111,6 +130,37 @@ export class ListItemProperty extends Property {
 
 
     /**
+     * Sets the property's value. If the specified value is invalid, the value
+     * is cached instead. 
+     * @param exportValue
+     *  The property's export value.
+     * @param exportText
+     *  The property's export text.
+     */
+    public setValue(exportValue: string | null, exportText: string): void {
+        if(exportValue === null) {
+            this.value = null;
+            return;
+        }
+        // Try resolve value
+        let value;
+        for(const [id, item] of this.options.value) {
+            if(
+                item.getAsString(this.exportValueKey) === exportValue &&
+                item.getAsString(this.exportTextKey) === exportText
+            ) {
+                value = id;
+            }
+        }
+        // Set value
+        if(value) {
+            this.value = value;
+        } else {
+            this.cacheValue(exportValue, exportText);
+        }
+    }
+
+    /**
      * Caches the provided list item's value. This function allows the property
      * to be set with an invalid value (one not included in the list property).
      * @param exportValue
@@ -118,9 +168,9 @@ export class ListItemProperty extends Property {
      * @param exportText
      *  The export text.
      */
-    public cacheValue(exportValue: string | null, exportText: string | null): void; 
-    public cacheValue(exportValue: string | null, exportText: string | null) {
-        this._value = randomUUID();
+    public cacheValue(exportValue: string, exportText: string): void; 
+    public cacheValue(exportValue: string, exportText: string) {
+        this._value = MD5(`${ exportValue }:${ exportText }`);
         this._cachedExportValue = exportValue;
         this._cachedExportText = exportText;
     }
@@ -139,10 +189,22 @@ export class ListItemProperty extends Property {
      * @returns
      *  A duplicate of the property.
      */
-    public duplicate(): ListItemProperty {
-        const property = new ListItemProperty(this.exportValueKey, this.exportTextKey, this.options);   
+    public duplicate(): ListItemProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public duplicate(name?: string): ListItemProperty {
+        const property = new ListItemProperty(
+            name ?? this.name, this.exportValueKey, 
+            this.exportTextKey, this.options
+        );
         if(this.isValueCached()) {
-            property.cacheValue(this.exportValue, this.exportText);
+            property.cacheValue(this.exportValue!, this.exportText!);
         } else {
             property.value = this.value;
         }
@@ -156,6 +218,15 @@ export class ListItemProperty extends Property {
      */
     public toString(): string {
         return this.exportText ?? "";
+    }
+
+    /**
+     * Tests if the property's value is unset.
+     * @returns
+     *  True if the property's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        return this._value === null;
     }
 
 }

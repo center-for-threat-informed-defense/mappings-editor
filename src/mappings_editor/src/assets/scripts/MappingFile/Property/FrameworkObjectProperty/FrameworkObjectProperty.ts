@@ -1,7 +1,27 @@
+import { randomUUID } from "@/assets/scripts/Utilities";
 import type { FrameworkListing } from ".";
 import { Property } from "../Property";
 
 export abstract class FrameworkObjectProperty extends Property {
+
+    /**
+     * The unknown framework identifier.
+     * @remarks
+     *  A UUID is used to ensure the unknown framework never accidentally
+     *  collides with a known framework.
+     */
+    public static UNKNOWN_FRAMEWORK_ID: string
+        = `[UNKNOWN_FRAMEWORK:${ randomUUID() }]`;
+
+    /**
+     * The unknown framework version.
+     * @remarks
+     *  A UUID is used to ensure the unknown framework version never
+     *  accidentally collides with a known framework version.
+     */
+    public static UNKNOWN_FRAMEWORK_VERSION: string
+        = `[UNKNOWN_VERSION:${ randomUUID() }]`;
+
 
     /**
      * The object's internal framework.
@@ -17,50 +37,52 @@ export abstract class FrameworkObjectProperty extends Property {
     /**
      * The object's framework.
      */
-    get objectFramework(): string {
+    public get objectFramework(): string {
         return this._objectFramework;
     }
 
     /**
      * The object's framework version.
      */
-    get objectVersion(): string {
+    public get objectVersion(): string {
         return this._objectVersion;
     }
 
     /**
      * The object's id.
      */
-    abstract get objectId(): string | null;
+    public abstract get objectId(): string | null;
 
     /**
      * The object's id setter.
      */
-    abstract set objectId(value: string | null);
+    public abstract set objectId(value: string | null);
 
     /**
      * The object's text.
      */
-    abstract get objectText(): string | null;
+    public abstract get objectText(): string | null;
 
     /**
      * The object's text setter.
      */
-    abstract set objectText(value: string | null);
+    public abstract set objectText(value: string | null);
 
     /**
      * The property's framework listing.
      */
-    abstract get framework(): FrameworkListing;
+    public abstract get framework(): FrameworkListing;
 
 
     /**
      * Creates a new {@link FrameworkObjectProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param framework
      *  The property's framework listing.
      */
-    constructor(framework: FrameworkListing) {
-        super();
+    constructor(name: string, framework: FrameworkListing) {
+        super(name);
         this._objectFramework = framework.id;
         this._objectVersion = framework.version;
     }
@@ -80,7 +102,7 @@ export abstract class FrameworkObjectProperty extends Property {
      * @returns
      *  True if the object value was set successfully, false if it was cached.
      */
-    abstract setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean;
+    public abstract setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean;
 
     /**
      * Caches the provided object value and, if necessary, removes the object's
@@ -104,7 +126,7 @@ export abstract class FrameworkObjectProperty extends Property {
      * @param version
      *  The object's framework version.
      */
-    abstract cacheObjectValue(id?: string | null, text?: string | null, framework?: string, version?: string): void;
+    public abstract cacheObjectValue(id?: string | null, text?: string | null, framework?: string, version?: string): void;
 
     /**
      * Attempts to uncache the property's current object value.
@@ -112,7 +134,7 @@ export abstract class FrameworkObjectProperty extends Property {
      *  True if the object value was successfully uncached, false otherwise.
      */
     public tryUncacheObjectValue(): boolean {
-        return this.setObjectValue(this.objectId, this.objectText);   
+        return this.setObjectValue(this.objectId, this.objectText); 
     }
 
     /**
@@ -120,14 +142,23 @@ export abstract class FrameworkObjectProperty extends Property {
      * @returns
      *  True if the property's object value is cached, false otherwise.
      */
-    abstract isObjectValueCached(): boolean;
+    public abstract isObjectValueCached(): boolean;
 
     /**
-     * Duplicates the object property.
+     * Duplicates the property.
      * @returns
-     *  The duplicated object property.
+     *  A duplicate of the property.
      */
-    abstract duplicate(): FrameworkObjectProperty;
+    public abstract duplicate(): FrameworkObjectProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public abstract duplicate(name?: string): FrameworkObjectProperty;
 
     /**
      * Returns the property's value as a string.
@@ -136,6 +167,15 @@ export abstract class FrameworkObjectProperty extends Property {
      */
     public toString(): string {
         return `${ this.objectId }: ${ this.objectText }`
+    }
+
+    /**
+     * Tests if the property's value is unset.
+     * @returns
+     *  True if the property's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        return this.objectId === null && this.objectText === null;
     }
 
 }

@@ -4,4 +4,5 @@ export enum MappingObjectDiscriminator {
     MappingStatus,
     SourceObject,
     TargetObject,
+    IsValid
 }

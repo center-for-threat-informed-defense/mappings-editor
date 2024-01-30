@@ -1,60 +1,59 @@
 <template>
-  <div class="">
-    <div class="filter-controller">
-      <div class="checkbox-container">
-        <CheckboxBar 
-          class="checkbox-bar" 
-          text="SHOW ALL"
-          :checked="control.allShown()"
-          @click="onClickShowAll"
+  <div class="filter-controller">
+    <div class="checkbox-container">
+      <CheckboxBar 
+        class="checkbox-bar" 
+        text="SHOW ALL"
+        :checked="control.allShown()"
+        @click="onClickShowAll"
+      />
+    </div>
+    <template v-for="[id, text] of listedFilters" :key="id ?? 'null'">
+      <div :class="['checkbox-container', { 'native-option': !(id && id !== '') }]">
+        <CheckboxBar
+          class="checkbox-bar"
+          :text="text"
+          :checked="isFilterChecked(id)"
+          @click="onClickFilter(id)"
+        />
+        <div class="drop-filter" @click="onDropFilter(id)" v-if="enterEditMode">
+          ✗
+        </div>
+      </div>
+    </template>
+    <div 
+      :class="['checkbox-container', 'new-filter', { active: showOptions }]"
+      v-if="isNewFilterShown"
+    >
+      <div class="search-container">
+        <OptionsList 
+          ref="optionsList"
+          class="options-list"
+          :select="select"
+          :options="searchOptions"
+          :maxHeight="maxHeight"
+          @hover="value => select = value"
+          @select="applyFilter"
+          v-if="showOptions"
+        />
+        <input 
+          type="text" 
+          ref="search"
+          name="search"
+          class="filter-search"
+          placeholder="Add Filter..."
+          @input="onSearchInput"
+          @focusin="onSearchFocusIn"
+          @focusout="onSearchFocusOut"
+          @keyup.stop=""
+          @keydown.stop="onSearchKeyDown"
+          v-model="searchTerm"
+          autocomplete="off"
         />
       </div>
-      <template v-for="[id, text] of listedFilters" :key="id ?? 'null'">
-        <div class="checkbox-container">
-          <CheckboxBar
-            class="checkbox-bar"
-            :text="text"
-            :checked="isFilterChecked(id)"
-            @click="onClickFilter(id)"
-          />
-          <div class="drop-filter" @click="onDropFilter(id)" v-if="enterEditMode">
-            ✗
-          </div>
-        </div>
-      </template>
-      <div 
-        :class="['checkbox-container', 'new-filter', { active: showOptions }]"
-        v-if="isNewFilterShown"
-      >
-          <div class="search-container">
-            <OptionsList 
-              ref="optionsList"
-              class="options-list"
-              :select="select"
-              :options="searchOptions"
-              :maxHeight="maxHeight"
-              @hover="value => select = value"
-              @select="applyFilter"
-              v-if="showOptions"
-            />
-            <input 
-              type="text" 
-              ref="search"
-              name="search"
-              class="filter-search"
-              placeholder="Add Filter..."
-              @input="onSearchInput"
-              @focusin="onSearchFocusIn"
-              @focusout="onSearchFocusOut"
-              @keyup.stop=""
-              @keydown.stop="onSearchKeyDown"
-              v-model="searchTerm"
-            />
-          </div>
-          <div class="drop-filter">
-            ✗
-          </div>
-        </div>
+      <div class="drop-filter">
+        ✗
+      </div>
     </div>
   </div>
 </template>
@@ -319,6 +318,10 @@ export default defineComponent({
     
   },
   watch: {
+    // On control change
+    "control"() {
+      this.enterEditMode = false;
+    },
     // On options change
     "control.options"(){
       if(this.control.options.size <= this.maxFilters) {
@@ -395,8 +398,17 @@ export default defineComponent({
   color: #b3b3b3;
 }
 
-/** === New Filter === */
+.native-option .checkbox-bar:not(.checked) {
+  border-color: #2e2e2e;
+  background: none;
+}
 
+.native-option .drop-filter {
+  border-color: #2e2e2e;
+  background: none;
+}
+
+/** === New Filter === */
 
 .checkbox-container.new-filter {
   opacity: .6;

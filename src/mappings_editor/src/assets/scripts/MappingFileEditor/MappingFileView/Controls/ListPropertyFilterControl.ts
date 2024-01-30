@@ -1,4 +1,5 @@
 import { FilterControl } from "./FilterControl";
+import type { MappingFileView } from "..";
 import type { ListProperty } from "@/assets/scripts/MappingFile";
 
 export class ListPropertyFilterControl extends FilterControl {
@@ -23,6 +24,8 @@ export class ListPropertyFilterControl extends FilterControl {
             [...this._options.value].map(
                 ([id, o]) => [id, o.getAsString(this._textKey)]
             );
+        // Sort items
+        options.sort((a,b) => a[1].localeCompare(b[1]))
         // Add null option
         options.push([null, "No Value"]);
         // Return complete set of options
@@ -39,13 +42,15 @@ export class ListPropertyFilterControl extends FilterControl {
     
     /**
      * Creates a new {@link FilterControl}.
+     * @param fileView
+     *  The control's {@link MappingFileView}.
      * @param textKey
      *  The property (on each list item) that acts as the filter text.
      * @param options
      *  The control's valid set of options.
      */
-    constructor(textKey: string, options: ListProperty) {
-        super();
+    constructor(fileView: MappingFileView, textKey: string, options: ListProperty) {
+        super(fileView);
         this._textKey = textKey;
         this._options = options;
     }

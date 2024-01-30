@@ -29,17 +29,21 @@ export class StringProperty extends Property {
 
     /**
      * Creates a new {@link StringProperty}.
+     * @param name
+     *  The property's human-readable name.
      */
-    constructor();
+    constructor(name: string);
 
     /**
      * Creates a new {@link StringProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param value
      *  The property's initial value.
      */
-    constructor(value: string | null);
-    constructor(value?: string | null) {
-        super();
+    constructor(name: string, value: string | null);
+    constructor(name: string, value?: string | null) {
+        super(name);
         this._value = null;
         this.value = value ?? null;
     }
@@ -50,8 +54,17 @@ export class StringProperty extends Property {
      * @returns
      *  A duplicate of the property.
      */
-    public duplicate(): StringProperty {
-        const property = new StringProperty();
+    public duplicate(): StringProperty
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public duplicate(name?: string): StringProperty {
+        const property = new StringProperty(name ?? this.name);
         property.value = this.value;
         return property;
     }
@@ -63,6 +76,15 @@ export class StringProperty extends Property {
      */
     public toString(): string {
         return this.value ?? "";
+    }
+
+    /**
+     * Tests if the property's value is unset.
+     * @returns
+     *  True if the property's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        return this._value === null;
     }
 
 }

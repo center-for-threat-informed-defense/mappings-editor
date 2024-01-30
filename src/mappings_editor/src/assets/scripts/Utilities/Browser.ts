@@ -53,8 +53,10 @@ export class Browser {
                 const file = (event.target as any).files[0];
                 const reader = new FileReader();
                 reader.onload = (e: ProgressEvent<FileReader>) => {
+                    const [filename, extension] = file.name.split(/\.(?=[^.]+$)/);
                     resolve({
-                        filename: file.name,
+                        filename,
+                        extension,
                         contents: e.target?.result
                     });
                 }
@@ -142,5 +144,6 @@ export enum OperatingSystem {
 
 type TextFile = {
     filename: string,
+    extension: string,
     contents: string | ArrayBuffer | null | undefined
 }

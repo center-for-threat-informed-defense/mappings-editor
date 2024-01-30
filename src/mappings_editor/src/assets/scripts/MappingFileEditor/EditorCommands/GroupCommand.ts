@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives, CameraCommand } from ".";
+import { EditorCommand, EditorDirectives } from ".";
 
 export class GroupCommand extends EditorCommand {
 
@@ -7,31 +7,57 @@ export class GroupCommand extends EditorCommand {
      */
     private _commands: EditorCommand[];
 
+    /**
+     * If true, commands will be undone in reverse order of execution. If
+     * false, commands will be undone in the same order of execution.
+     */
+    private _reverseCommandsOnUndo: boolean;
+
+    /**
+     * If true, when an exception occurs, all commands successfully run up to
+     * that point are recursively rolled back and the exception is thrown. If
+     * false, the exception is simply thrown.
+     */
+    private _rollbackOnFailure: boolean;
+
+
+    /**
+     * Executes a series of editor commands.
+     */
+    constructor();
     
     /**
-     * The group's {@link CameraCommand}s in order of execution.
+     * Executes a series of editor commands.
+     * @param reverseCommandsOnUndo
+     *  If true, commands will be undone in reverse order of execution. If
+     *  false, commands will be undone in the same order of execution.
+     *  (Default: true)
+     * @param rollbackOnFailure
+     *  If true, when an exception occurs, all commands successfully run up to
+     *  that point are recursively rolled back and the exception is thrown. If
+     *  false, the exception is simply thrown.
+     *  (Default: true)
      */
-    public get cameraCommands(): CameraCommand[] {
-        return this.getCameraCommands(this);
-    }
-
-
-    /**
-     * Executes a series of page commands.
-     */
-    constructor() {
+    constructor(reverseCommandsOnUndo?: boolean, rollbackOnFailure?: boolean);
+    constructor(reverseCommandsOnUndo: boolean = true, rollbackOnFailure: boolean = true) {
         super();
+        // Define phases
         this._commands = [];
+        this._reverseCommandsOnUndo = reverseCommandsOnUndo;
+        this._rollbackOnFailure = rollbackOnFailure;
     }
     
 
     /**
-     * Adds a command to the group.
+     * Appends a command to the command sequence.
      * @param command
      *  The command.
+     * @returns
+     *  The command.
      */
-    public add(command: EditorCommand) {
+    public do<T extends EditorCommand>(command: T): T {
         this._commands.push(command);
+        return command;
     }
 
     /**
@@ -40,21 +66,16 @@ export class GroupCommand extends EditorCommand {
      *  The editor's directives.
      */
     public execute(): EditorDirectives {
-        let i = 0;
-        const l = this._commands.length;
-        let directives = EditorDirectives.None;
-        try {
-            for(; i < l; i++) {
-                directives |= this._commands[i].execute();
-            }
-        } catch (ex) {
-            // Rollback on failure
-            for(i--; 0 <= i; i--) {
-                this._commands[i].undo();
-            }
-            throw ex;
-        }
-        return directives;
+        return this._execute("execute");
+    }
+
+    /**
+     * Reapplies the set of commands.
+     * @returns
+     *  The editor's directives.
+     */
+    public redo(): EditorDirectives {
+        return this._execute("redo");
     }
 
     /**
@@ -63,33 +84,51 @@ export class GroupCommand extends EditorCommand {
      *  The editor's directives.
      */
     public undo(): EditorDirectives {
-        const l = this._commands.length - 1;
         let directives = EditorDirectives.None;
-        for(let i = l; 0 <= i; i--) {
-            directives |= this._commands[i].undo();
+        // Run first phase
+        if(this._reverseCommandsOnUndo) {
+            const l = this._commands.length - 1;
+            for(let i = l; 0 <= i; i--) {
+                directives |= this._commands[i].undo();
+            }
+        } else {
+            for(let i = 0; i < this._commands.length; i++) {
+                directives |= this._commands[i].undo();
+            }
         }
+        // Return directives
         return directives;
     }
 
     /**
-     * Returns all {@link CameraCommand}s from a {@link GroupCommand} in order
-     * of execution.
-     * @param cmd
-     *  The {@link GroupCommand}.
+     * Applies the set of commands.
+     * @param func
+     *  The command function to apply.
      * @returns
-     *  The {@link CameraCommand}s.
+     *  The editor's directives.
      */
-    private getCameraCommands(cmd: GroupCommand): CameraCommand[] {
-        let commands: CameraCommand[] = []
-        for(let i = cmd._commands.length - 1; 0 <= i; i--) {
-            const command = cmd._commands[i];
-            if(command instanceof GroupCommand) {
-                commands = commands.concat(this.getCameraCommands(command));
-            } else if(command instanceof CameraCommand) {
-                commands.push(command);
+    private _execute(func: "execute" | "redo"){ 
+        let i = 0;
+        let directives = EditorDirectives.None;
+        try {
+            for(; i < this._commands.length; i++) {
+                directives |= this._commands[i][func]();
             }
+        } catch (ex) {
+            if(this._rollbackOnFailure) {
+                if(this._reverseCommandsOnUndo) {
+                    for(i--; 0 <= i; i--) {
+                        this._commands[i].undo();
+                    }
+                } else {
+                    for(let j = 0; j < i; j++) {
+                        this._commands[j].undo();
+                    }
+                }
+            }
+            throw ex;
         }
-        return commands;
-    }
+        return directives;
+    } 
 
 }

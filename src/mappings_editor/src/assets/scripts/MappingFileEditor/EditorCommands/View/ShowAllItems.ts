@@ -1,7 +1,12 @@
 import { EditorCommand, EditorDirectives } from "..";
-import type { FilterControl } from "../..";
+import type { FilterControl, MappingFileView } from "../..";
 
 export class ShowAllItems extends EditorCommand {
+
+    /**
+     * The mapping file view.
+     */
+    public readonly fileView: MappingFileView;
 
     /**
      * The filter control.
@@ -16,6 +21,7 @@ export class ShowAllItems extends EditorCommand {
      */
     constructor(control: FilterControl) {
         super();
+        this.fileView = control.fileView;
         this.control = control;
     }
 
@@ -27,7 +33,7 @@ export class ShowAllItems extends EditorCommand {
      */
     public execute(): EditorDirectives {
         this.control.showAll();
-        return EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.None;
     }
 
     /**

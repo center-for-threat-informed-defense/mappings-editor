@@ -9,9 +9,9 @@ export class ListItem {
     public readonly id: string;
 
     /**
-     * The list item's internal properties.
+     * The list item's properties.
      */
-    private readonly _properties: Map<string, Property>;
+    public readonly properties: Map<string, Property>;
 
 
     /**
@@ -19,7 +19,7 @@ export class ListItem {
      */
     constructor(properties: Map<string, Property>) {
         this.id = randomUUID();
-        this._properties = properties;
+        this.properties = properties;
     }
 
 
@@ -31,7 +31,7 @@ export class ListItem {
      *  The property.
      */
     public get(key: string): Property {
-        const prop = this._properties.get(key);
+        const prop = this.properties.get(key);
         if(!prop) {
             throw new Error(`No property '${ key }'.`)
         } else {
@@ -47,7 +47,7 @@ export class ListItem {
      *  The property as a string.
      */
     public getAsString(key: string): string {
-        const prop = this._properties.get(key);
+        const prop = this.properties.get(key);
         if(!prop) {
             throw new Error(`No property '${ key }'.`)
         } else {
@@ -62,7 +62,7 @@ export class ListItem {
      */
     public duplicate(): ListItem { 
         const properties = new Map(
-            [...this._properties.entries()].map(([key, value]) => [key, value.duplicate()])
+            [...this.properties.entries()].map(([key, value]) => [key, value.duplicate()])
         )
         return new ListItem(properties);
     }
@@ -74,20 +74,33 @@ export class ListItem {
      */
     public toString(): string {
         // If the item has just one property...
-        if(this._properties.size === 1) {
+        if(this.properties.size === 1) {
             // ...return the property as a string.
-            return [...this._properties.values()][0].toString()
+            return [...this.properties.values()][0].toString()
         }
         // If the item has multiple properties...
         else {
             // ...use JSON notation.
             return JSON.stringify(
                 Object.fromEntries(
-                    [...this._properties.entries()].map(([key, value]) => [key, value.toString()])
+                    [...this.properties.entries()].map(([key, value]) => [key, value.toString()])
                 )
             );
         }
         
+    }
+
+    /**
+     * Tests if the list item's value is unset.
+     * @returns
+     *  True if the list item's value is unset, false otherwise.
+     */
+    public isUnset(): boolean {
+        let unset = true;
+        for(const prop of this.properties.values()) {
+            unset &&= prop.isUnset();
+        }
+        return unset;
     }
 
 }

@@ -3,31 +3,16 @@ export enum EditorDirectives {
     /**
      * Specify if nothing should happen.
      */
-    None                 = 0b00000,
+    None                 = 0b00,
 
     /**
-     * Specify if the command should be recorded.
+     * Specify if the command should be recorded to the undo history.
      */
-    Record               = 0b00001,
+    Record               = 0b01,
 
     /**
-     * Specify if the editor should recalculate the view's breakouts.
+     * Specify if the command should trigger an autosave.
      */
-    RebuildBreakouts     = 0b00010,
-
-    /**
-     * Specify if the editor should recalculate view item positions.
-     */
-    RecalculatePositions = 0b00100,
-
-    /**
-     * Specify if the object should be moved into view.
-     */
-    MoveCamera           = 0b01000,
-
-    /**
-     * Specify if the camera object should be exclusively selected.
-     */
-    ExclusiveSelect      = 0b10000,
+    Autosave             = 0b10
 
 }

@@ -13,12 +13,12 @@ export type MappingObjectExport = {
     /**
      * The object's source framework version.
      */
-    source_version?: string,
+    source_version: string,
         
     /**
      * The object's source framework.
      */
-    source_framework?: string,
+    source_framework: string,
 
     /**
      * The mapping object's target id.
@@ -33,12 +33,37 @@ export type MappingObjectExport = {
     /**
      * The object's target framework version.
      */
-    target_version?: string,
+    target_version: string,
 
     /**
      * The object's target framework.
      */
-    target_framework?: string,
+    target_framework: string,
+
+    /**
+     * The mapping object's author.
+     */
+    author: string | null;
+
+    /**
+     * The author's e-mail address.
+     */
+    author_contact: string | null;
+
+    /**
+     * The author's organization.
+     */
+    author_organization: string | null;
+
+    /**
+     * The mapping object's references.
+     */
+    references: string[],
+
+    /**
+     * The mapping object's comments.
+     */
+    comments: string | null;
 
     /**
      * The object's mapping type.
@@ -56,23 +81,13 @@ export type MappingObjectExport = {
     mapping_status: string | null;
 
     /**
-     * The mapping object's author.
+     * The mapping object's score category.
      */
-    author: string | null;
+    score_category: string | null;
 
     /**
-     * The author's e-mail address.
+     * The mapping object's score value.
      */
-    author_contact: string | null;
-
-    /**
-     * The mapping object's references.
-     */
-    references: string[],
-
-    /**
-     * The mapping object's comments.
-     */
-    comments: string | null;
+    score_value: string | null;
 
 }

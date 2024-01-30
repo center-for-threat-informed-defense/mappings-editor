@@ -28,7 +28,7 @@ export class HotkeyObserver<T> {
     /**
      * The function to call when a hotkey sequence is matched.
      */
-    private _callback: (command: T) => void;
+    private _callback: (command: T | undefined) => void;
 
     /**
      * The DOM element the hotkey observer is watching.
@@ -51,9 +51,26 @@ export class HotkeyObserver<T> {
      * @param callback
      *  The function to call once a hotkey sequence is triggered.
      */
-    constructor(callback: (command: T) => void) {
-        this._boundOnKeyDown = this.onKeyDown.bind(this);
-        this._boundOnKeyUp = this.onKeyUp.bind(this);
+    constructor(callback: (command: T | undefined) => void);
+
+    /**
+     * Creates a new {@link HotkeyObserver}.
+     * @param callback
+     *  The function to call once a hotkey sequence is triggered.
+     * @param reactive
+     *  A function which returns the reactive proxy of an object. If the
+     *  {@link HotkeyObserver} needs to be reactive, this function should be
+     *  specified.
+     */
+    constructor(
+        callback: (command: T | undefined) => void,
+        reactive?: <T extends object>(obj: T) => any);
+    constructor(
+        callback: (command: T | undefined) => void,
+        reactive: <T extends object>(obj: T) => any = o => o
+    ) {
+        this._boundOnKeyDown = this.onKeyDown.bind(reactive(this));
+        this._boundOnKeyUp = this.onKeyUp.bind(reactive(this));
         this._callback = callback;
         this._container = null;
         this._hotkeyIdMap = new Map();
@@ -139,7 +156,7 @@ export class HotkeyObserver<T> {
      *  The keydown event.
      */
     private onKeyDown(e: KeyboardEvent) {
-        
+
         // If inside input field, ignore hotkeys
         if((e.target as any).tagName === "INPUT") {
             return;
@@ -165,7 +182,7 @@ export class HotkeyObserver<T> {
                 e.preventDefault();
             }
             // Execute shortcut
-            this._callback(hotkey.data!);
+            this._callback(hotkey.data);
         } else {
             // If no key matched, block browser behavior by default
             e.preventDefault();

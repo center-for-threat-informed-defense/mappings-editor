@@ -45,6 +45,7 @@ export default defineComponent({
     }
 
   },
+  emits: ["execute"],
   methods: {
 
     /**
@@ -53,16 +54,7 @@ export default defineComponent({
      *  Menu item's command emitter.
      */
     async onItemSelect(emitter: CommandEmitter) {
-      try {
-        let cmd = emitter();
-        if(cmd instanceof Promise) {
-          this.application.execute(await cmd);
-        } else {
-          this.application.execute(cmd);
-        }
-      } catch(ex: any) {
-        console.error(ex);
-      }
+      this.$emit("execute", emitter());
     }
 
   },

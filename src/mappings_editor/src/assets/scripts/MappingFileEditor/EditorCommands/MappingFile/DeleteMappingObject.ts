@@ -4,36 +4,39 @@ import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 export class DeleteMappingObject extends EditorCommand {
 
     /**
-     * The object's index in the mapping file.
-     */
-    public readonly index: number;
-
-    /**
      * The object's mapping file.
      */
     public readonly file: MappingFile;
     
     /**
-     * The removed mapping object.
+     * The deleted mapping object.
      */
     public readonly object: MappingObject;
 
+    /**
+     * The mapping object's preceding object.
+     */
+    public readonly location: string | undefined;
+
 
     /**
-     * Removes a {@link MappingObject} from its parent {@link MappingFile}.
+     * Deletes a {@link MappingObject} from its parent {@link MappingFile}.
+     * @remarks
+     *  When deleting multiple mapping objects in a single group command,
+     *  ensure objects are deleted in order from last to first.
      * @param object
-     *  The mapping object to remove.
+     *  The mapping object to delete.
      */
     constructor(object: MappingObject) {
         if(object.file === null) {
             throw new Error(
-                `Mapping Object '${ object.id }' does not belong to a file.`
+                `'${ object.id }' doesn't belong to a file.`
             );
         }
         super();
         this.file = object.file;
         this.object = object;
-        this.index = this.file.getMappingObjectIndex(object);
+        this.location = this.file.getMappingObjectBefore(object)?.id;
     }
 
 
@@ -45,10 +48,8 @@ export class DeleteMappingObject extends EditorCommand {
     public execute(): EditorDirectives {
         // Remove mapping object
         this.file.removeMappingObject(this.object.id);
-        // Cache object values
-        this.object.sourceObject.cacheObjectValue();
-        this.object.targetObject.cacheObjectValue();
-        return EditorDirectives.Record | EditorDirectives.RebuildBreakouts;
+        return EditorDirectives.Record
+             | EditorDirectives.Autosave;
     }
 
     /**
@@ -57,12 +58,9 @@ export class DeleteMappingObject extends EditorCommand {
      *  The command's directives.
      */
     public undo(): EditorDirectives {
-        // Uncache object values
-        this.object.sourceObject.tryUncacheObjectValue();
-        this.object.targetObject.tryUncacheObjectValue();
         // Insert mapping object
-        this.file.insertMappingObject(this.object, this.index);
-        return EditorDirectives.RebuildBreakouts;
+        this.file.insertMappingObjectAfter(this.object, this.location);
+        return EditorDirectives.Record | EditorDirectives.Autosave;
     }
 
 }

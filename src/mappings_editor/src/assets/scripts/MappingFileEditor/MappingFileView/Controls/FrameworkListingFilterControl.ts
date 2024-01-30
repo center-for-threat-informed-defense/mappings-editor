@@ -1,4 +1,5 @@
 import { FilterControl } from ".";
+import type { MappingFileView } from "..";
 import type { FrameworkListing } from "@/assets/scripts/MappingFile";
 
 export class FrameworkListingFilterControl extends FilterControl {
@@ -13,14 +14,18 @@ export class FrameworkListingFilterControl extends FilterControl {
      * The control's set of valid options.
      */
     public get options(): ReadonlyMap<string, string> {
-        const options = new Map();
+        let options = new Map();
         for(const [value, text] of this._framework.options) {
             if(value === null) {
-                options.set(null, "No Value")
+                continue;
             } else {
                 options.set(value, `${ value }: ${ text }`);
             }
         }
+        options = new Map(
+            [...options].sort((a,b) => a[1].localeCompare(b[1]))
+        )
+        options.set(null, "No Value")
         return options;
     }
 
@@ -34,15 +39,13 @@ export class FrameworkListingFilterControl extends FilterControl {
     
     /**
      * Creates a new {@link FilterControl}.
-     * @param valueKey
-     *  The property (on each list item) that acts as the filter value.
-     * @param textKey
-     *  The property (on each list item) that acts as the filter text.
+     * @param fileView
+     *  The control's {@link MappingFileView}.
      * @param framework
      *  The control's valid set of options.
      */
-    constructor(framework: FrameworkListing) {
-        super();
+    constructor(fileView: MappingFileView, framework: FrameworkListing) {
+        super(fileView);
         this._framework = framework;
     }
 

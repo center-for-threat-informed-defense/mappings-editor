@@ -2,6 +2,13 @@ import { FrameworkListing } from ".";
 import { FrameworkObjectProperty } from "./FrameworkObjectProperty";
 import type { EditableDynamicFrameworkListing } from "./EditableDynamicFrameworkListing";
 
+/**
+ * A {@link DynamicFrameworkObjectProperty} is a special property type that
+ * represents a single "framework object". Each framework object is uniquely
+ * identified by an `id` and is described with `text`. A valid `id` / `text`
+ * pair comes from a DYNAMIC list of options that updates as framework object
+ * properties (that share a single {@link FrameworkListing}) are defined.
+ */
 export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
@@ -15,13 +22,13 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
     private _objectText: string | null | undefined; 
 
     /**
-     * The property's internal framework listing.
+     * The property's internal (editable) framework listing.
      */
     private readonly _framework: EditableDynamicFrameworkListing;
 
     
     /**
-     * The property's framework listing.
+     * The property's (read-only) framework listing.
      */
     public get framework(): FrameworkListing {
         return this._framework;
@@ -114,11 +121,13 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
 
     /**
      * Creates a new {@link StaticFrameworkObjectProperty}.
+     * @param name
+     *  The property's human-readable name.
      * @param framework
      *  The property's framework listing.
      */
-    constructor(framework: EditableDynamicFrameworkListing) {
-        super(framework);
+    constructor(name: string, framework: EditableDynamicFrameworkListing) {
+        super(name, framework);
         this._objectId = null;
         this._objectText = undefined;
         this._framework = framework;
@@ -141,19 +150,30 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     public setObjectValue(id: string | null, text: string | null, framework?: string, version?: string): boolean {
         let wasSet = true;
+        // Configure framework
+        this._objectFramework = framework ?? this._objectFramework;
+        this._objectVersion = version ?? this._objectVersion;
+        // Configure value
         if(this._framework.options.has(id)) {
             if(this._framework.options.get(id) === text) {
                 this.objectId = id;
             } else {
                 this.cacheObjectValue(id, text);
+                // If the value had to be cached, it cannot 
+                // be the same framework as the property
+                if(
+                    this._objectFramework === this.framework.id &&
+                    this._objectVersion === this.framework.version
+                ) {
+                    this._objectFramework = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_ID;
+                    this._objectVersion = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_VERSION;
+                }
                 wasSet = false;
             }
         } else {
             this.objectId = id;
             this.objectText = text;
         }
-        this._objectFramework = framework ?? this._objectFramework;
-        this._objectVersion = version ?? this._objectVersion;
         return wasSet;
     }
 
@@ -201,12 +221,21 @@ export class DynamicFrameworkObjectProperty extends FrameworkObjectProperty {
     }
 
     /**
-     * Duplicates the object property.
+     * Duplicates the property.
      * @returns
-     *  The duplicated object property.
+     *  A duplicate of the property.
      */
-    public duplicate(): DynamicFrameworkObjectProperty {
-        const duplicate = new DynamicFrameworkObjectProperty(this._framework);
+    public duplicate(): DynamicFrameworkObjectProperty;
+
+    /**
+     * Duplicates the property.
+     * @param name
+     *  The property's human-readable name.
+     * @returns
+     *  A duplicate of the property.
+     */
+    public duplicate(name?: string): DynamicFrameworkObjectProperty {
+        const duplicate = new DynamicFrameworkObjectProperty(name ?? this.name, this._framework);
         if(this.isObjectValueCached()) {
             duplicate.cacheObjectValue(
                 this.objectId, this.objectText,

@@ -48,15 +48,21 @@ export abstract class MappingFileViewItem {
     public collapsed: boolean;
 
     /**
-     * True if the item is selected, false otherwise.
-     */
-    public selected: boolean;
-    
-    /**
      * The mapping file view the item belongs to.
      */
     public readonly fileView: MappingFileView;
+    
+    /**
+     * The item's internal select state.
+     */
+    private _selected: boolean;
 
+    /**
+     * The item's select state.
+     */
+    public get selected(): boolean {
+        return this._selected;
+    }
 
     /**
      * The item's id.
@@ -73,7 +79,6 @@ export abstract class MappingFileViewItem {
         this.prev = null;
         this.next = null;
         this.collapsed = false;
-        this.selected = false;
         this.headOffset = 0;
         this.height = 0;
         this.padding = 0;
@@ -81,8 +86,35 @@ export abstract class MappingFileViewItem {
         this.level = 0;
         this.layer = 0;
         this.fileView = file;
+        this._selected = false;
     }
     
+
+    /**
+     * Selects / Unselects the {@link MappingFileViewItem}.
+     * @param value
+     *  True to select the item, false to unselect the item.
+     */
+    public select(value: boolean): void;
+
+    /**
+     * Selects / Unselects the {@link MappingFileViewItem}.
+     * @param value
+     *  True to select the item, false to unselect the item.
+     * @param registerWithView
+     *  If the selection should be registered with the parent 
+     *  {@link MappingFileView}.
+     *  (Default: true)
+     */
+    public select(value: boolean, registerWithView?: boolean): void;
+    public select(value: boolean, registerWithView: boolean = true) {
+        // Set the selection
+        this._selected = value;
+        // Flag the selection
+        if(registerWithView) {
+            this.fileView.setItemSelect(this, value);
+        }
+    }
 
     /**
      * Inserts this {@link MappingFileViewItem} before the provided item.
@@ -178,6 +210,56 @@ export abstract class MappingFileViewItem {
         }
         this.prev = null;
         this.next = null;
+    }
+
+    /**
+     * Returns all {@link MappingFileViewItem}s before and including this one.
+     * @returns
+     *  All {@link MappingFileViewItem}s before and including this one.
+     */
+    public *traverseItemsBefore(): Generator<MappingFileViewItem> {
+        type Item = MappingFileViewItem | null;
+        for(let obj: Item = this; obj !== null; obj = obj.prev) {
+            yield obj;
+        }
+    }
+
+    /**
+     * Returns all {@link MappingFileViewItem}s after and including this one.
+     * @returns
+     *  All {@link MappingFileViewItem}s after and including this one.
+     */
+    public *traverseItemsAfter(): Generator<MappingFileViewItem> {
+        type Item = MappingFileViewItem | null;
+        for(let obj: Item = this; obj !== null; obj = obj.next) {
+            yield obj;
+        }
+    }
+
+    /**
+     * Returns the {@link MappingFileViewItem} hierarchy. The item hierarchy
+     * begins at this item and successively jumps to the next highest item 
+     * (by level) until an item at level 0 is reached.
+     * @remarks
+     *  For example, if an item was at level 2, this function would return:
+     *  - The first item encountered at level 2. (This one)
+     *  - The first item encountered at level 1. (Traveling upwards)
+     *  - The first item encountered at level 0. (Traveling upwards)
+     * @returns
+     *  The {@link MappingFileViewItem} hierarchy.
+     */
+    public *traverseItemHierarchy(): Generator<MappingFileViewItem> {
+        let nextLevel = null;
+        for(let obj: MappingFileViewItem = this; obj; obj = obj.prev!) {
+            const isNextLevel = nextLevel === null || nextLevel === obj.level;
+            if(isNextLevel) {
+                nextLevel = obj.level - 1;
+                yield obj;
+            }
+            if(nextLevel === -1) { 
+                break;
+            }
+        }
     }
 
 }
