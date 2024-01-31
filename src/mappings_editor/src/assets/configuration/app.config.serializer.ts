@@ -41,7 +41,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 creation_date             : file.creation_date.toLocaleDateString("es-pa"),
                 last_update               : file.modified_date.toLocaleDateString("es-pa"),
                 mapping_types             : file.mapping_types,
-                groups                    : file.mapping_groups
+                capability_groups         : file.mapping_groups
             },
             mapping_objects
         }
@@ -102,7 +102,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             references                : obj.references,
             comments                  : obj.comments       ?? undefined,
             mapping_type              : obj.mapping_type,
-            group                     : obj.mapping_group  ?? undefined,
+            capability_group          : obj.mapping_group  ?? undefined,
             status                    : obj.mapping_status ?? undefined,
             score_category            : obj.score_category ?? undefined,
             score_value               : obj.score_value    ?? undefined,
@@ -173,7 +173,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             creation_date          : new Date(meta.creation_date),
             modified_date          : new Date(meta.last_update),
             mapping_types          : meta.mapping_types,
-            mapping_groups         : meta.groups,
+            mapping_groups         : meta.capability_groups,
             mapping_statuses: {
                 "complete"             : "Complete",
                 "in_progress"          : "In Progress",
@@ -267,7 +267,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             references          : obj.references             ?? [],
             comments            : obj.comments               ?? null,
             mapping_type        : obj.mapping_type           ?? null,
-            mapping_group       : obj.group                  ?? null,
+            mapping_group       : obj.capability_group       ?? null,
             mapping_status      : obj.status                 ?? "in_progress",
             score_category      : obj.score_category         ?? null,
             score_value         : obj.score_value            ?? null
@@ -395,7 +395,7 @@ type UniversalSchemaMappingFile = {
         creation_date             : string,
         last_update               : string,
         mapping_types             : UniversalSchemaMappingTypes,
-        groups                    : UniversalSchemaMappingGroups
+        capability_groups         : UniversalSchemaMappingGroups
     },
     mapping_objects               : UniversalSchemaMappingObject[]
 }
@@ -434,7 +434,7 @@ type UniversalSchemaMappingObject = {
     references                            : string[],
     comments?                             : string,
     mapping_type                          : string | null,
-    group?                                : string,
+    capability_group?                     : string,
     status?                               : string
     score_category?                       : string,
     score_value?                          : string,
