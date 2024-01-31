@@ -234,7 +234,7 @@ export class MappingFile {
     public insertMappingObjectsAfter(objects: MappingObject[], destination?: MappingObject | string) {
         const id = typeof destination === "string" ? destination : (destination?.id ?? null)
         const newEntries: [string, MappingObject][] = [];
-        objects.forEach(object => {
+        for(const object of objects){
             if(this._mappingObjects.has(object.id)) {
                 throw new Error(`Mapping file already contains object '${ object.id }'.`);
             }
@@ -244,7 +244,7 @@ export class MappingFile {
             // Configure object's file
             object.file = this;
             newEntries.push([object.id, object]);
-        })
+        }
         // Configure file's object
         const items = [...this._mappingObjects];
         const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);

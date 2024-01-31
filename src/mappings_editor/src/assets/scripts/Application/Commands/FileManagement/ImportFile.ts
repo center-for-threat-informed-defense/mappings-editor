@@ -35,36 +35,55 @@ export class ImportFile extends AppCommand {
      * Executes the command.
      */
     public execute(): void {
+        const activeEditorFile = this._context.activeEditor.file;
+        // throw error if imported file's source framework does not match the current file's source framework
+        if (activeEditorFile.sourceFramework !== this._importedFile.source_framework) {
+            alert("The imported file's mapping framework must be the same as the active file's mapping framework.")
+            throw new Error(`The imported file's mapping framework must be the same as the active file's mapping framework.`)
+        }
+        // throw error if imported file's target framework does not match the current file's target framework
+        if (activeEditorFile.targetFramework !== this._importedFile.target_framework){
+            alert("The imported file's target framework must be the same as the active file's target framework.")
+            throw new Error(`The imported file's target framework must be the same as the active file's target framework.`)
+        }
+        // if versions do not match, explicitly set the imported file's mapping objects to the version
+        if (activeEditorFile.sourceVersion !== this._importedFile.source_version) {
+            for (const mappingObject of this._importedFile.mapping_objects){
+                mappingObject.source_version = this._importedFile.source_version
+            }
+        }
+        if (activeEditorFile.targetVersion !== this._importedFile.target_version) {
+            for (const mappingObject of this._importedFile.mapping_objects){
+                mappingObject.target_version = this._importedFile.target_version
+            }
+        }
         // unselect any items that are currently selected
         this._context.activeEditor.view.setAllItemsSelect(false);
 
-        let objIds: string[] = [];
+        let objIds: Set<string> = new Set();
         let objects: MappingObject[] = [];
         
-        let rawFile = MappingFileView.toRaw(this._context.activeEditor.file);
+        let rawFile = MappingFileView.toRaw(activeEditorFile);
         let rawFileAuthority = MappingFileView.toRaw(this._context.fileAuthority)
-        this._importedFile.mapping_objects.forEach(mappingObj => {
+        for (const mappingObj of this._importedFile.mapping_objects){
             const mappingObjExport = rawFileAuthority.initializeMappingObjectExport(
                 mappingObj, rawFile as MappingFile
             );
             objects.push(mappingObjExport)
             // store ids of inserted objects
-            objIds.push(mappingObjExport.id);
-        })
+            objIds.add(mappingObjExport.id);
+        }
         rawFile.insertMappingObjectsAfter(objects);
         this._context.activeEditor.view.rebuildBreakouts();
 
         // move view to the item in imported items that has the lowest headOffset
-        const importedMappingObjects = [...this._context.activeEditor.view.getItems(
-            o => o instanceof MappingObjectView && objIds.includes(o.id)
-        )] as MappingObjectView[];
-        const lowestHeadOffset = Object.values(importedMappingObjects).reduce((a, b) => b.headOffset < a.headOffset? b : a);
-        this._context.activeEditor.view.moveToViewItem(lowestHeadOffset.object.id, 0, true, false);
+        const topItem = this._context.activeEditor.view.getItems(o => objIds.has(o.id)).next().value;
+        this._context.activeEditor.view.moveToViewItem(topItem.object.id, 0, true, false);
 
         // select each inserted object
-        objIds.forEach(objId => {
+        for(const objId of objIds){
             this._context.activeEditor.view.getItem(objId).select(true);
-        })
+        }
     }
 
 }

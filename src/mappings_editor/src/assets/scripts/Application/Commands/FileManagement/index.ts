@@ -104,26 +104,6 @@ export async function importFileFromFileSystem(context: ApplicationStore): Promi
     const { contents } = await Browser.openTextFileDialog();
     // Deserialize file
     const json = context.fileSerializer.deserialize(contents as string);
-    // throw error if imported file's source framework does not match the current file's source framework
-    const activeEditorFile = context.activeEditor.file;
-    if (activeEditorFile.sourceFramework !== json.source_framework) {
-        throw new Error(`The imported file's mapping framework must be the same as the active file's mapping framework.`)
-    }
-    // throw error if imported file's target framework does not match the current file's target framework
-    if (activeEditorFile.targetFramework !== json.target_framework){
-        throw new Error(`The imported file's target framework must be the same as the active file's target framework.`)
-    }
-    // if versions do not match, explicitly set the imported file's mapping objects to the version
-    if (activeEditorFile.sourceVersion !== json.source_version) {
-        json.mapping_objects.forEach(mappingObject => {
-            mappingObject.source_version = json.source_version
-        })
-    }
-    if (activeEditorFile.targetVersion !== json.target_version) {
-        json.mapping_objects.forEach(mappingObject => {
-            mappingObject.target_version = json.target_version
-        })
-    }
-     // Return command
+    // Return command
     return new ImportFile(context, json);
 }
