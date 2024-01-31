@@ -28,13 +28,6 @@ export class ImportFile extends AppCommand {
         super();
         this._context = context;
         this._importedFile = importedFile;
-    }
-
-
-    /**
-     * Executes the command.
-     */
-    public execute(): void {
         const activeEditorFile = this._context.activeEditor.file;
         // throw error if imported file's source framework does not match the current file's source framework
         if (activeEditorFile.sourceFramework !== this._importedFile.source_framework) {
@@ -57,13 +50,20 @@ export class ImportFile extends AppCommand {
                 mappingObject.target_version = this._importedFile.target_version
             }
         }
+    }
+
+
+    /**
+     * Executes the command.
+     */
+    public execute(): void {
         // unselect any items that are currently selected
         this._context.activeEditor.view.setAllItemsSelect(false);
 
         let objIds: Set<string> = new Set();
         let objects: MappingObject[] = [];
         
-        let rawFile = MappingFileView.toRaw(activeEditorFile);
+        let rawFile = MappingFileView.toRaw(this._context.activeEditor.file);
         let rawFileAuthority = MappingFileView.toRaw(this._context.fileAuthority)
         for (const mappingObj of this._importedFile.mapping_objects){
             const mappingObjExport = rawFileAuthority.initializeMappingObjectExport(
