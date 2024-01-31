@@ -38,8 +38,8 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 author                    : file.author,
                 contact                   : file.author_contact,
                 organization              : file.author_organization,
-                creation_date             : file.creation_date.toLocaleDateString("en-US"),
-                last_update               : file.modified_date.toLocaleDateString("en-US"),
+                creation_date             : file.creation_date.toLocaleDateString("es-pa"),
+                last_update               : file.modified_date.toLocaleDateString("es-pa"),
                 mapping_types             : file.mapping_types,
                 groups                    : file.mapping_groups
             },
