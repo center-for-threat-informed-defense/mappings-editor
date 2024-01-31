@@ -51,7 +51,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      */
     undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.objectText = this.prevObjectText;
-        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
+        issueDirective(EditorDirective.Autosave);
     }
 
 }

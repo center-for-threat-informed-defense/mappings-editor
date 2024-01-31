@@ -65,7 +65,7 @@ export class MoveMappingObjectsAfter extends EditorCommand {
     public undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.file.removeMappingObject(this.object);
         this.file.insertMappingObjectAfter(this.object, this.prevLocation);
-        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
+        issueDirective(EditorDirective.Autosave);
     }
 
 }
