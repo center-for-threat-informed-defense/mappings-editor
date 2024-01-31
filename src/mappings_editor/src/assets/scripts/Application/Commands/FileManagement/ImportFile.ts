@@ -84,6 +84,7 @@ export class ImportFile extends AppCommand {
         for(const objId of objIds){
             this._context.activeEditor.view.getItem(objId).select(true);
         }
+        this._context.activeEditor.reindexFile([...objIds]);
     }
 
 }
