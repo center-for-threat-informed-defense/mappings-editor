@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { FilterControl, MappingFileView } from "../..";
 
 export class ShowAllItems extends EditorCommand {
@@ -28,21 +28,14 @@ export class ShowAllItems extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
+    public execute(): void {
         this.control.showAll();
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    public undo(): void {}
 
 }

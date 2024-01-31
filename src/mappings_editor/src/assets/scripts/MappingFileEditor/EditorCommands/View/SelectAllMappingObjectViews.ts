@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives, MappingFileView, MappingObjectView } from "../..";
+import { EditorCommand, MappingFileView, MappingObjectView } from "../..";
 
 export class SelectAllMappingObjectViews extends EditorCommand {
 
@@ -61,29 +61,23 @@ export class SelectAllMappingObjectViews extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
-        return this.select(this.execSelect);
+    public execute(): void {
+        this.select(this.execSelect);
     }
 
     /**
      * Redoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public redo(): EditorDirectives {
-        return this.select(this.redoSelect);
+    public redo(): void {
+        this.select(this.redoSelect);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return this.select(this.undoSelect);
+    public undo(): void {
+        this.select(this.undoSelect);
 
     }
 
@@ -91,14 +85,11 @@ export class SelectAllMappingObjectViews extends EditorCommand {
      * Executes a select.
      * @param value
      *  The select value.
-     * @returns
-     *  The command's directives.
      */
-    private select(value?: boolean): EditorDirectives {
+    private select(value?: boolean) {
         if(value !== undefined) {
             this.fileView.setAllItemsSelect(value, o => o instanceof MappingObjectView);
         }
-        return EditorDirectives.None;
     }
 
 }

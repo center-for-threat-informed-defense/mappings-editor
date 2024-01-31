@@ -1,5 +1,5 @@
 import { GroupCommand } from "..";
-import { CreateMappingObject } from "../MappingFile/CreateMappingObject";
+import { CreateMappingObject } from "../File/CreateMappingObject";
 import { BreakoutSectionView, MappingFileView, type MappingFileViewItem } from "../..";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
 

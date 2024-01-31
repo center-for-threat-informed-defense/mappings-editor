@@ -285,7 +285,7 @@ ul {
   flex: 1;
   display: grid;
   overflow: hidden;
-  grid-template-rows: minmax(0, 1fr) 29px;
+  grid-template-rows: minmax(0, 1fr) 27px;
 }
 
 #view-filter-sidebar {
@@ -312,6 +312,7 @@ ul {
   height: 100%;
   color: #bfbfbf;
   border-top: solid 1px #333333;
+  box-sizing: border-box;
 }
 
 /** === Frames === */
@@ -341,7 +342,6 @@ ul {
 }
 
 .frame.bottom {
-  grid-row: 0;
   grid-column: 1 / 4;
 }
 

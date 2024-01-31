@@ -1,4 +1,3 @@
-import { EditorDirectives } from "..";
 import { EditorCommand } from "../EditorCommand";
 import { MappingFileViewItem, MappingFileView } from "../..";
 
@@ -100,44 +99,35 @@ export class MoveCameraToViewItem extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public execute(): EditorDirectives {
-        return this.move(this.execPosition);
+    public execute(): void {
+        this.move(this.execPosition);
     }
 
     /**
      * Redoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public redo(): EditorDirectives {
-        return this.move(this.redoPosition);
+    public redo(): void {
+        this.move(this.redoPosition);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
-        return this.move(this.undoPosition);
+    public undo(): void {
+        this.move(this.undoPosition);
     }
 
     /**
      * Executes a move.
      * @param movePosition
      *  The move position.
-     * @returns
-     *  The command's directives.
      */
-    private move(movePosition?: CameraPosition): EditorDirectives {
+    private move(movePosition?: CameraPosition) {
         if(movePosition) {
             const { position, positionFromHangers, strict } = movePosition;
             this.fileView.moveToViewItem(this.id, position, positionFromHangers, strict);
         }
-        return EditorDirectives.None;
     }
 
 }

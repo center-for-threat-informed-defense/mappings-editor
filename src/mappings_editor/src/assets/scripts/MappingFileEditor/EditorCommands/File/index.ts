@@ -1,4 +1,4 @@
-import { DeleteMappingObject } from "../MappingFile/DeleteMappingObject";
+import { DeleteMappingObject } from "./DeleteMappingObject";
 import { CreateMappingObject } from "./CreateMappingObject";
 import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";

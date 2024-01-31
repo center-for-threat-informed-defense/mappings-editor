@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 
 export class DeleteMappingObject extends EditorCommand {
@@ -42,25 +42,26 @@ export class DeleteMappingObject extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public execute(): EditorDirectives {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         // Remove mapping object
         this.file.removeMappingObject(this.object.id);
-        return EditorDirectives.Record
-             | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
+        issueDirective(EditorDirective.Reindex, this.object.id);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public undo(): EditorDirectives {
+    public undo(issueDirective: DirectiveIssuer = () => {}): void {
         // Insert mapping object
         this.file.insertMappingObjectAfter(this.object, this.location);
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Autosave);
+        issueDirective(EditorDirective.Reindex, this.object.id);
     }
 
 }

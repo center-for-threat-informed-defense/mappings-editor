@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand } from "..";
 import type { DynamicFrameworkObjectProperty } from "@/assets/scripts/MappingFile";
 
 export class ExitDynamicFrameworkObjectProperty extends EditorCommand {
@@ -22,21 +22,14 @@ export class ExitDynamicFrameworkObjectProperty extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    execute(): EditorDirectives {
+    execute(): void {
         this.prop.isTargeted = false;
-        return EditorDirectives.None;
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    undo(): EditorDirectives {
-        return EditorDirectives.None;
-    }
+    undo(): void {}
 
 }

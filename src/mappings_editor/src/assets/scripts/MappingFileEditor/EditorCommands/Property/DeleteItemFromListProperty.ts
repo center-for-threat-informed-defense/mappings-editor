@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 import type { ListItem, ListProperty } from "@/assets/scripts/MappingFile";
 
 export class DeleteItemFromListProperty extends EditorCommand {
@@ -39,22 +39,22 @@ export class DeleteItemFromListProperty extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    execute(): EditorDirectives {
+    execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.removeListItem(this.item);
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    undo(): EditorDirectives {
+    undo(issueDirective: DirectiveIssuer = () => {}): void {
         this.prop.insertListItem(this.item, this.index);
-        return EditorDirectives.Record | EditorDirectives.Autosave;
+        issueDirective(EditorDirective.Autosave);
     }
 
 }

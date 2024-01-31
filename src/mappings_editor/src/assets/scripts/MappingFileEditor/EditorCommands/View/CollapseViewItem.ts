@@ -1,4 +1,4 @@
-import { EditorCommand, EditorDirectives } from "..";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 import { MappingObjectView, type MappingFileViewItem, MappingFileView } from "../..";
 
 export class CollapseViewItem extends EditorCommand {
@@ -42,26 +42,21 @@ export class CollapseViewItem extends EditorCommand {
 
     /**
      * Executes the editor command.
-     * @returns
-     *  The command's directives.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
      */
-    public execute(): EditorDirectives {
+    public execute(issueDirective: DirectiveIssuer = () => {}): void {
         this.item.collapsed = this.nextValue;
         if(this.item instanceof MappingObjectView) {
-            return EditorDirectives.Record;
-        } else {
-            return EditorDirectives.None;
+            issueDirective(EditorDirective.Record);
         }
     }
 
     /**
      * Undoes the editor command.
-     * @returns
-     *  The command's directives.
      */
-    public undo(): EditorDirectives {
+    public undo(): void {
         this.item.collapsed = this.prevValue;
-        return EditorDirectives.None;
     }
 
 }

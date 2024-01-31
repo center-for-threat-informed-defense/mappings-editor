@@ -1,5 +1,5 @@
 import { EventEmitter } from "./EventEmitter";
-import { GroupCommand, EditorCommand, MappingFileView, EditorDirectives } from ".";
+import { GroupCommand, EditorCommand, MappingFileView, EditorDirective, type DirectiveIssuer, type DirectiveArguments } from ".";
 import { EditableStrictFrameworkListing, MappingFile, MappingObject, StrictFrameworkObjectProperty, StringProperty } from "../MappingFile";
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
@@ -51,6 +51,34 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      */
     private _autosaveTimeoutId: number | null;
 
+    /**
+     * The last time the editor autosaved.
+     */
+    private _lastAutosave: Date | null;
+
+    /**
+     * The editor's invalid mapping objects.
+     */
+    private readonly _invalidObjects: Set<string>;
+
+
+    /**
+     * The last time the editor autosaved.
+     * @remarks
+     *  `null` indicates the editor has not autosaved.
+     *  `Invalid Date` indicates the editor failed to autosave.
+     */
+    public get lastAutosave(): Date | null {
+        return this._lastAutosave;
+    }
+
+    /**
+     * The editor's invalid mapping objects.
+     */
+    public get invalidObjects(): ReadonlySet<string> {
+        return this._invalidObjects;
+    }
+
 
     /**
      * Creates a new {@link MappingFileEditor}.
@@ -98,6 +126,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         this._redoStack = [];
         this._autosaveInterval = autosaveInterval;
         this._autosaveTimeoutId = null;
+        this._lastAutosave = null;
+        this._invalidObjects = new Set();
+        this.reindexFile();
     }
 
 
@@ -113,11 +144,11 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * @returns
      *  The command directives.
      */
-    public execute(...commands: EditorCommand[]): EditorDirectives {
+    public execute(...commands: EditorCommand[]) {
         // Package command
         let cmd: EditorCommand;
         if(commands.length === 0) {
-            return EditorDirectives.None;
+            return;
         } else if(commands.length === 1) {
             cmd = commands[0];
         } else {
@@ -127,27 +158,54 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             }
             cmd = grp;
         }
+        // Construct arguments
+        const { args, issuer } = this.newDirectiveArguments();
         // Execute command
-        const directives = cmd.execute();
-        if(directives & EditorDirectives.Record) {
+        cmd.execute(issuer);
+        if(args.directives & EditorDirective.Record) {
             this._redoStack = [];
             this._undoStack.push(cmd);
         }
-        this.executeDirectives(cmd, directives);
-        return directives;
+        this.executeDirectives(args);
     }
 
     /**
-     * Executes a command's {@link EditorDirectives}.
-     * @param cmd
-     *  The command.
-     * @param dirs
-     *  The command's editor directives.
+     * Creates a new set of {@link DirectiveArguments}.
+     * @returns
+     *  A new set of {@link DirectiveArguments} and a function which can issue
+     *  updates to the arguments.
      */
-    public executeDirectives(cmd: EditorCommand, dirs: EditorDirectives) {
+    private newDirectiveArguments(): { args: DirectiveArguments, issuer: DirectiveIssuer } {
+        // Create arguments
+        const args: DirectiveArguments = {
+            directives: EditorDirective.None,
+            reindexObjects: [],   
+        }
+        // Create append arguments function
+        const issuer = (dirs: EditorDirective, obj?: string) => {
+            // Update directives
+            args.directives = args.directives | dirs;
+            // Update items to reindex
+            if(dirs & EditorDirective.Reindex && obj) {
+                args.reindexObjects.push(obj);
+            }
+        }
+        return { args, issuer };
+    }
+
+    /**
+     * Executes a command's {@link DirectiveArguments}.
+     * @param args
+     *  The arguments.
+     */
+    public executeDirectives(args: DirectiveArguments) {
         // Request autosave
-        if(dirs & EditorDirectives.Autosave) {
+        if(args.directives & EditorDirective.Autosave) {
             this.requestAutosave();
+        }
+        // Update reindex file
+        if(args.directives & EditorDirective.Reindex) {
+            this.reindexFile(args.reindexObjects);
         }
     }
 
@@ -159,18 +217,17 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     
     /**
      * Undoes the last editor command.
-     * @param dirs
-     *  The command's editor directives.
      */
-    public undo(): EditorDirectives {
+    public undo() {
         if(this._undoStack.length) {
+            // Construct arguments
+            const { args, issuer } = this.newDirectiveArguments();
+            // Execute undo
             const cmd = this._undoStack[this._undoStack.length - 1];
-            const directives = cmd.undo();
+            cmd.undo(issuer);
             this._redoStack.push(this._undoStack.pop()!);
-            this.executeDirectives(cmd, directives);
-            return directives;
+            this.executeDirectives(args);
         }
-        return EditorDirectives.None;
     }
 
     /**
@@ -184,18 +241,17 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
     /**
      * Redoes the last undone editor command.
-     * @param dirs
-     *  The command's editor directives.
      */
-    public redo(): EditorDirectives  {
+    public redo()  {
         if(this._redoStack.length) {
+            // Construct arguments
+            const { args, issuer } = this.newDirectiveArguments();
+            // Execute redo
             const cmd = this._redoStack[this._redoStack.length - 1];
-            const directives = cmd.redo();
+            cmd.redo(issuer);
             this._undoStack.push(this._redoStack.pop()!);
-            this.executeDirectives(cmd, directives);
-            return directives;
+            this.executeDirectives(args);
         }
-        return EditorDirectives.None;
     }
 
     /**
@@ -222,7 +278,14 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         }
         this._autosaveTimeoutId = setTimeout(() => {
             this._autosaveTimeoutId = null;
-            this.emit("autosave", this);
+            try {
+                this.emit("autosave", this);
+                this._lastAutosave = new Date();
+            } catch(ex) {
+                this._lastAutosave = new Date(Number.NaN);
+                console.error("Failed to autosave:");
+                console.error(ex);
+            }
         }, this._autosaveInterval);
     }
 
@@ -247,7 +310,50 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  4. Phantom  ///////////////////////////////////////////////////////////
+    //  4. Indexing  //////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Reindexes the {@link MappingFile}.
+     */
+    public reindexFile(): void;
+
+    /**
+     * Reindexes one or more {@link MappingObject}s in the {@link MappingFile}.
+     * @param ids
+     *  The mapping objects, specified by id, to reindex.
+     */
+    public reindexFile(ids: string[]): void;
+    public reindexFile(ids?: string[]) {
+        // Collect objects
+        const objects = [];
+        if(ids) {
+            objects.push(...ids);
+        } else {
+            objects.push(...this.file.mappingObjects.keys())
+            this._invalidObjects.clear();
+        }
+        // Index objects
+        for(const id of objects) {
+            const obj = this.file.mappingObjects.get(id);
+            // If object no longer exists...
+            if(!obj) {
+                this._invalidObjects.delete(id);
+                continue;
+            }
+            // If object still exists...
+            if(obj.isValid.value) {
+                this._invalidObjects.delete(obj.id);
+            } else {
+                this._invalidObjects.add(obj.id);
+            }
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  5. Phantom  ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
