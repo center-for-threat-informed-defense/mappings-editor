@@ -44,7 +44,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   /**
    * The editor's search index.
    */
-  public readonly searchIndex: object;
+  public searchIndex: object;
 
   /**
    * The editor's undo stack.
