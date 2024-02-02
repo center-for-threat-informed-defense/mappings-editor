@@ -1,15 +1,38 @@
 <template>
   <div class="mapping-file-search-control">
-    <input name="search" type="text" placeholder="Search Mappings..." autocomplete="off" />
+    <input
+      name="search"
+      type="text"
+      placeholder="Search Mappings..."
+      autocomplete="off"
+      v-model="searchTerm"
+      @keydown.enter="handleEnterPress"
+      class="search-input"
+    >
+    <span v-if="searchResults.length" class="search-result-navigation">
+      <span class="search-result-text">{{`${currentItemIndex + 1}/${searchResults.length}`}}</span>
+      <ArrowUp :class="currentItemIndex <= 0 ? 'disabled' : 'clickable-icon'" @click="goToPreviousItem"/>
+      <ArrowDown :class="currentItemIndex >= searchResults.length - 1 ? 'disabled' : 'clickable-icon'" @click="goToNextItem"/>
+    </span>
   </div>
 </template>
   
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import ArrowDown from '../Icons/ArrowDown.vue';
+import ArrowUp from '../Icons/ArrowUp.vue';
 
 export default defineComponent({
   name: 'MappingFileSearch',
+  data() {
+    return {
+      previousSearchTerm: "",
+      searchTerm: "",
+      searchResults: [],
+      currentItemIndex: undefined
+    }
+  },
   props: {
     editor: {
       type: Object as PropType<MappingFileEditor>,
@@ -21,9 +44,38 @@ export default defineComponent({
   },
   emits: ["execute"],
   methods: {
-
+    goToPreviousItem(){
+      this.currentItemIndex > 0 && this.currentItemIndex --;
+    },
+    goToNextItem() {
+      this.currentItemIndex < this.searchResults.length - 1 && this.currentItemIndex ++;
+    },
+    handleEnterPress(){
+      if(this.searchTerm !== this.previousSearchTerm){
+        this.editor.view.setAllItemsSelect(false);
+        this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
+        this.currentItemIndex = 0;
+      }
+      else if(this.currentItemIndex < this.searchResults.length  - 1) {
+        this.currentItemIndex ++;
+      }
+      //store search term so can tell if enter is for new search or new index item focus
+      this.previousSearchTerm = this.searchTerm;
+    }
   },
-  components: {}
+  watch: {
+    currentItemIndex(newValue, previousValue){
+      if (previousValue){
+        this.editor.view.setItemSelect(this.searchResults[previousValue], false);
+      }
+      this.editor.view.setItemSelect(this.searchResults[newValue], true);
+      this.editor.view.moveToViewItem(this.searchResults[newValue], 0, true, true);
+    }
+  },
+  components: {
+    ArrowDown,
+    ArrowUp,
+  }
 });
 </script>
   
@@ -47,6 +99,30 @@ export default defineComponent({
   box-sizing: border-box;
   background: #3d3d3d;
   outline: none;
+  position: relative;
+}
+.search-result-navigation{
+  position: absolute;
+  right: 50px;
+  top: 3.75%;
+  font-size: 11px;
+  background-color: #262626;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.search-result-text {
+  color: white;
+  padding-right: 10px;
+  user-select: none;
+}
+
+.clickable-icon {
+  cursor: pointer;
+}
+
+.disabled {
+  opacity: 0.5;
 }
 
 </style>
