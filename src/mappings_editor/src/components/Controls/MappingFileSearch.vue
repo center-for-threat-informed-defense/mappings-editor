@@ -7,6 +7,7 @@
       autocomplete="off"
       v-model="searchTerm"
       @keydown.enter="handleEnterPress"
+      @input="handleSearchTermChange"
       class="search-input"
     >
     <span v-if="searchResults.length || emptyResults" class="search-result-navigation">
@@ -62,18 +63,28 @@ export default defineComponent({
         this.editor.view.setAllItemsSelect(false);
         this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
         this.currentItemIndex = 0;
-        this.searchResults.length ? this.handleCurrentItemIndexChange(0, 0) : this.emptyResults = true;
+        !this.searchResults.length && (this.emptyResults = true);
       }
       else if(this.currentItemIndex < this.searchResults.length  - 1) {
         this.currentItemIndex ++;
       }
       //store search term so can tell if enter is for new search or new index item focus
       this.previousSearchTerm = this.searchTerm;
+    },
+    handleSearchTermChange(){
+      if(this.searchTerm === ''){
+        this.currentItemIndex = 0;
+        this.searchResults = [];
+        this.emptyResults = false;
+        this.previousSearchTerm = "";
+      }
     }
   },
   watch: {
     currentItemIndex(newValue, previousValue){
-     newValue !== 0 && this.handleCurrentItemIndexChange(newValue, previousValue)
+      if(this.searchResults.length){
+        this.handleCurrentItemIndexChange(newValue, previousValue)
+      }
     }
   },
   components: {

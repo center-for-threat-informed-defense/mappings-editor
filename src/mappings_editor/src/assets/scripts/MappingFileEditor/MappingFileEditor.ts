@@ -130,7 +130,12 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
       objectPaddingHeight: 6,
       loadMargin: 0,
     });
-    this.searchIndex = this.buildSearchIndex();
+    this.searchIndex = new FlexSearch.Document({
+      document: {
+        id: 'id',
+        index: ["target_object_id", "target_object_text", "source_object_id", "source_object_text", "comments"],
+      },
+    });
     this._undoStack = [];
     this._redoStack = [];
     this._autosaveInterval = autosaveInterval;
@@ -337,9 +342,6 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     } else {
       objects.push(...this.file.mappingObjects.keys());
       this._invalidObjects.clear();
-      // build search index
-      this.searchIndex = this.buildSearchIndex();
-
     }
     // Index objects
     for (const id of objects) {
@@ -358,54 +360,25 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         this._invalidObjects.add(obj.id);
       }
       // update search index
-      if (ids) {
-        if (this.searchIndex.contain(id)) {
-          this.searchIndex.remove(id);
-        }
-        else {
-          let indexData = {
-            id: id,
-            target_object_id: obj.targetObject.objectId,
-            target_object_text: obj.targetObject.objectText,
-            source_object_id: obj.sourceObject.objectId,
-            source_object_text: obj.sourceObject.objectText,
-            comments: obj.comments.value,
-          }
-          this.searchIndex.add(indexData)
-        }
+      if (this.searchIndex.contain(id)) {
+        this.searchIndex.remove(id);
       }
+      let indexData = {
+        id: id,
+        target_object_id: obj.targetObject.objectId,
+        target_object_text: obj.targetObject.objectText,
+        source_object_id: obj.sourceObject.objectId,
+        source_object_text: obj.sourceObject.objectText,
+        comments: obj.comments.value,
+      }
+      this.searchIndex.add(indexData)
     }
   }
 
   ///////////////////////////////////////////////////////////////////////////
   //  5. Indexing  //////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
-  public buildSearchIndex(){
-    /**
-   * build search index of mapping objects
-   * @returns
-   * A flexsearch Document indexing mapping object properties
-   */
-    const index = new FlexSearch.Document({
-        document: {
-            id: 'id',
-            index: ["target_object_id", "target_object_text", "source_object_id", "source_object_text", "comments"],
-        },
-    });
-    
-    for (const mappingObj of this.file.mappingObjects) {
-        index.add({
-            id: mappingObj[0],
-            target_object_id: mappingObj[1].targetObject.objectId,
-            target_object_text: mappingObj[1].targetObject.objectText,
-            source_object_id: mappingObj[1].sourceObject.objectId,
-            source_object_text: mappingObj[1].sourceObject.objectText,
-            comments: mappingObj[1].comments.value,
-        })
 
-    }
-    return index;
-  }
   /**
    * gets objects in the file that match the search term
    * @param searchTerm
