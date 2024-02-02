@@ -3,7 +3,7 @@ import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
 import { SaveFileToRecoveryBank } from "./SaveFileToRecoveryBank";
-
+import FlexSearch from "flexsearch"
 export class LoadFile extends AppCommand {
 
     /**
@@ -39,13 +39,35 @@ export class LoadFile extends AppCommand {
     constructor(context: ApplicationStore, file: MappingFile, name?: string) {
         super();
         this._context = context;
-        this._editor = new MappingFileEditor(file, name);
+        let searchIndex = this.getSearchIndex(file);
+        this._editor = new MappingFileEditor(file, searchIndex, name);
         this._editor.on("autosave", editor => {
             context.execute(new SaveFileToRecoveryBank(context, editor))
         })
     }
 
+    public getSearchIndex(file: MappingFile){
+        const index = new FlexSearch.Document({
+            document: {
+                id: 'id',
+                index: ["target_object_id", "target_object_text", "source_object_id", "source_object_text", "comments"],
+            },
+        });
+        
+        for (const mappingObj of file.mappingObjects) {
+            index.add({
+                id: mappingObj[0],
+                target_object_id: mappingObj[1].targetObject.objectId,
+                target_object_text: mappingObj[1].targetObject.objectText,
+                source_object_id: mappingObj[1].sourceObject.objectId,
+                source_object_text: mappingObj[1].sourceObject.objectText,
+                comments: mappingObj[1].comments.value,
+            })
 
+        }
+        return index;
+
+    }
     /**
      * Executes the command.
      */
