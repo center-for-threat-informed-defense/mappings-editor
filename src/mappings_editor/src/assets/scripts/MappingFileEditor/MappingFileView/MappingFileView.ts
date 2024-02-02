@@ -428,7 +428,11 @@ export class MappingFileView {
             prop instanceof ListItemProperty ||
             prop instanceof ComputedProperty
         ) {
-            return control.isShown(prop.value.toString());
+            if(prop.value === null) {
+                return control.isShown(prop.value);
+            } else {
+                return control.isShown(`${ prop.value }`)
+            }
         }
         throw new Error(
             `Cannot dereference value from '${ prop.constructor.name }'.`
