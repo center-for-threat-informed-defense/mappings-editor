@@ -9,8 +9,8 @@
       @keydown.enter="handleEnterPress"
       class="search-input"
     >
-    <span v-if="searchResults.length" class="search-result-navigation">
-      <span class="search-result-text">{{`${currentItemIndex + 1}/${searchResults.length}`}}</span>
+    <span v-if="searchResults.length || emptyResults" class="search-result-navigation">
+      <span class="search-result-text">{{`${emptyResults ? currentItemIndex : currentItemIndex + 1}/${searchResults.length}`}}</span>
       <ArrowUp :class="currentItemIndex <= 0 ? 'disabled' : 'clickable-icon'" @click="goToPreviousItem"/>
       <ArrowDown :class="currentItemIndex >= searchResults.length - 1 ? 'disabled' : 'clickable-icon'" @click="goToNextItem"/>
     </span>
@@ -30,7 +30,8 @@ export default defineComponent({
       previousSearchTerm: "",
       searchTerm: "",
       searchResults: [],
-      currentItemIndex: undefined
+      currentItemIndex: 0,
+      emptyResults: false
     }
   },
   props: {
@@ -50,11 +51,18 @@ export default defineComponent({
     goToNextItem() {
       this.currentItemIndex < this.searchResults.length - 1 && this.currentItemIndex ++;
     },
+    handleCurrentItemIndexChange(newValue, previousValue){
+      this.editor.view.setItemSelect(this.searchResults[previousValue], false);
+      this.editor.view.setItemSelect(this.searchResults[newValue], true);
+      this.editor.view.moveToViewItem(this.searchResults[newValue], 0, true, true);
+    },
     handleEnterPress(){
       if(this.searchTerm !== this.previousSearchTerm){
+        this.emptyResults = false;
         this.editor.view.setAllItemsSelect(false);
         this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
         this.currentItemIndex = 0;
+        this.searchResults.length ? this.handleCurrentItemIndexChange(0, 0) : this.emptyResults = true;
       }
       else if(this.currentItemIndex < this.searchResults.length  - 1) {
         this.currentItemIndex ++;
@@ -65,11 +73,7 @@ export default defineComponent({
   },
   watch: {
     currentItemIndex(newValue, previousValue){
-      if (previousValue){
-        this.editor.view.setItemSelect(this.searchResults[previousValue], false);
-      }
-      this.editor.view.setItemSelect(this.searchResults[newValue], true);
-      this.editor.view.moveToViewItem(this.searchResults[newValue], 0, true, true);
+     newValue !== 0 && this.handleCurrentItemIndexChange(newValue, previousValue)
     }
   },
   components: {
