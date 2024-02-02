@@ -376,7 +376,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  //  5. Indexing  //////////////////////////////////////////////////////////
+  //  5. Search  ??//////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
   /**
@@ -384,7 +384,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
    * @param searchTerm
    *  The term the user is searching
    * @returns
-   * A list of object ids that match the search tearm
+   * A list of object ids that match the search term
    */
   public getIdsMatchingSearch(searchTerm: string) {
     let resultDict = this.searchIndex.search(searchTerm);
