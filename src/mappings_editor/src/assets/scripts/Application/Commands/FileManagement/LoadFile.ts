@@ -39,14 +39,14 @@ export class LoadFile extends AppCommand {
     constructor(context: ApplicationStore, file: MappingFile, name?: string) {
         super();
         this._context = context;
-        let searchIndex = this.getSearchIndex(file);
+        let searchIndex = this.buildSearchIndex(file);
         this._editor = new MappingFileEditor(file, searchIndex, name);
         this._editor.on("autosave", editor => {
             context.execute(new SaveFileToRecoveryBank(context, editor))
         })
     }
 
-    public getSearchIndex(file: MappingFile){
+    public buildSearchIndex(file: MappingFile){
         const index = new FlexSearch.Document({
             document: {
                 id: 'id',

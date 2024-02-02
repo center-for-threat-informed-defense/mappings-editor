@@ -110,10 +110,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
    *  How long a period of inactivity must be before autosaving.
    *  (Default: 1500ms)
    */
-  constructor(file: MappingFile, searchIndex: object, name?: string, autosaveInterval?: number);
+  constructor(file: MappingFile, name?: string, autosaveInterval?: number);
   constructor(
     file: MappingFile,
-    searchIndex: object,
     name?: string,
     autosaveInterval: number = 1500
   ) {
@@ -131,14 +130,14 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
       objectPaddingHeight: 6,
       loadMargin: 0,
     });
-    this.searchIndex = searchIndex;
+    this.searchIndex = this.buildSearchIndex();
     this._undoStack = [];
     this._redoStack = [];
     this._autosaveInterval = autosaveInterval;
     this._autosaveTimeoutId = null;
     this._lastAutosave = null;
     this._invalidObjects = new Set();
-    this.reindexFile(true);
+    this.reindexFile();
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -216,7 +215,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     }
     // Update reindex file
     if (args.directives & EditorDirective.Reindex) {
-      this.reindexFile(args.reindexObjects, false);
+      this.reindexFile(args.reindexObjects);
     }
   }
 
@@ -329,8 +328,8 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
    * @param ids
    *  The mapping objects, specified by id, to reindex.
    */
-  public reindexFile(initialFileLoad: boolean, ids: string[]): void;
-  public reindexFile(initialFileLoad: boolean, ids?: string[]) {
+  public reindexFile(ids: string[]): void;
+  public reindexFile(ids?: string[]) {
     // Collect objects
     const objects = [];
     if (ids) {
@@ -338,6 +337,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     } else {
       objects.push(...this.file.mappingObjects.keys());
       this._invalidObjects.clear();
+      // build search index
+      this.searchIndex = this.buildSearchIndex();
+
     }
     // Index objects
     for (const id of objects) {
@@ -356,7 +358,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         this._invalidObjects.add(obj.id);
       }
       // update search index
-      if (!initialFileLoad) {
+      if (ids) {
         if (this.searchIndex.contain(id)) {
           this.searchIndex.remove(id);
         }
@@ -378,7 +380,32 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   ///////////////////////////////////////////////////////////////////////////
   //  5. Indexing  //////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
+  public buildSearchIndex(){
+    /**
+   * build search index of mapping objects
+   * @returns
+   * A flexsearch Document indexing mapping object properties
+   */
+    const index = new FlexSearch.Document({
+        document: {
+            id: 'id',
+            index: ["target_object_id", "target_object_text", "source_object_id", "source_object_text", "comments"],
+        },
+    });
+    
+    for (const mappingObj of this.file.mappingObjects) {
+        index.add({
+            id: mappingObj[0],
+            target_object_id: mappingObj[1].targetObject.objectId,
+            target_object_text: mappingObj[1].targetObject.objectText,
+            source_object_id: mappingObj[1].sourceObject.objectId,
+            source_object_text: mappingObj[1].sourceObject.objectText,
+            comments: mappingObj[1].comments.value,
+        })
 
+    }
+    return index;
+  }
   /**
    * gets objects in the file that match the search term
    * @param searchTerm
