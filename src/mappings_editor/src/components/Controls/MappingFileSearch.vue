@@ -19,9 +19,10 @@
   
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import ArrowDown from '../Icons/ArrowDown.vue';
 import ArrowUp from '../Icons/ArrowUp.vue';
+import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
+import type { EditorCommand, MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 
 export default defineComponent({
   name: 'MappingFileSearch',
@@ -47,6 +48,14 @@ export default defineComponent({
   },
   emits: ["execute"],
   methods: {
+    /**
+     * Executes an {@link EditorCommand}.
+     * @param cmd
+     *  The command to execute.
+     */
+    execute(cmd: EditorCommand) {
+      this.$emit("execute", cmd);
+    },
     goToPreviousItem(){
       // go to the previous search result
       // when at the first search result, the previous search result is the last search result
@@ -60,18 +69,22 @@ export default defineComponent({
     },
     handleCurrentItemChange(currentItem: string, previousItem: string){
       // de-select previously selected search result
-      previousItem && this.editor.view.setItemSelect(previousItem, false);
+      if (previousItem){
+        let previousMappingObjectItem = this.editor.view.getItem(previousItem);
+        this.execute(EditorCommands.unselectMappingObjectView(previousMappingObjectItem));
+      }
       // select current search result
-      this.editor.view.setItemSelect(currentItem, true);
+      let currentMappingObjectItem = this.editor.view.getItem(currentItem);
+      this.execute(EditorCommands.selectMappingObjectView(currentMappingObjectItem));
       // move current search result to the top of the view
-      this.editor.view.moveToViewItem(currentItem, 0, true, true);
+      this.execute(EditorCommands.moveCameraToViewItem(currentMappingObjectItem, 0, true, true));
     },
     handleEnterPress(){
       this.emptyResults = false;
       this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
       // track if a search was attempted but no results were found
       !this.searchResults.length && (this.emptyResults = true);
-      this.editor.view.setAllItemsSelect(false);
+      this.execute(EditorCommands.unselectAllMappingObjectViews(this.editor.view));
       this.searchTerm !== this.previousSearchTerm ? this.currentItem = this.searchResults[0] : this.goToNextItem();
       // store previous search term to track if current item should be re-set
       this.previousSearchTerm = this.searchTerm;

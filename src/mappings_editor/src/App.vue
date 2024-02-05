@@ -13,6 +13,7 @@
         <MappingFileSearch
           id="file-search"
           :editor="activeEditor"
+          @execute="onExecute"
         />
         <MappingFileViewControl
           id="file-editor"
