@@ -30,7 +30,7 @@ export default defineComponent({
     return {
       previousSearchTerm: "",
       searchTerm: "",
-      searchResults: [],
+      searchResults: [] as string[],
       currentItemIndex: 0,
       emptyResults: false
     }

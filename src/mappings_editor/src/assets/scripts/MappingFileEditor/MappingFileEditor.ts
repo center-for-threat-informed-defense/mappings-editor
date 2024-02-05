@@ -14,12 +14,13 @@ import {
   StrictFrameworkObjectProperty,
   StringProperty,
 } from "../MappingFile";
-import FlexSearch from "flexsearch"
+import FlexSearch from "flexsearch";
+
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   /**
    * The phantom mappings editor.
    */
-  public static Phantom: MappingFileEditor = new this(this.createPhantomPage(), new FlexSearch.Document({document: {id: 'id',index: [],}}));
+  public static Phantom: MappingFileEditor = new this(this.createPhantomPage());
 
   /**
    * The editor's id.
