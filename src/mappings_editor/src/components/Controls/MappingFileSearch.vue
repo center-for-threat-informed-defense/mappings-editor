@@ -12,8 +12,8 @@
     >
     <span v-if="searchResults.length || emptyResults" class="search-result-navigation">
       <span class="search-result-text">{{`${emptyResults ? currentItemIndex : currentItemIndex + 1}/${searchResults.length}`}}</span>
-      <ArrowUp :class="currentItemIndex <= 0 ? 'disabled' : 'clickable-icon'" @click="goToPreviousItem"/>
-      <ArrowDown :class="currentItemIndex >= searchResults.length - 1 ? 'disabled' : 'clickable-icon'" @click="goToNextItem"/>
+      <ArrowUp class="clickable-icon" @click="goToPreviousItem"/>
+      <ArrowDown class="clickable-icon" @click="goToNextItem"/>
     </span>
   </div>
 </template>
@@ -47,17 +47,27 @@ export default defineComponent({
   emits: ["execute"],
   methods: {
     goToPreviousItem(){
-      this.currentItemIndex > 0 && this.currentItemIndex --;
+      // go to the previous search result
+      // when at the first search result, the previous search result is the last search result
+      this.currentItemIndex > 0 ? this.currentItemIndex -- : this.currentItemIndex = this.searchResults.length - 1;
+
     },
     goToNextItem() {
-      this.currentItemIndex < this.searchResults.length - 1 && this.currentItemIndex ++;
+      // go the the next search result
+      // when at the last search result, the next search result is the first search result
+      this.currentItemIndex < this.searchResults.length - 1 ? this.currentItemIndex ++ : this.currentItemIndex = 0;
     },
-    handleCurrentItemIndexChange(newValue, previousValue){
+    handleCurrentItemIndexChange(newValue: number, previousValue: number){
+      // de-select previously selected search result
       this.editor.view.setItemSelect(this.searchResults[previousValue], false);
+      // select current search result
       this.editor.view.setItemSelect(this.searchResults[newValue], true);
+      // move current search result to the top of the view
       this.editor.view.moveToViewItem(this.searchResults[newValue], 0, true, true);
     },
     handleEnterPress(){
+      // if the user typed in a new search term
+      // re-search the index
       if(this.searchTerm !== this.previousSearchTerm){
         this.emptyResults = false;
         this.editor.view.setAllItemsSelect(false);
@@ -65,13 +75,18 @@ export default defineComponent({
         this.currentItemIndex = 0;
         !this.searchResults.length && (this.emptyResults = true);
       }
-      else if(this.currentItemIndex < this.searchResults.length  - 1) {
-        this.currentItemIndex ++;
+      // if the user pressed enter a second, third, fourth time etc. after the term was searched
+      // go to the next item in the search results
+      else {
+        this.goToNextItem();
       }
-      //store search term so can tell if enter is for new search or new index item focus
+      // store search term to keep track of enter presses
+      // whether the enter press is for a new search or to go to the next search result
       this.previousSearchTerm = this.searchTerm;
     },
     handleSearchTermChange(){
+      // if user deletes the entire search term but does not press enter, 
+      // clear everything and start as if this is a new search term
       if(this.searchTerm === ''){
         this.currentItemIndex = 0;
         this.searchResults = [];
@@ -81,7 +96,7 @@ export default defineComponent({
     }
   },
   watch: {
-    currentItemIndex(newValue, previousValue){
+    currentItemIndex(newValue: number, previousValue: number){
       if(this.searchResults.length){
         this.handleCurrentItemIndexChange(newValue, previousValue)
       }
@@ -136,8 +151,5 @@ export default defineComponent({
   cursor: pointer;
 }
 
-.disabled {
-  opacity: 0.5;
-}
 
 </style>

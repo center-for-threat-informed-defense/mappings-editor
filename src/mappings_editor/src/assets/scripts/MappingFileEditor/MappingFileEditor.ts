@@ -98,7 +98,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
    * @param file
    *  The Mapping File.
    */
-  constructor(file: MappingFile, searchIndex: object,);
+  constructor(file: MappingFile);
 
   /**
    * Creates a new {@link MappingFileEditor}.
@@ -349,7 +349,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
       // If object no longer exists...
       if (!obj) {
         this._invalidObjects.delete(id);
-        // rmeove from search index if no longer exists
+        // remove from search index if no longer exists
         this.searchIndex.remove(id)
         continue;
       }
