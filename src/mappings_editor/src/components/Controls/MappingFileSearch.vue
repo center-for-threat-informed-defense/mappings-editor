@@ -7,7 +7,6 @@
       autocomplete="off"
       v-model="searchTerm"
       @keydown.enter="handleEnterPress"
-      @input="handleSearchTermChange"
       class="search-input"
     >
     <span v-if="searchResults.length || emptyResults" class="search-result-navigation">
@@ -59,7 +58,7 @@ export default defineComponent({
       // when at the last search result, the next search result is the first search result
       this.currentItemIndex < this.searchResults.length - 1 ? this.currentItem = this.searchResults[this.currentItemIndex + 1] : this.currentItem = this.searchResults[0];
     },
-    handleCurrentItemChange(currentItem: number, previousItem: number){
+    handleCurrentItemChange(currentItem: string, previousItem: string){
       // de-select previously selected search result
       previousItem && this.editor.view.setItemSelect(previousItem, false);
       // select current search result
