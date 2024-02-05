@@ -3,7 +3,7 @@ import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
 import { SaveFileToRecoveryBank } from "./SaveFileToRecoveryBank";
-import FlexSearch from "flexsearch"
+
 export class LoadFile extends AppCommand {
 
     /**

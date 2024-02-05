@@ -1,4 +1,4 @@
-type MappingObjectDocument = {
+export type MappingObjectDocument = {
 
     /**
      * The mapping object's id.
