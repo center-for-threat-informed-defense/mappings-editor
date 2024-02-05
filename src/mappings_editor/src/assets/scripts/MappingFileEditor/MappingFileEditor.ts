@@ -15,7 +15,7 @@ import {
   StringProperty,
 } from "../MappingFile";
 import FlexSearch from "flexsearch";
-import { MappingObjectDocumentTypes } from "./MappingObjectDocumentTypes";
+import type { MappingObjectDocument } from "./MappingObjectDocumentTypes";
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   /**
