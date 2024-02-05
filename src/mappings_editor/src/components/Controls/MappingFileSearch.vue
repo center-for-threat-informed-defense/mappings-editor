@@ -31,7 +31,7 @@ export default defineComponent({
       previousSearchTerm: "",
       searchTerm: "",
       searchResults: [] as string[],
-      currentItemIndex: 0,
+      currentItem: "",
       emptyResults: false
     }
   },
@@ -42,63 +42,46 @@ export default defineComponent({
     }
   },
   computed: {
-
+    currentItemIndex(){
+      return this.searchResults.length ? this.searchResults.indexOf(this.currentItem) : 0;
+    }
   },
   emits: ["execute"],
   methods: {
     goToPreviousItem(){
       // go to the previous search result
       // when at the first search result, the previous search result is the last search result
-      this.currentItemIndex > 0 ? this.currentItemIndex -- : this.currentItemIndex = this.searchResults.length - 1;
+      this.currentItemIndex > 0 ? this.currentItem = this.searchResults[this.currentItemIndex - 1] : this.currentItem = this.searchResults[this.searchResults.length - 1];
 
     },
     goToNextItem() {
       // go the the next search result
       // when at the last search result, the next search result is the first search result
-      this.currentItemIndex < this.searchResults.length - 1 ? this.currentItemIndex ++ : this.currentItemIndex = 0;
+      this.currentItemIndex < this.searchResults.length - 1 ? this.currentItem = this.searchResults[this.currentItemIndex + 1] : this.currentItem = this.searchResults[0];
     },
-    handleCurrentItemIndexChange(newValue: number, previousValue: number){
+    handleCurrentItemChange(currentItem: number, previousItem: number){
       // de-select previously selected search result
-      this.editor.view.setItemSelect(this.searchResults[previousValue], false);
+      previousItem && this.editor.view.setItemSelect(previousItem, false);
       // select current search result
-      this.editor.view.setItemSelect(this.searchResults[newValue], true);
+      this.editor.view.setItemSelect(currentItem, true);
       // move current search result to the top of the view
-      this.editor.view.moveToViewItem(this.searchResults[newValue], 0, true, true);
+      this.editor.view.moveToViewItem(currentItem, 0, true, true);
     },
     handleEnterPress(){
-      // if the user typed in a new search term
-      // re-search the index
-      if(this.searchTerm !== this.previousSearchTerm){
-        this.emptyResults = false;
-        this.editor.view.setAllItemsSelect(false);
-        this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
-        this.currentItemIndex = 0;
-        !this.searchResults.length && (this.emptyResults = true);
-      }
-      // if the user pressed enter a second, third, fourth time etc. after the term was searched
-      // go to the next item in the search results
-      else {
-        this.goToNextItem();
-      }
-      // store search term to keep track of enter presses
-      // whether the enter press is for a new search or to go to the next search result
+      this.emptyResults = false;
+      this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
+      // track if a search was attempted but no results were found
+      !this.searchResults.length && (this.emptyResults = true);
+      this.editor.view.setAllItemsSelect(false);
+      this.searchTerm !== this.previousSearchTerm ? this.currentItem = this.searchResults[0] : this.goToNextItem();
+      // store previous search term to track if current item should be re-set
       this.previousSearchTerm = this.searchTerm;
     },
-    handleSearchTermChange(){
-      // if user deletes the entire search term but does not press enter, 
-      // clear everything and start as if this is a new search term
-      if(this.searchTerm === ''){
-        this.currentItemIndex = 0;
-        this.searchResults = [];
-        this.emptyResults = false;
-        this.previousSearchTerm = "";
-      }
-    }
   },
   watch: {
-    currentItemIndex(newValue: number, previousValue: number){
+    currentItem(newValue: string, previousValue: string){
       if(this.searchResults.length){
-        this.handleCurrentItemIndexChange(newValue, previousValue)
+        this.handleCurrentItemChange(newValue, previousValue)
       }
     }
   },
