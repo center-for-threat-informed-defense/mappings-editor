@@ -10,10 +10,12 @@
         />
       </div>
       <div class="frame center">
-        <MappingFileSearch
-          id="file-search"
-          :editor="activeEditor"
-        />
+        <div id="file-search">
+          <MappingFileSearch
+            :editor="activeEditor"
+            @execute="onExecute"
+          />
+        </div>
         <MappingFileViewControl
           id="file-editor"
           :editor="activeEditor"
@@ -296,8 +298,12 @@ ul {
 }
 
 #file-search {
+  display: flex;
+  align-items: center;
   height: 90px;
   width: 100%;
+  padding: 0px 40px;
+  box-sizing: border-box;
 }
 
 #file-editor {

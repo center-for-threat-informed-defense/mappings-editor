@@ -44,8 +44,6 @@ export class LoadFile extends AppCommand {
             context.execute(new SaveFileToRecoveryBank(context, editor))
         })
     }
-
-
     /**
      * Executes the command.
      */

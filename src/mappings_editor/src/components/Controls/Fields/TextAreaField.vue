@@ -58,7 +58,6 @@ export default defineComponent({
     updateValue() {
       let value = this.value === "" ? null : this.value;
       if(value !== this.property.value) {
-        console.log("update");
         let cmd = EditorCommands.setStringProperty(this.property, value);
         this.$emit("execute", cmd);
       }

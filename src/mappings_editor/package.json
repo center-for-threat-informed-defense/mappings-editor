@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "flexsearch": "^0.7.43",
     "pinia": "^2.1.7",
     "vue": "^3.3.4"
   },

@@ -1,6 +1,22 @@
+import FlexSearch from "flexsearch";
 import { EventEmitter } from "./EventEmitter";
-import { GroupCommand, EditorCommand, MappingFileView, EditorDirective, type DirectiveIssuer, type DirectiveArguments } from ".";
-import { EditableStrictFrameworkListing, MappingFile, MappingObject, StrictFrameworkObjectProperty, StringProperty } from "../MappingFile";
+import {
+    GroupCommand,
+    EditorCommand,
+    MappingFileView,
+    EditorDirective,
+    type DirectiveIssuer,
+    type DirectiveArguments,
+} from ".";
+import {
+    EditableStrictFrameworkListing,
+    MappingFile,
+    MappingObject,
+    StrictFrameworkObjectProperty,
+    StringProperty,
+} from "../MappingFile";
+import type { Document } from "flexsearch";
+import type { MappingObjectDocument } from "./MappingObjectDocument";
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
@@ -10,7 +26,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     public static Phantom: MappingFileEditor = new this(
         this.createPhantomPage()
     );
-    
+
     /**
      * The editor's id.
      */
@@ -61,6 +77,11 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      */
     private readonly _invalidObjects: Set<string>;
 
+    /**
+     * The editor's search index.
+     */
+    private _searchIndex: Document<MappingObjectDocument>;
+    
 
     /**
      * The last time the editor autosaved.
@@ -99,9 +120,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      */
     constructor(file: MappingFile, name?: string, autosaveInterval?: number);
     constructor(file: MappingFile, name?: string, autosaveInterval: number = 1500) {
-        super()
+        super();
         this.id = file.id;
-        this.name = name ?? `${ 
+        this.name = name ?? `${
             file.sourceFramework
         }@${
             file.sourceVersion
@@ -111,23 +132,23 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             file.targetVersion
         }`;
         this.file = file;
-        this.view = new MappingFileView(
-            this.file,
-            {
-                sectionHeight: 33,
-                sectionPaddingHeight: 10,
-                objectHeightCollapsed: 42,
-                objectHeightUncollapsed: 328,
-                objectPaddingHeight: 6,
-                loadMargin: 0
-            }
-        );
+        this.view = new MappingFileView(this.file, {
+            sectionHeight: 33,
+            sectionPaddingHeight: 10,
+            objectHeightCollapsed: 42,
+            objectHeightUncollapsed: 328,
+            objectPaddingHeight: 6,
+            loadMargin: 0,
+        });
         this._undoStack = [];
         this._redoStack = [];
         this._autosaveInterval = autosaveInterval;
         this._autosaveTimeoutId = null;
         this._lastAutosave = null;
         this._invalidObjects = new Set();
+        this._searchIndex = new FlexSearch.Document({
+            document: { id: "id", index: [] }
+        });
         this.reindexFile();
     }
 
@@ -147,13 +168,13 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     public execute(...commands: EditorCommand[]) {
         // Package command
         let cmd: EditorCommand;
-        if(commands.length === 0) {
+        if (commands.length === 0) {
             return;
-        } else if(commands.length === 1) {
+        } else if (commands.length === 1) {
             cmd = commands[0];
         } else {
             const grp = new GroupCommand();
-            for(const command of commands) {
+            for (const command of commands) {
                 grp.do(command);
             }
             cmd = grp;
@@ -162,7 +183,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         const { args, issuer } = this.newDirectiveArguments();
         // Execute command
         cmd.execute(issuer);
-        if(args.directives & EditorDirective.Record) {
+        if (args.directives & EditorDirective.Record) {
             this._redoStack = [];
             this._undoStack.push(cmd);
         }
@@ -175,21 +196,24 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      *  A new set of {@link DirectiveArguments} and a function which can issue
      *  updates to the arguments.
      */
-    private newDirectiveArguments(): { args: DirectiveArguments, issuer: DirectiveIssuer } {
+    private newDirectiveArguments(): {
+        args: DirectiveArguments;
+        issuer: DirectiveIssuer;
+    } {
         // Create arguments
         const args: DirectiveArguments = {
             directives: EditorDirective.None,
-            reindexObjects: [],   
-        }
+            reindexObjects: [],
+        };
         // Create append arguments function
         const issuer = (dirs: EditorDirective, obj?: string) => {
             // Update directives
             args.directives = args.directives | dirs;
             // Update items to reindex
-            if(dirs & EditorDirective.Reindex && obj) {
+            if (dirs & EditorDirective.Reindex && obj) {
                 args.reindexObjects.push(obj);
             }
-        }
+        };
         return { args, issuer };
     }
 
@@ -200,11 +224,11 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      */
     public executeDirectives(args: DirectiveArguments) {
         // Request autosave
-        if(args.directives & EditorDirective.Autosave) {
+        if (args.directives & EditorDirective.Autosave) {
             this.requestAutosave();
         }
         // Update reindex file
-        if(args.directives & EditorDirective.Reindex) {
+        if (args.directives & EditorDirective.Reindex) {
             this.reindexFile(args.reindexObjects);
         }
     }
@@ -214,12 +238,12 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     //  2. File History  //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-    
+
     /**
      * Undoes the last editor command.
      */
     public undo() {
-        if(this._undoStack.length) {
+        if (this._undoStack.length) {
             // Construct arguments
             const { args, issuer } = this.newDirectiveArguments();
             // Execute undo
@@ -242,8 +266,8 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     /**
      * Redoes the last undone editor command.
      */
-    public redo()  {
-        if(this._redoStack.length) {
+    public redo() {
+        if (this._redoStack.length) {
             // Construct arguments
             const { args, issuer } = this.newDirectiveArguments();
             // Execute redo
@@ -263,7 +287,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         return 0 < this._redoStack.length;
     }
 
-
+    
     ///////////////////////////////////////////////////////////////////////////
     //  3. Autosave  //////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -273,7 +297,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * Requests a save.
      */
     private requestAutosave() {
-        if(this._autosaveTimeoutId !== null) {
+        if (this._autosaveTimeoutId !== null) {
             clearTimeout(this._autosaveTimeoutId);
         }
         this._autosaveTimeoutId = setTimeout(() => {
@@ -281,7 +305,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             try {
                 this.emit("autosave", this);
                 this._lastAutosave = new Date();
-            } catch(ex) {
+            } catch (ex) {
                 this._lastAutosave = new Date(Number.NaN);
                 console.error("Failed to autosave:");
                 console.error(ex);
@@ -293,7 +317,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * Temporarily withholds an outstanding save action (if one exists).
      */
     public tryDelayAutosave(): void {
-        if(this._autosaveTimeoutId !== null) {
+        if (this._autosaveTimeoutId !== null) {
             this.requestAutosave();
         }
     }
@@ -302,7 +326,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * Cancels an outstanding save action (if one exists).
      */
     public tryCancelAutosave() {
-        if(this._autosaveTimeoutId !== null) {
+        if (this._autosaveTimeoutId !== null) {
             clearTimeout(this._autosaveTimeoutId);
             this._autosaveTimeoutId = null;
         }
@@ -328,32 +352,85 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     public reindexFile(ids?: string[]) {
         // Collect objects
         const objects = [];
-        if(ids) {
+        if (ids) {
             objects.push(...ids);
         } else {
-            objects.push(...this.file.mappingObjects.keys())
+            objects.push(...this.file.mappingObjects.keys());
+            // Wipe indices
             this._invalidObjects.clear();
+            this._searchIndex = new FlexSearch.Document({
+                document: {
+                    id: "id",
+                    index: [
+                        "source_object_id",
+                        "source_object_text",
+                        "target_object_id",
+                        "target_object_text",
+                        "comments"
+                    ],
+                },
+            });
         }
         // Index objects
-        for(const id of objects) {
+        for (const id of objects) {
             const obj = this.file.mappingObjects.get(id);
             // If object no longer exists...
-            if(!obj) {
+            if (!obj) {
                 this._invalidObjects.delete(id);
+                this._searchIndex.remove(id)
                 continue;
             }
             // If object still exists...
-            if(obj.isValid.value) {
+            if (obj.isValid.value) {
                 this._invalidObjects.delete(obj.id);
             } else {
                 this._invalidObjects.add(obj.id);
             }
+            this._searchIndex.update({
+                id: id,
+                source_object_id: obj.sourceObject.objectId,
+                source_object_text: obj.sourceObject.objectText,
+                target_object_id: obj.targetObject.objectId,
+                target_object_text: obj.targetObject.objectText,
+                comments: obj.comments.value,
+            });
         }
     }
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  5. Phantom  ///////////////////////////////////////////////////////////
+    //  5. Search  ////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Returns all mapping objects in the file that match the search term.
+     * @remarks
+     *  Fields currently indexed include:
+     *   - `target_object_id`
+     *   - `target_object_text`
+     *   - `source_object_id`
+     *   - `source_object_text`
+     *   - `comments`
+     * @param searchTerm
+     *  The search term.
+     * @returns
+     *  All mapping objects that match the search term.
+     */
+    public searchMappingObjects(searchTerm: string): Set<string> {
+        const results = new Set<string>();
+        const resultDict = this._searchIndex.search(searchTerm);
+        for (const field of resultDict) {
+            for (const result of field.result) {
+                results.add(result as string)
+            }
+        }
+        return results;
+    }
+    
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  6. Phantom  ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -373,13 +450,13 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
                 author: new StringProperty("Phantom"),
                 authorContact: new StringProperty("Phantom"),
                 authorOrganization: new StringProperty("Phantom"),
-                comments: new StringProperty("Phantom")
-            })
+                comments: new StringProperty("Phantom"),
+            }),
         });
     }
-    
+
 }
 
 type MappingFileEditorEvents = {
-    "autosave": (editor: MappingFileEditor) => void
-}
+    autosave: (editor: MappingFileEditor) => void;
+};
