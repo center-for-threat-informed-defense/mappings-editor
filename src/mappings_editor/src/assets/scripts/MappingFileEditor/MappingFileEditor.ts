@@ -15,7 +15,7 @@ import {
   StringProperty,
 } from "../MappingFile";
 import FlexSearch from "flexsearch";
-import type { MappingObjectDocument } from "./MappingObjectDocumentType";
+import type { MappingObjectDocument } from "./MappingObjectDocument";
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   /**
@@ -46,8 +46,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
   /**
    * The editor's search index.
    */
-  public searchIndex: MappingObjectDocument;
-
+  public searchIndex: Document<MappingObjectDocument>;
   /**
    * The editor's undo stack.
    */

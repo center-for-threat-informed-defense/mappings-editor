@@ -1,4 +1,4 @@
 export * from "./EditorCommands";
 export * from "./MappingFileView";
 export * from "./MappingFileEditor";
-export * from "./MappingObjectDocumentType";
+export * from "./MappingObjectDocument";
