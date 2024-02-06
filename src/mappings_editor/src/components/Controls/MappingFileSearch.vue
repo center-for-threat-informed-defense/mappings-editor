@@ -3,36 +3,46 @@
     <input
       name="search"
       type="text"
+      class="search-input"
       placeholder="Search Mappings..."
       autocomplete="off"
       v-model="searchTerm"
-      @keydown.enter="handleEnterPress"
-      class="search-input"
+      @keydown.stop=""
+      @keyup.stop="onInput"
     >
-    <span v-if="searchResults.length || emptyResults" class="search-result-navigation">
-      <span class="search-result-text">{{`${emptyResults ? currentItemIndex : currentItemIndex + 1}/${searchResults.length}`}}</span>
-      <ArrowUp class="clickable-icon" @click="goToPreviousItem"/>
-      <ArrowDown class="clickable-icon" @click="goToNextItem"/>
-    </span>
+    <template v-if="showNavigation">
+      <div class="nav-element result-count">
+        <span>{{ searchCount[0] }}/{{ searchCount[1] }}</span>
+      </div>
+      <div class="nav-element arrow" @click="traverseSearchResults(-1)">
+        <span>↑</span>
+      </div>
+      <div class="nav-element arrow" @click="traverseSearchResults(1)">
+        <span>↓</span>
+      </div>
+    </template>
   </div>
 </template>
   
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-import ArrowDown from '../Icons/ArrowDown.vue';
-import ArrowUp from '../Icons/ArrowUp.vue';
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
-import type { EditorCommand, MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { unsignedMod } from "@/assets/scripts/Utilities";
+import { defineComponent, type PropType } from 'vue';
+import type { 
+  EditorCommand,
+  MappingFileEditor,
+  MappingFileViewItem,
+  MappingObjectView
+} from "@/assets/scripts/MappingFileEditor";
 
 export default defineComponent({
   name: 'MappingFileSearch',
   data() {
     return {
-      previousSearchTerm: "",
+      showNavigation: false,
       searchTerm: "",
-      searchResults: [] as string[],
-      currentItem: "",
-      emptyResults: false
+      searchItem: null as MappingObjectView | null,
+      searchCount: [0,0],
     }
   },
   props: {
@@ -41,13 +51,9 @@ export default defineComponent({
       required: true
     }
   },
-  computed: {
-    currentItemIndex(){
-      return this.searchResults.length ? this.searchResults.indexOf(this.currentItem) : 0;
-    }
-  },
   emits: ["execute"],
   methods: {
+
     /**
      * Executes an {@link EditorCommand}.
      * @param cmd
@@ -56,50 +62,97 @@ export default defineComponent({
     execute(cmd: EditorCommand) {
       this.$emit("execute", cmd);
     },
-    goToPreviousItem(){
-      // go to the previous search result
-      // when at the first search result, the previous search result is the last search result
-      this.currentItemIndex > 0 ? this.currentItem = this.searchResults[this.currentItemIndex - 1] : this.currentItem = this.searchResults[this.searchResults.length - 1];
 
-    },
-    goToNextItem() {
-      // go the the next search result
-      // when at the last search result, the next search result is the first search result
-      this.currentItemIndex < this.searchResults.length - 1 ? this.currentItem = this.searchResults[this.currentItemIndex + 1] : this.currentItem = this.searchResults[0];
-    },
-    handleCurrentItemChange(currentItem: string, previousItem: string){
-      // de-select previously selected search result
-      if (previousItem){
-        let previousMappingObjectItem = this.editor.view.getItem(previousItem);
-        this.execute(EditorCommands.unselectMappingObjectView(previousMappingObjectItem));
+    /**
+     * Search input behavior.
+     */
+    onInput(event: KeyboardEvent) {
+      this.showNavigation = this.searchTerm !== "";
+      switch(event.key) {
+        case "Enter":
+          this.traverseSearchResults(1);
+          break;
+        default:
+          this.traverseSearchResults(0);
+          break;
       }
-      // select current search result
-      let currentMappingObjectItem = this.editor.view.getItem(currentItem);
-      this.execute(EditorCommands.selectMappingObjectView(currentMappingObjectItem));
-      // move current search result to the top of the view
-      this.execute(EditorCommands.moveCameraToViewItem(currentMappingObjectItem, 0, true, true));
     },
-    handleEnterPress(){
-      this.emptyResults = false;
-      this.searchResults = this.editor.getIdsMatchingSearch(this.searchTerm);
-      // track if a search was attempted but no results were found
-      !this.searchResults.length && (this.emptyResults = true);
-      this.execute(EditorCommands.unselectAllMappingObjectViews(this.editor.view));
-      this.searchTerm !== this.previousSearchTerm ? this.currentItem = this.searchResults[0] : this.goToNextItem();
-      // store previous search term to track if current item should be re-set
-      this.previousSearchTerm = this.searchTerm;
-    },
-  },
-  watch: {
-    currentItem(newValue: string, previousValue: string){
-      if(this.searchResults.length){
-        this.handleCurrentItemChange(newValue, previousValue)
+
+    /**
+     * Traverses the search results.
+     * @param increments
+     *  The number of results to jump forward/backward by.
+     */
+    traverseSearchResults(increment: number) {
+      // Search objects
+      const unorderedResults = this.editor.searchMappingObjects(this.searchTerm);
+      // Order and filter results according to view
+      const results = [];
+      for(let item of this.editor.view.getItems()) {
+        if(unorderedResults.has(item.id)) {
+          results.push(item.id);
+        }
       }
+      // Update total items
+      this.searchCount[1] = results.length;
+      // If no matches, bail 
+      if(results.length === 0) {
+        this.searchCount[0] = 0;
+        return;
+      }
+      // Traverse search
+      let nearestIdx;
+      if(this.searchItem) {
+        nearestIdx = this.getNearestItem(this.searchItem.id, results);
+      } else {
+        nearestIdx = 0;
+      }
+      const nextIdx = unsignedMod(nearestIdx + increment, results.length);
+      const searchItem = this.editor.view.getItem(results[nextIdx]) as MappingObjectView;
+      this.searchCount[0] = nextIdx + 1;
+      // Update view
+      let cmd = EditorCommands.createGroupCommand();
+      cmd.do(EditorCommands.unselectAllMappingObjectViews(this.editor.view));
+      cmd.do(EditorCommands.selectMappingObjectView(searchItem));
+      cmd.do(EditorCommands.moveCameraToViewItem(searchItem, 0, true));
+      this.execute(cmd);
+      // Update search item
+      this.searchItem = searchItem;
+    },
+
+    /**
+     * Returns the view item (in a set of view items) nearest to a specified
+     * view item.
+     * @remarks
+     *  This implementation currently assumes that all view items that follow
+     *  `id` are "nearer" than the items that precede it.
+     * @param id
+     *  The view item's id.
+     * @param items
+     *  The set of view items.
+     * @returns
+     *  The index of the view item (in the set of view items) nearest to `id`.
+     */
+    getNearestItem(id: string, items: string[]): number {
+      const set = new Set(items);
+      let item: MappingFileViewItem | null;
+      // Traverse forward
+      item = this.editor.view.getItem(id);
+      for(; item !== null; item = item.next) {
+        if(set.has(item.id)) {
+          return items.indexOf(item.id);
+        }
+      }
+      // Traverse backward
+      item = this.editor.view.getItem(id);
+      for(; item !== null; item = item.prev) {
+        if(set.has(item.id)) {
+          return items.indexOf(item.id);
+        }
+      }
+      return -1;
     }
-  },
-  components: {
-    ArrowDown,
-    ArrowUp,
+
   }
 });
 </script>
@@ -109,42 +162,59 @@ export default defineComponent({
 /** === Main Control === */
 
 .mapping-file-search-control {
-  padding: 25px 40px;
+  display: flex;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
   box-sizing: border-box;
+  background: #3d3d3d;
 }
 
 .mapping-file-search-control input {
-  width: 100%;
+  flex: 1;
   color: #bfbfbf;
   font-size: 12pt;
   font-family: "Inter";
   padding: 12px 20px;
   border: none;
-  border-radius: 5px;
-  box-sizing: border-box;
-  background: #3d3d3d;
+  background: none;
   outline: none;
-  position: relative;
-}
-.search-result-navigation{
-  position: absolute;
-  right: 50px;
-  top: 3.75%;
-  font-size: 11px;
-  background-color: #262626;
-  padding: 5px;
-  border-radius: 4px;
 }
 
-.search-result-text {
-  color: white;
-  padding-right: 10px;
+/** === Search Navigation === */
+
+.nav-element {
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+}
+
+.nav-element:last-child {
+  padding-right: 15px;
+}
+
+.result-count {
+  color: #cccccc;
+  font-size: 10.5pt;
+  font-weight: 500;
   user-select: none;
 }
 
-.clickable-icon {
+.result-count span {
+  padding: 5px 15px 5px 0px;
+  border-right: solid 1px #737373;
+}
+
+.arrow {
+  color: #a6a6a6;
+  font-size: 13pt;
+  font-weight: 600;
+  user-select: none;
   cursor: pointer;
 }
 
+.arrow:hover {
+  color: #cccccc;
+}
 
 </style>
