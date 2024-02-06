@@ -1,3 +1,4 @@
+import { ImportFile } from './ImportFile';
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
 import { AppCommand } from "../AppCommand";
@@ -90,4 +91,19 @@ export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
  */
 export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
     return new ClearFileRecoveryBank(context)
+}
+
+/**
+ * Imports a mapping file from the file system and merges it with the currently opened file, into the application.
+ * @param context
+ *  The application's context.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
+    const { contents } = await Browser.openTextFileDialog();
+    // Deserialize file
+    const json = context.fileSerializer.deserialize(contents as string);
+    // Return command
+    return new ImportFile(context, json);
 }

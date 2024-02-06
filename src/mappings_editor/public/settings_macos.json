@@ -1,6 +1,7 @@
 {
     "hotkeys": {
         "file": {
+            "import_file": "Meta+I",
             "new_file": "Meta+N",
             "open_file": "Meta+O",
             "save_file": "Meta+S"
