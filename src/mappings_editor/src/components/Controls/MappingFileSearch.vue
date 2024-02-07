@@ -14,11 +14,14 @@
       <div class="nav-element result-count">
         <span>{{ searchCount[0] }}/{{ searchCount[1] }}</span>
       </div>
-      <div class="nav-element arrow" @click="traverseSearchResults(-1)">
+      <div class="nav-element icon" @click="traverseSearchResults(-1)">
         <span>↑</span>
       </div>
-      <div class="nav-element arrow" @click="traverseSearchResults(1)">
+      <div class="nav-element icon" @click="traverseSearchResults(1)">
         <span>↓</span>
+      </div>
+      <div class="nav-element icon clear" @click="clearSearch">
+        <span>✗</span>
       </div>
     </template>
   </div>
@@ -76,6 +79,14 @@ export default defineComponent({
           this.traverseSearchResults(0);
           break;
       }
+    },
+
+    /**
+     * Clears the search bar.
+     */
+    clearSearch() {
+      this.searchTerm = "";
+      this.showNavigation = false;
     },
 
     /**
@@ -175,7 +186,7 @@ export default defineComponent({
   color: #bfbfbf;
   font-size: 12pt;
   font-family: "Inter";
-  padding: 12px 20px;
+  padding: 12px 0px 12px 20px;
   border: none;
   background: none;
   outline: none;
@@ -205,7 +216,7 @@ export default defineComponent({
   border-right: solid 1px #737373;
 }
 
-.arrow {
+.icon {
   color: #a6a6a6;
   font-size: 13pt;
   font-weight: 600;
@@ -213,8 +224,13 @@ export default defineComponent({
   cursor: pointer;
 }
 
-.arrow:hover {
+.icon:hover {
   color: #cccccc;
+}
+
+.icon.clear {
+  font-size: 16pt;
+  font-weight: 500;
 }
 
 </style>
