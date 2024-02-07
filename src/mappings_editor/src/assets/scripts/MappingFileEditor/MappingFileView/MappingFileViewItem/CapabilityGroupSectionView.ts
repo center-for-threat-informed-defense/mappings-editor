@@ -4,7 +4,7 @@ import type { EditorCommand } from "../../EditorCommands";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileView } from "..";
 
-export class MappingGroupSectionView extends BreakoutSectionView {
+export class CapabilityGroupSectionView extends BreakoutSectionView {
     
     /**
      * The section's export text.
@@ -13,7 +13,7 @@ export class MappingGroupSectionView extends BreakoutSectionView {
 
 
     /**
-     * Creates a new {@link MappingGroupSectionView}.
+     * Creates a new {@link CapabilityGroupSectionView}.
      * @param file
      *  The mapping file view the item belongs to.
      * @param value
@@ -22,7 +22,7 @@ export class MappingGroupSectionView extends BreakoutSectionView {
      *  The section's export text.
      */
     constructor(file: MappingFileView, value: string | null, exportText: string | null) {
-        super(file, exportText ?? "No Mapping Group", value);
+        super(file, exportText ?? "No Capability Group", value);
         this.exportText = exportText;
     }
 
@@ -36,10 +36,10 @@ export class MappingGroupSectionView extends BreakoutSectionView {
      *  The {@link EditorCommand}.
      */
     public applySectionValue(obj: MappingObject): EditorCommand {
-        if(this.value && this.exportText && !obj.mappingGroup.options.value.has(this.value)) {
-            return EditorCommands.setListItemProperty(obj.mappingGroup, this.value, this.exportText);
+        if(this.value && this.exportText && !obj.capabilityGroup.options.value.has(this.value)) {
+            return EditorCommands.setListItemProperty(obj.capabilityGroup, this.value, this.exportText);
         } else {
-            return EditorCommands.setListItemProperty(obj.mappingGroup, this.value);
+            return EditorCommands.setListItemProperty(obj.capabilityGroup, this.value);
         }
     }
 

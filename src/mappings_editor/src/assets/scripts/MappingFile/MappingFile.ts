@@ -71,14 +71,14 @@ export class MappingFile {
     public readonly modifiedDate: Date;
 
     /**
+     * The file's capability groups.
+     */
+    public readonly capabilityGroups: ListProperty;
+
+    /**
      * The file's mapping types.
      */
     public readonly mappingTypes: ListProperty;
-
-    /**
-     * The file's mapping groups.
-     */
-    public readonly mappingGroups: ListProperty;
 
     /**
      * The file's mapping statuses.
@@ -137,8 +137,8 @@ export class MappingFile {
         this.authorOrganization = template.authorOrganization;
         this.creationDate = config.creationDate
         this.modifiedDate = config.modifiedDate;
+        this.capabilityGroups = template.capabilityGroup.options;
         this.mappingTypes = template.mappingType.options;
-        this.mappingGroups = template.mappingGroup.options;
         this.mappingStatuses = template.mappingStatus.options;
         this.scoreCategories = template.scoreCategory.options;
         this.scoreValues = template.scoreValue.options;

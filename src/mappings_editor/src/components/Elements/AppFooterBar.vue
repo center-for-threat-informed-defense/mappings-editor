@@ -74,7 +74,7 @@ export default defineComponent({
      *  The number of groups in the active file.
      */
     groupCount(): number {
-      return this.application.activeEditor.file.mappingGroups.value.size;
+      return this.application.activeEditor.file.capabilityGroups.value.size;
     },
 
     /**

@@ -1,5 +1,5 @@
 import type { MappingObjectExport } from "./MappingObjectExport";
-import type { MappingGroupsExport } from "./MappingGroupsExport";
+import type { CapabilityGroupsExport } from "./CapabilityGroupsExport";
 import type { MappingTypesExport } from "./MappingTypesExport";
 import type { MappingStatusesExport } from "./MappingStatusesExport";
 import type { MappingScoreValuesExport } from "./ScoreValuesExport";
@@ -58,14 +58,14 @@ export type MappingFileExport = {
     modified_date: Date;
 
     /**
+     * The file's capability groups.
+     */
+    capability_groups: CapabilityGroupsExport;
+
+    /**
      * The file's mapping types.
      */
     mapping_types: MappingTypesExport;
-
-    /**
-     * The file's mapping groups.
-     */
-    mapping_groups: MappingGroupsExport;
 
     /**
      * The file's mapping statuses.

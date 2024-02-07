@@ -87,8 +87,8 @@ export class MappingFileSerializer {
                     author_organization : item.author_organization ?? null,
                     references,
                     comments            : item.comments ?? null,
+                    capability_group    : item.capability_group ?? null,
                     mapping_type        : item.mapping_type ?? null,
-                    mapping_group       : item.mapping_group ?? null,
                     mapping_status      : item.mapping_status ?? null,
                     score_category      : item.score_category ?? null,
                     score_value         : item.score_value ?? null

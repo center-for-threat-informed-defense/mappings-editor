@@ -74,8 +74,8 @@ export class MappingFileAuthority {
         const objectTransform
             = (id: string, { name, description }: any) => ({ id, name, description });
         ([
+            [mappingFile.capabilityGroups, file.capability_groups, stringTransform],
             [mappingFile.mappingTypes, file.mapping_types, objectTransform],
-            [mappingFile.mappingGroups, file.mapping_groups, stringTransform],
             [mappingFile.mappingStatuses, file.mapping_statuses, stringTransform],
             [mappingFile.scoreCategories, file.score_categories, stringTransform],
             [mappingFile.scoreValues, file.score_values, stringTransform]
@@ -230,11 +230,11 @@ export class MappingFileAuthority {
         // Configure comments
         newObject.comments.value = obj.comments;
         // Configure mapping type
-        newObject.mappingType.exportValue   = obj.mapping_type;
-        newObject.mappingGroup.exportValue  = obj.mapping_group;
-        newObject.mappingStatus.exportValue = obj.mapping_status;
-        newObject.scoreCategory.exportValue = obj.score_category;
-        newObject.scoreValue.exportValue    = obj.score_value;
+        newObject.capabilityGroup.exportValue  = obj.capability_group;
+        newObject.mappingType.exportValue      = obj.mapping_type;
+        newObject.mappingStatus.exportValue    = obj.mapping_status;
+        newObject.scoreCategory.exportValue    = obj.score_category;
+        newObject.scoreValue.exportValue       = obj.score_value;
         // Return object
         return newObject;
     }
@@ -307,15 +307,15 @@ export class MappingFileAuthority {
                 description : item.getAsString("description")
             });
         const argSets: [ListProperty, string, any][] = [
+            [file.capabilityGroups, "id", stringTransform],
             [file.mappingTypes, "id", objectTransform],
-            [file.mappingGroups, "id", stringTransform],
             [file.mappingStatuses, "id", stringTransform],
             [file.scoreCategories, "id", stringTransform],
             [file.scoreValues, "id", stringTransform]
         ];
         const [
+            capability_groups,
             mapping_types,
-            mapping_groups,
             mapping_statuses,
             score_categories,
             score_values
@@ -341,8 +341,8 @@ export class MappingFileAuthority {
             author_organization    : file.authorOrganization.value,
             creation_date          : file.creationDate,
             modified_date          : file.modifiedDate,
+            capability_groups      : Object.fromEntries(capability_groups),
             mapping_types          : Object.fromEntries(mapping_types),
-            mapping_groups         : Object.fromEntries(mapping_groups),
             mapping_statuses       : Object.fromEntries(mapping_statuses),
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
@@ -379,8 +379,8 @@ export class MappingFileAuthority {
                 author_organization : obj.authorOrganization.value,
                 references,
                 comments            : obj.comments.value,
+                capability_group    : obj.capabilityGroup.exportValue,
                 mapping_type        : obj.mappingType.exportValue,
-                mapping_group       : obj.mappingGroup.exportValue,
                 mapping_status      : obj.mappingStatus.exportValue,
                 score_category      : obj.scoreCategory.exportValue,
                 score_value         : obj.scoreValue.exportValue

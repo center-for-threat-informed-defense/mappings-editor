@@ -6,10 +6,10 @@
           <p class="control-title">BREAKOUT BY</p>
           <BreakoutController :control="activeView.breakouts" @execute="execute" />
           
-          <template v-if="mappingGroupFilters">
+          <template v-if="capabilityGroupFilters">
             <span class="separator"></span>
             <p class="control-title">FILTER BY GROUP</p>
-            <FilterController :control="mappingGroupFilters" @execute="execute" />
+            <FilterController :control="capabilityGroupFilters" @execute="execute" />
           </template>
           <template v-if="mappingStatusFilters">
             <span class="separator"></span>
@@ -75,12 +75,12 @@ export default defineComponent({
     },
 
     /**
-     * Returns the mapping group filters.
+     * Returns the capability group filters.
      * @returns
-     *  The mapping group filters control. `undefined` if there wasn't one.
+     *  The capability group filters control. `undefined` if there wasn't one.
      */
-    mappingGroupFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingGroup);
+    capabilityGroupFilters(): FilterControl | undefined {
+      return this.activeView.filterSets.get(MappingObjectDiscriminator.CapabilityGroup);
     },
 
     /**
