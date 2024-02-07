@@ -127,15 +127,6 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
         },
 
         /**
-         * Returns the layout hotkeys.
-         * @returns
-         *  The layout hotkeys.
-         */
-        layoutHotkeys(): Hotkey<CommandEmitter>[] {
-            return [];
-        },
-
-        /**
          * Returns the view hotkeys.
          * @returns
          *  The view hotkeys.

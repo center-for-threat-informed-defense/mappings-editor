@@ -32,7 +32,6 @@ export default defineComponent({
         ...this.hotkeys.nativeHotkeys, 
         ...this.hotkeys.fileHotkeys,
         ...this.hotkeys.editHotKeys,
-        ...this.hotkeys.layoutHotkeys,
         ...this.hotkeys.viewHotkeys
       ]
     }

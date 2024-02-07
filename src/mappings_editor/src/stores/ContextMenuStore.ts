@@ -1,5 +1,5 @@
-import Configuration from "@/assets/configuration/app.config";
 import Package from "@/../package.json";
+import Configuration from "@/assets/configuration/app.config";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { MenuType } from '@/assets/scripts/Application';
@@ -306,28 +306,9 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
         },
 
-
-        ///////////////////////////////////////////////////////////////////////
-        //  3. Layout Menus  //////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////
-
-
-        /**
-         * Returns the layout menu.
-         * @returns
-         *  The layout menu.
-         */
-        layoutMenu(): ContextMenuSubmenu {
-            return {
-                text: "Layout",
-                type: MenuType.Submenu,
-                sections: []
-            };
-        },
-
         
         ///////////////////////////////////////////////////////////////////////
-        //  4. View Menus  ////////////////////////////////////////////////////
+        //  3. View Menus  ////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
 
 
@@ -369,7 +350,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
 
         
         ///////////////////////////////////////////////////////////////////////
-        //  5. Help Menu  /////////////////////////////////////////////////////
+        //  4. Help Menu  /////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
 
 
