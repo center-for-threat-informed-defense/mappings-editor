@@ -45,13 +45,6 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             return {
                 id: "open_file_options",
                 items: [
-                    // {
-                    //     text: `New ${ Configuration.file_type_name }...`,
-                    //     type: MenuType.Item,
-                    //     data: () => AppCommands.doNothing(),
-                    //     shortcut: file.new_file,
-                    //     disabled: true
-                    // },
                     {
                         text: `Open ${ Configuration.file_type_name }...`,
                         type: MenuType.Item,
