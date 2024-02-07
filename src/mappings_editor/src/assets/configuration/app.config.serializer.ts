@@ -106,7 +106,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             status                    : obj.mapping_status ?? undefined,
             score_category            : obj.score_category ?? undefined,
             score_value               : obj.score_value    ?? undefined,
-            related_score             : (/T[0-9]{4}/i.exec(obj.target_id ?? "") ?? [undefined])[0]
+            related_score             : this.computeRelatedScore(obj)
         }
     }
 
@@ -136,6 +136,23 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 default:
                     return obj[key] ?? undefined;
             }
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Computes a {@link MappingObjectExport}'s related score.
+     * @param obj
+     *  The mapping object export.
+     * @returns
+     *  The related score (if the object has one).
+     */
+    private computeRelatedScore(obj: MappingObjectExport): string | undefined {
+        const hasScore = (obj.score_value ?? obj.score_category) !== null;
+        const technique = /(T[0-9]{4})\.[0-9]{3}/i.exec(obj.target_id ?? "");
+        if(hasScore && technique) {
+            return technique[1];
         } else {
             return undefined;
         }
