@@ -315,8 +315,39 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 text: "View",
                 type: MenuType.Submenu,
                 sections: [
-                    this.fullscreenMenu,
+                    this.collapseMappingsMenu,
+                    this.fullscreenMenu
                 ]
+            }
+        },
+
+        /**
+         * Returns the collapse mappings menu section.
+         * @returns
+         *  The collapse mappings menu section.
+         */
+        collapseMappingsMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const view = app.settings.hotkeys.view;
+            const editor = app.activeEditor as MappingFileEditor;
+            return {
+                id: "collapse_mappings",
+                items: [
+                    {
+                        text: "Collapse All Mappings",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.collapseAllMappingObjectViews(editor.view),
+                        shortcut: view.collapse_all_mappings,
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    },
+                    {
+                        text: "Uncollapse All Mappings",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.uncollapseAllMappingObjectViews(editor.view),
+                        shortcut: view.uncollapse_all_mappings,
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    }
+                ],
             }
         },
 

@@ -865,6 +865,30 @@ export class MappingFileView {
     }
 
     /**
+     * Collapses / Uncollapses all view items.
+     * @param value
+     *  True to collapse the item, false to uncollapse the item.
+     */
+    public setAllItemsCollapse(value: boolean): void;
+    
+    /**
+     * Collapses / Uncollapses all view items that match the predicate.
+     * @param value
+     *  True to collapse the item, false to uncollapse the item.
+     * @param predicate
+     *  The predicate to execute on each item.
+     */
+    public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
+    public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
+        const rawThis = MappingFileView.toRaw(this);
+        for(const item of rawThis.getItems()) {
+            if(predicate(item)) {
+                item.collapsed = value;
+            }
+        }
+    }
+
+    /**
      * Moves the current view position to a {@link MappingFileViewItem}.
      * @param id
      *  The view item's id.

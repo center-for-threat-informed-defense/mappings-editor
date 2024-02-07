@@ -18,9 +18,9 @@
             "copy": "Control+C",
             "paste": "Control+V"
         },
-        "layout": {
-        },
         "view": {
+            "collapse_all_mappings": "Shift+C",
+            "uncollapse_all_mappings": "Shift+U",
             "fullscreen": ""
         }
     }

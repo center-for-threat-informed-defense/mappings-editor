@@ -21,10 +21,10 @@ export const BaseAppSettings: AppSettings = {
             copy: "",
             paste: ""
         },
-        layout: {
-        },
         view: {
-            fullscreen: ""
+            collapse_all_mappings: "",
+            uncollapse_all_mappings: "",
+            fullscreen: "",
         }
     }
 }
@@ -36,7 +36,6 @@ export type AppSettings = {
     hotkeys: {
         file: FileHotkeys,
         edit: EditHotkeys,
-        layout: LayoutHotkeys,
         view: ViewHotkeys
     }
 }
@@ -68,14 +67,10 @@ export type EditHotkeys = {
 }
 
 /**
- * Layout hotkeys
- */
-export type LayoutHotkeys = {
-}
-
-/**
  * View hotkeys
  */
 export type ViewHotkeys = {
+    collapse_all_mappings: string,
+    uncollapse_all_mappings: string,
     fullscreen: string
 }
