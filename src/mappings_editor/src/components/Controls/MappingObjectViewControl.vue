@@ -271,7 +271,7 @@ export default defineComponent({
 .mapping-object-header {
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 36px 225px 36px minmax(0, 1fr) 40px;
+  grid-template-columns: 40px minmax(0, 1fr) 36px 15.5% 36px minmax(0, 1fr) 40px;
   align-items: center;
   color: #c7c7c7;
   height: 40px;
