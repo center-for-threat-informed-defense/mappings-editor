@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.1.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.0.1...mappings_editor-v0.1.0) (2024-02-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename `group` to `capability_group` in export schema
+* rename `groups` to `capability_groups` in export schema
+
+### Features
+
+* add import file feature ([6e01175](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/6e01175d4fea32d501c262ae7936f83b002f36ba))
+* add Mapping File search functionality ([ea8f2e8](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/ea8f2e8b960d323cd84526ba90de952573b9377f))
+* display file metrics in application footer ([c786fc5](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/c786fc5e9b6ab8ab6939b76350711ec43bf89bf6))
+* only export `related_score` when a sub-technique has an assigned score ([b5ff4ac](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b5ff4ac72fde65c4b64818e333cf42b7e9f335b7))
+
+
+### Bug Fixes
+
+* null dereference that crashes file view ([9fdacf6](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/9fdacf6d6437c3808ada3d2f490d76bebcf528db))
+* prefix single-digit days and months with `0` in accordance with the schema ([b5ff4ac](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b5ff4ac72fde65c4b64818e333cf42b7e9f335b7))
+* switch date export from ISO format to `MM/DD/YYYY` ([001db5d](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/001db5dc7c0ed5761ff1cf9e774d4af3b9dd6f09))
+
+
+### Code Refactoring
+
+* rename `group` to `capability_group` in export schema ([b5ff4ac](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b5ff4ac72fde65c4b64818e333cf42b7e9f335b7))
+* rename `groups` to `capability_groups` in export schema ([b5ff4ac](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b5ff4ac72fde65c4b64818e333cf42b7e9f335b7))
+
 ## [0.0.1](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.0.0...mappings_editor-v0.0.1) (2024-01-30)
 
 
