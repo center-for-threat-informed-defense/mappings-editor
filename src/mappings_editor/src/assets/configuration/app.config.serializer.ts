@@ -228,14 +228,14 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         if(2 <= lines.length) {
             const header = lines[0];
             for(let i = 1; i < lines.length; i++) {
-                const obj = [];
+                const entries = [];
                 for(let j = 0; j < header.length; j++) {
-                    obj.push([
+                    entries.push([
                         this.toKey(header[j]),
                         lines[i][j] || undefined
                     ])
                 }
-                objs.push(Object.fromEntries(obj));
+                objs.push(Object.fromEntries(entries));
             }
         }
         // Convert file
@@ -275,7 +275,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             author              : this.resolveValue(file, obj, "author", null),
             author_contact      : this.resolveValue(file, obj, "contact", null),
             author_organization : null,
-            references          : obj.references             ?? [],
+            references          : this.parseReferences(obj.references),
             comments            : obj.comments               ?? null,
             capability_group    : obj.capability_group       ?? null,
             mapping_type        : obj.mapping_type           ?? null,
@@ -322,6 +322,24 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             default:
                 return value;
         }
+    }
+
+    /**
+     * Pareses a set of references in the form of an array or a string of
+     * comma-separated values.
+     * @param references
+     *  The references. 
+     * @returns
+     *  The parsed references.
+     */
+    private parseReferences(references?: string | string[]): string[] {
+        if(Array.isArray(references)) {
+            return references;
+        }
+        if(typeof references === "string") {
+            return references.split(/,/);
+        }
+        return [];
     }
 
 
@@ -442,7 +460,7 @@ type UniversalSchemaMappingObject = {
     mapping_framework_version?            : string,
     author?                               : string,
     contact?                              : string,
-    references                            : string[],
+    references                            : string | string[],
     comments?                             : string,
     mapping_type                          : string | null,
     capability_group?                     : string,
