@@ -322,9 +322,9 @@ export function moveMappingObjectViews(views: MappingObjectView[], destination: 
                 return [];
             }
             const item = cmd.views[0];
-            const itemHeight = item.height + item.padding;
+            const destOffset = destination.headOffset + destination.height + destination.padding;
             const camera1 = {
-                position: (destination.headOffset - item.fileView.viewPosition) + itemHeight,
+                position: destOffset - item.fileView.viewPosition,
                 positionFromHangers: false,
                 strict: true
             }
