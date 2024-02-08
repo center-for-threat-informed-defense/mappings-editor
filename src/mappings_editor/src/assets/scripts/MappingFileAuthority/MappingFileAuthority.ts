@@ -202,26 +202,26 @@ export class MappingFileAuthority {
         const newObject = file.createMappingObject();
         // Load framework object property values
         newObject.sourceObject.cacheObjectValue(
-            obj.source_id,
-            obj.source_text,
+            obj.source_id || null,
+            obj.source_text || null,
             obj.source_framework,
             obj.source_version
         );
         newObject.targetObject.cacheObjectValue(
-            obj.target_id,
-            obj.target_text,
+            obj.target_id || null,
+            obj.target_text || null,
             obj.target_framework,
             obj.target_version
         );
         // Configure author
         if(obj.author) {
-            newObject.author.value = obj.author;
+            newObject.author.value = obj.author || null;
         }
         if(obj.author_contact) {
-            newObject.authorContact.value = obj.author_contact
+            newObject.authorContact.value = obj.author_contact || null
         }
         if(obj.author_organization) {
-            newObject.authorOrganization.value = obj.author_organization;
+            newObject.authorOrganization.value = obj.author_organization || null;
         }
         // Configure references
         for(const url of obj.references) {
@@ -230,7 +230,7 @@ export class MappingFileAuthority {
             )
         }
         // Configure comments
-        newObject.comments.value = obj.comments;
+        newObject.comments.value = obj.comments || null;
         // Configure mapping type
         newObject.capabilityGroup.exportValue  = obj.capability_group;
         newObject.mappingType.exportValue      = obj.mapping_type;
