@@ -48,11 +48,7 @@ export default defineComponent({
       if(!emitter) {
         return;
       }
-      try {
-        this.$emit("execute", emitter());
-      } catch(ex: any) {
-        console.error(ex);
-      }
+      this.$emit("execute", emitter());
     }
 
   },

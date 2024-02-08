@@ -139,6 +139,7 @@ export default defineComponent({
           this.application.execute(cmd);
         }
       } catch(ex: any) {
+        alert(`Error: ${ ex.message }`)
         console.error(ex);
       }
     },
