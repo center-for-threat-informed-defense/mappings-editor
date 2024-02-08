@@ -48,6 +48,14 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
         if(this._framework.options.has(value)) {
             this._objectId = value;
             this._objectText = this._framework.options.get(value)!;
+            // If the previous value originated from an unknown version of the
+            // listing's framework, auto-migrate to the current version.
+            if(
+                this._objectFramework === this.framework.id &&
+                this._objectVersion === FrameworkObjectProperty.UNKNOWN_FRAMEWORK_VERSION
+            ) {
+                this._objectVersion = this.framework.version;
+            }
         } else {
             throw new Error(`Invalid framework object id '${ value }'.`)
         }
@@ -109,13 +117,14 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
             this.objectId = id;
         } else {
             this.cacheObjectValue(id, text);
-            // If the value had to be cached, it cannot 
-            // be the same framework as the property
+            // If the value had to be cached, the property cannot be of the
+            // same framework and version as its `FrameworkListing`. In this
+            // case, it's assumed that the value comes from an unknown
+            // version of the framework.
             if(
                 this._objectFramework === this.framework.id &&
                 this._objectVersion === this.framework.version
             ) {
-                this._objectFramework = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_ID;
                 this._objectVersion = FrameworkObjectProperty.UNKNOWN_FRAMEWORK_VERSION;
             }
             wasSet = false;
