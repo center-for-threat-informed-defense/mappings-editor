@@ -20,10 +20,9 @@ export class DeleteMappingObject extends EditorCommand {
 
 
     /**
-     * Deletes a {@link MappingObject} from its parent {@link MappingFile}.
+     * Deletes a {@link MappingObject} from its {@link MappingFile}.
      * @remarks
-     *  When deleting multiple mapping objects in a single group command,
-     *  ensure objects are deleted in order from last to first.
+     *  Prefer {@link DeleteMappingObjects} when deleting multiple objects.
      * @param object
      *  The mapping object to delete.
      */
