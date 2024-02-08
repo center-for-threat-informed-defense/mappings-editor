@@ -1,5 +1,11 @@
-import { type MappingFile, MappingObject, Property, ListItemProperty, FrameworkObjectProperty, ComputedProperty } from "../../MappingFile";
 import { MappingObjectDiscriminator } from "./MappingObjectDiscriminator";
+import { 
+    MappingObject,
+    Property,
+    ListItemProperty,
+    FrameworkObjectProperty,
+    ComputedProperty
+} from "../../MappingFile";
 import { 
     BreakoutControl,
     FilterControl, 
@@ -18,13 +24,10 @@ import {
     TargetObjectSectionView
 } from "./MappingFileViewItem";
 import { clamp } from "../../Utilities";
+import { Reactivity } from "..";
+import type { MappingFile } from "../../MappingFile";
 
 export class MappingFileView {
-
-    /**
-     * A function that unwraps `this` from a reactive context.
-     */
-    public static toRaw: <T>(obj: T) => T = obj => obj;
 
     /**
      * The view's sizing configuration.
@@ -221,7 +224,7 @@ export class MappingFileView {
     public rebuildBreakouts() {
 
         const discriminatorIndex: DiscriminatorIndex = new Map();
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
 
         // 1. Reload mapping objects
         const mappingObjects = new Map();
@@ -733,7 +736,7 @@ export class MappingFileView {
      * Recalculates all {@link MappingFileViewItem} positions.
      */
     public recalculateViewItemPositions() {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         // Recalculate view item positions
         let offset = 0;
         let maxLayer = 0;
@@ -845,7 +848,7 @@ export class MappingFileView {
      */
     public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
     public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         if(!value) {
             for(const id of rawThis.selected) {
                 const _mo = rawThis._mappingObjects;
@@ -880,7 +883,7 @@ export class MappingFileView {
      */
     public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
     public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         for(const item of rawThis.getItems()) {
             if(predicate(item)) {
                 item.collapsed = value;
@@ -960,7 +963,7 @@ export class MappingFileView {
      * Updates the set of visible items.
      */
     private updateVisibleItems() {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         const margin = this._sizing.loadMargin;
         const topBoundary = this._viewPosition - margin;
         const botBoundary = this._viewPosition + this._viewHeight + margin;

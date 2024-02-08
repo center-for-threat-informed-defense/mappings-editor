@@ -226,34 +226,6 @@ export class MappingFile {
     }
 
     /**
-     * Inserts a multiple mapping objects into the beginning of the mapping file.
-     * @param object
-     *  The mapping object to insert.
-     */
-    public insertMappingObjectsAfter(objects: MappingObject[], destination?: string): void;
-    public insertMappingObjectsAfter(objects: MappingObject[], destination?: MappingObject | string) {
-        const id = typeof destination === "string" ? destination : (destination?.id ?? null)
-        const newEntries: [string, MappingObject][] = [];
-        for(const object of objects){
-            if(this._mappingObjects.has(object.id)) {
-                throw new Error(`Mapping file already contains object '${ object.id }'.`);
-            }
-            // Try uncache source and target objects
-            object.sourceObject.tryUncacheObjectValue();
-            object.targetObject.tryUncacheObjectValue();
-            // Configure object's file
-            object.file = this;
-            newEntries.push([object.id, object]);
-        }
-        // Configure file's object
-        const items = [...this._mappingObjects];
-        const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);
-        items.splice(index + 1, 0, ...newEntries);
-        this._mappingObjects = new Map(items);
-        
-    }
-
-    /**
      * Inserts a mapping object after another mapping object.
      * @param object
      *  The mapping object to insert.
@@ -288,11 +260,47 @@ export class MappingFile {
     }
 
     /**
+     * Inserts multiple mapping objects after another mapping object.
+     * @param object
+     *  The mapping object to insert.
+     * @param id
+     *  The destination object's id.
+     */
+    public insertMappingObjectsAfter(objects: MappingObject[], id?: string): void;
+
+    /**
+     * Inserts multiple mapping objects after another mapping object.
+     * @param object
+     *  The mapping object to insert.
+     * @param destination
+     *  The destination object.
+     */
+    public insertMappingObjectsAfter(objects: MappingObject[], destination?: string): void;
+    public insertMappingObjectsAfter(objects: MappingObject[], destination?: MappingObject | string) {
+        const id = typeof destination === "string" ? destination : (destination?.id ?? null)
+        const newEntries: [string, MappingObject][] = [];
+        for(const obj of objects){
+            if(this._mappingObjects.has(obj.id)) {
+                throw new Error(`Mapping file already contains object '${ obj.id }'.`);
+            }
+            newEntries.push([obj.id, obj]);
+            // Try uncache source and target objects
+            obj.sourceObject.tryUncacheObjectValue();
+            obj.targetObject.tryUncacheObjectValue();
+            // Configure object's file
+            obj.file = this;
+        }
+        // Configure file's object
+        const items = [...this._mappingObjects];
+        const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);
+        items.splice(index + 1, 0, ...newEntries);
+        this._mappingObjects = new Map(items);   
+    }
+
+    /**
      * Removes a mapping object from the mapping file.
      * @param id
      *  The id of the mapping object.
-     * @returns
-     *  The removed mapping object.
      */
     public removeMappingObject(id: string): void;
 
@@ -300,8 +308,6 @@ export class MappingFile {
      * Removes a mapping object from the mapping file.
      * @param obj
      *  The mapping object to remove.
-     * @returns
-     *  The removed mapping object.
      */
     public removeMappingObject(obj: MappingObject): void;
     public removeMappingObject(obj: MappingObject | string) {
@@ -316,6 +322,46 @@ export class MappingFile {
             // Configure file's object.
             this._mappingObjects.delete(id);
         }
+    }
+
+    /**
+     * Removes multiple mapping objects from the mapping file.
+     * @param ids
+     *  The ids of the mapping objects.
+     */
+    public removeMappingObjects(ids: string[]): void;
+
+    /**
+     * Removes multiple mapping objects from the mapping file.
+     * @param obj
+     *  The mapping objects to remove.
+     */
+    public removeMappingObjects(objs: MappingObject[]): void;
+    public removeMappingObjects(objs: MappingObject[] | string[]) {
+        // Collect ids
+        const ids = new Array(objs.length);
+        for(let i = 0, obj = objs[i]; i < objs.length; i++, obj = objs[i]) {
+            ids[i] = typeof obj === "string" ? obj : obj.id;
+        }
+        // Clone mapping objects
+        const clone = Object.freeze(new Map([...this._mappingObjects]));
+        // Remove mapping objects
+        let obj;
+        for(const id of ids) {
+            // Lookup object
+            if(!(obj = this._mappingObjects.get(id))) {
+                continue;
+            }
+            // Cache source and target objects
+            obj.sourceObject.cacheObjectValue();
+            obj.targetObject.cacheObjectValue();
+            // Configure object's file
+            obj.file = null;
+            // Configure file's object.
+            clone.delete(id);
+        }
+        // Reassign mapping objects
+        this._mappingObjects = clone;
     }
 
 }

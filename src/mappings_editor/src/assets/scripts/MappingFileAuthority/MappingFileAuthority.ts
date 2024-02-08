@@ -1,3 +1,4 @@
+import { Reactivity } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import { 
     DynamicFrameworkObjectProperty, 
@@ -174,12 +175,13 @@ export class MappingFileAuthority {
      *  The loaded Mapping File.
      */
     public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
+        const rawThis = Reactivity.toRaw(this);
         // Create new file
-        const newFile = await this.createEmptyMappingFile(file, id);
+        const newFile = await rawThis.createEmptyMappingFile(file, id);
         // Load mapping objects into file
         for(const obj of file.mapping_objects) {
             // Load mapping object
-            const newObject = this.initializeMappingObjectExport(obj, newFile);
+            const newObject = rawThis.initializeMappingObjectExport(obj, newFile);
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
@@ -241,7 +243,37 @@ export class MappingFileAuthority {
     
 
     ///////////////////////////////////////////////////////////////////////////
-    //  3. Migrate Mapping File  //////////////////////////////////////////////
+    //  3. Import Mapping File  ///////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Imports one mapping file into another.
+     * @param file
+     *  The file to import into.
+     * @param importFile
+     *  The file to import.
+     * @returns
+     *  The ids of the imported mapping objects.
+     */
+    public importMappingFile(file: MappingFile, importFile: MappingFileExport): Set<string> {
+        const rawThis = Reactivity.toRaw(this);
+        const rawFile = Reactivity.toRaw(file);
+        const imported = new Map();
+        // Initialize mapping objects
+        for (const objectExport of importFile.mapping_objects){
+            const obj = rawThis.initializeMappingObjectExport(objectExport, rawFile);
+            imported.set(obj.id, obj);
+        }
+        // Insert mapping objects
+        file.insertMappingObjectsAfter([...imported.values()]);
+        // Return ids
+        return new Set([...imported.keys()]);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Migrate Mapping File  //////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -261,7 +293,7 @@ export class MappingFileAuthority {
 
     
     ///////////////////////////////////////////////////////////////////////////
-    //  4. Audit Mapping File  ////////////////////////////////////////////////
+    //  5. Audit Mapping File  ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -273,7 +305,7 @@ export class MappingFileAuthority {
     
     
     ///////////////////////////////////////////////////////////////////////////
-    //  5. Export Mapping File  ///////////////////////////////////////////////
+    //  6. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 

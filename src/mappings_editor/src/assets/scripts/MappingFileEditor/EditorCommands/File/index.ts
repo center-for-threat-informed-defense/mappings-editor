@@ -1,8 +1,9 @@
 import { DeleteMappingObject } from "./DeleteMappingObject";
 import { CreateMappingObject } from "./CreateMappingObject";
+import { InsertMappingObject } from "./InsertMappingObject";
+import { InsertMappingObjects } from "./InsertMappingObjects";
 import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
-import { InsertMappingObject } from "./InsertMappingObject";
 
 /**
  * Creates a new {@link MappingObject} in a {@link MappingFile}.
@@ -26,6 +27,19 @@ export function createMappingObject(file: MappingFile): EditorCommand {
  */
 export function insertMappingObject(file: MappingFile, obj: MappingObject): EditorCommand {
     return new InsertMappingObject(file, obj);
+}
+
+/**
+ * Inserts multiple {@link MappingObject}s into a {@link MappingFile}.
+ * @param file
+ *  The mapping file to operate on.
+ * @param objects
+ *  The mapping objects to insert.
+ * @returns
+ *  A command that represents the action.
+ */
+export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): EditorCommand {
+    return new InsertMappingObjects(file, objs);
 }
 
 /**
