@@ -6,17 +6,18 @@ import { CollapseViewItem } from "./CollapseViewItem";
 import { SetBreakoutState } from "./SetBreakoutState";
 import { MoveCameraToViewItem } from "./MoveCameraToViewItem";
 import { RebuildViewBreakouts } from "./RebuildViewBreakouts";
+import { ReindexMappingObjects } from "../File/ReindexMappingObjects";
 import { DeleteMappingObjectView } from "./DeleteMappingObjectView";
 import { CreateMappingObjectView } from "./CreateMappingObjectView";
+import { DeleteMappingObjectViews } from "./DeleteMappingObjectViews";
 import { SelectMappingObjectViews } from "./SelectMappingObjectViews";
 import { SetMappingFileViewHeight } from "./SetMappingFileViewHeight";
 import { SetMappingFileViewPosition } from "./SetMappingFileViewPosition";
 import { SelectAllMappingObjectViews } from "./SelectAllMappingObjectViews";
+import { CollapseAllMappingObjectViews } from "./CollapseAllMappingObjectViews";
 import { MoveSelectedMappingObjectViews } from "./MoveSelectedMappingObjectViews";
-import { DeleteMappingObjectViews } from "./DeleteMappingObjectViews";
 import { FilterControl, MappingFileView, GroupCommand } from "../..";
 import { MappingObjectView, type BreakoutControl, type MappingFileViewItem} from "../.."
-import { ReindexMappingObjects } from "../File/ReindexMappingObjects";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,6 +174,38 @@ export function uncollapseViewItem(item: MappingFileViewItem) {
     );
 }
 
+/**
+ * Collapses all {@link MappingObjectView}.
+ * @param fileView
+ *  The mapping file view to operate on.
+ * @returns
+ *  A command that represents the action.
+ */
+export function collapseAllMappingObjectViews(fileView: MappingFileView) {
+    return createSplitPhaseViewCommand(
+        new CollapseAllMappingObjectViews(fileView, true),
+        cmd => [
+            new RebuildViewBreakouts(cmd.fileView)
+        ]
+    );
+}
+
+/**
+ * Uncollapses all {@link MappingObjectView}.
+ * @param fileView
+ *  The mapping file view to operate on.
+ * @returns
+ *  A command that represents the action.
+ */
+export function uncollapseAllMappingObjectViews(fileView: MappingFileView) {
+    return createSplitPhaseViewCommand(
+        new CollapseAllMappingObjectViews(fileView, false),
+        cmd => [
+            new RebuildViewBreakouts(cmd.fileView)
+        ]
+    );
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //  4. Create, Destroy, and Move View  ////////////////////////////////////////
@@ -289,9 +322,9 @@ export function moveMappingObjectViews(views: MappingObjectView[], destination: 
                 return [];
             }
             const item = cmd.views[0];
-            const itemHeight = item.height + item.padding;
+            const destOffset = destination.headOffset + destination.height + destination.padding;
             const camera1 = {
-                position: (destination.headOffset - item.fileView.viewPosition) + itemHeight,
+                position: destOffset - item.fileView.viewPosition,
                 positionFromHangers: false,
                 strict: true
             }

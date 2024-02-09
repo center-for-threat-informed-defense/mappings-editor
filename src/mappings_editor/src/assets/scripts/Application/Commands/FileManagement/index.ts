@@ -47,7 +47,21 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
 }
 
 /**
- * Loads a mapping file from the file system, into the application.
+ * Imports a mapping file export into the active editor.
+ * @param context
+ *  The application's context.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importExistingFile(context: ApplicationStore, file: string): Promise<AppCommand> {
+    // Deserialize file
+    const json = context.fileSerializer.deserialize(file);
+    // Return command
+    return new ImportFile(context, json);
+}
+
+/**
+ * Loads a mapping file, from the file system, into the application.
  * @param context
  *  The application's context.
  * @returns
@@ -59,7 +73,19 @@ export async function loadFileFromFileSystem(context: ApplicationStore): Promise
 }
 
 /**
- * Loads a mapping file from a remote url, into the application.
+ * Imports a mapping file, from the file system, into the active editor.
+ * @param context
+ *  The application's context.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
+    const { contents } = await Browser.openTextFileDialog();
+    return importExistingFile(context, contents as string);
+}
+
+/**
+ * Loads a mapping file, from a remote url, into the application.
  * @param context
  *  The application's context.
  * @param url
@@ -69,6 +95,19 @@ export async function loadFileFromFileSystem(context: ApplicationStore): Promise
  */
 export async function loadFileFromUrl(context: ApplicationStore, url: string): Promise<AppCommand> {
     return loadExistingFile(context, await (await fetch(url)).text());
+}
+
+/**
+ * Imports a mapping file, from a remote url, into the active editor.
+ * @param context
+ *  The application's context.
+ * @param url
+ *  The remote url.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function importFileFromUrl(context: ApplicationStore, url: string): Promise<AppCommand> {
+    return importExistingFile(context, await (await fetch(url)).text());
 }
 
 /**
@@ -91,19 +130,4 @@ export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
  */
 export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
     return new ClearFileRecoveryBank(context)
-}
-
-/**
- * Imports a mapping file from the file system and merges it with the currently opened file, into the application.
- * @param context
- *  The application's context.
- * @returns
- *  A command that represents the action.
- */
-export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
-    const { contents } = await Browser.openTextFileDialog();
-    // Deserialize file
-    const json = context.fileSerializer.deserialize(contents as string);
-    // Return command
-    return new ImportFile(context, json);
 }

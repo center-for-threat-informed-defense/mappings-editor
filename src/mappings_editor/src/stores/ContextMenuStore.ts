@@ -1,5 +1,5 @@
-import Configuration from "@/assets/configuration/app.config";
 import Package from "@/../package.json";
+import Configuration from "@/assets/configuration/app.config";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { MenuType } from '@/assets/scripts/Application';
@@ -45,13 +45,6 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             return {
                 id: "open_file_options",
                 items: [
-                    // {
-                    //     text: `New ${ Configuration.file_type_name }...`,
-                    //     type: MenuType.Item,
-                    //     data: () => AppCommands.doNothing(),
-                    //     shortcut: file.new_file,
-                    //     disabled: true
-                    // },
                     {
                         text: `Open ${ Configuration.file_type_name }...`,
                         type: MenuType.Item,
@@ -306,28 +299,9 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
         },
 
-
-        ///////////////////////////////////////////////////////////////////////
-        //  3. Layout Menus  //////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////
-
-
-        /**
-         * Returns the layout menu.
-         * @returns
-         *  The layout menu.
-         */
-        layoutMenu(): ContextMenuSubmenu {
-            return {
-                text: "Layout",
-                type: MenuType.Submenu,
-                sections: []
-            };
-        },
-
         
         ///////////////////////////////////////////////////////////////////////
-        //  4. View Menus  ////////////////////////////////////////////////////
+        //  3. View Menus  ////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
 
 
@@ -341,8 +315,39 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 text: "View",
                 type: MenuType.Submenu,
                 sections: [
-                    this.fullscreenMenu,
+                    this.collapseMappingsMenu,
+                    this.fullscreenMenu
                 ]
+            }
+        },
+
+        /**
+         * Returns the collapse mappings menu section.
+         * @returns
+         *  The collapse mappings menu section.
+         */
+        collapseMappingsMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const view = app.settings.hotkeys.view;
+            const editor = app.activeEditor as MappingFileEditor;
+            return {
+                id: "collapse_mappings",
+                items: [
+                    {
+                        text: "Collapse All Mappings",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.collapseAllMappingObjectViews(editor.view),
+                        shortcut: view.collapse_all_mappings,
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    },
+                    {
+                        text: "Uncollapse All Mappings",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.uncollapseAllMappingObjectViews(editor.view),
+                        shortcut: view.uncollapse_all_mappings,
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    }
+                ],
             }
         },
 
@@ -369,7 +374,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
 
         
         ///////////////////////////////////////////////////////////////////////
-        //  5. Help Menu  /////////////////////////////////////////////////////
+        //  4. Help Menu  /////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
 
 

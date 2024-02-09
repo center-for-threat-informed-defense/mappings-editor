@@ -1,6 +1,6 @@
 import { AppCommand } from "../AppCommand";
 import { executeCopy } from "./Clipboard";
-import { MappingFileView } from "@/assets/scripts/MappingFileEditor";
+import { MappingFileView, Reactivity } from "@/assets/scripts/MappingFileEditor";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";
@@ -32,9 +32,9 @@ export class CopySelectedMappingObjects extends AppCommand {
      */
     constructor(context: ApplicationStore, fileView: MappingFileView) {
         super();
-        this.fileAuthority = context.fileAuthority as MappingFileAuthority;
-        this.fileSerializer = context.fileSerializer;
-        this.fileView = fileView;
+        this.fileAuthority = Reactivity.toRaw(context.fileAuthority) as MappingFileAuthority;
+        this.fileSerializer = Reactivity.toRaw(context.fileSerializer);
+        this.fileView = Reactivity.toRaw(fileView);
     }
 
 

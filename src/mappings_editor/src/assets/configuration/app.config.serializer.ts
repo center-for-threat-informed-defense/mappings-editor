@@ -41,7 +41,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 creation_date             : file.creation_date.toLocaleDateString("es-pa"),
                 last_update               : file.modified_date.toLocaleDateString("es-pa"),
                 mapping_types             : file.mapping_types,
-                capability_groups         : file.mapping_groups
+                capability_groups         : file.capability_groups
             },
             mapping_objects
         }
@@ -101,8 +101,8 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             contact                   : this.maskValue(file, obj, "author_contact"),
             references                : obj.references,
             comments                  : obj.comments       ?? undefined,
+            capability_group          : obj.capability_group  ?? undefined,
             mapping_type              : obj.mapping_type,
-            capability_group          : obj.mapping_group  ?? undefined,
             status                    : obj.mapping_status ?? undefined,
             score_category            : obj.score_category ?? undefined,
             score_value               : obj.score_value    ?? undefined,
@@ -189,18 +189,12 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             author_organization    : meta.organization,
             creation_date          : new Date(meta.creation_date),
             modified_date          : new Date(meta.last_update),
+            capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
-            mapping_groups         : meta.capability_groups,
             mapping_statuses: {
                 "complete"             : "Complete",
                 "in_progress"          : "In Progress",
-                "non_mappable"         : "Non-Mappable",
-                "Assigned"             : "Assigned",
-                "New Mitigations"      : "New Mitigations",
-                "Dropped Mitigations"  : "Dropped Mitigations",
-                "New Detections"       : "New Detections",
-                "Modified Description" : "Modified Description",
-                "New Techniques"       : "New Techniques"
+                "non_mappable"         : "Non-Mappable"
             },
             score_categories: {
                 "protect"      : "Protect",
@@ -234,14 +228,14 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         if(2 <= lines.length) {
             const header = lines[0];
             for(let i = 1; i < lines.length; i++) {
-                const obj = [];
+                const entries = [];
                 for(let j = 0; j < header.length; j++) {
-                    obj.push([
+                    entries.push([
                         this.toKey(header[j]),
                         lines[i][j] || undefined
                     ])
                 }
-                objs.push(Object.fromEntries(obj));
+                objs.push(Object.fromEntries(entries));
             }
         }
         // Convert file
@@ -281,10 +275,10 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             author              : this.resolveValue(file, obj, "author", null),
             author_contact      : this.resolveValue(file, obj, "contact", null),
             author_organization : null,
-            references          : obj.references             ?? [],
+            references          : this.parseReferences(obj.references),
             comments            : obj.comments               ?? null,
+            capability_group    : obj.capability_group       ?? null,
             mapping_type        : obj.mapping_type           ?? null,
-            mapping_group       : obj.capability_group       ?? null,
             mapping_status      : obj.status                 ?? "in_progress",
             score_category      : obj.score_category         ?? null,
             score_value         : obj.score_value            ?? null
@@ -328,6 +322,24 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             default:
                 return value;
         }
+    }
+
+    /**
+     * Pareses a set of references in the form of an array or a string of
+     * comma-separated values.
+     * @param references
+     *  The references. 
+     * @returns
+     *  The parsed references.
+     */
+    private parseReferences(references?: string | string[]): string[] {
+        if(Array.isArray(references)) {
+            return references;
+        }
+        if(typeof references === "string") {
+            return references.split(/,/);
+        }
+        return [];
     }
 
 
@@ -412,9 +424,16 @@ type UniversalSchemaMappingFile = {
         creation_date             : string,
         last_update               : string,
         mapping_types             : UniversalSchemaMappingTypes,
-        capability_groups         : UniversalSchemaMappingGroups
+        capability_groups         : UniversalSchemaCapabilityGroups
     },
     mapping_objects               : UniversalSchemaMappingObject[]
+}
+
+/**
+ * The Universal Schema Capability Groups.
+ */
+type UniversalSchemaCapabilityGroups = {
+    [key: string] : string
 }
 
 /**
@@ -425,13 +444,6 @@ type UniversalSchemaMappingTypes = {
         name        : string,
         description : string
     }   
-}
-
-/**
- * The Universal Schema Mapping Groups.
- */
-type UniversalSchemaMappingGroups = {
-    [key: string] : string
 }
 
 /**
@@ -448,7 +460,7 @@ type UniversalSchemaMappingObject = {
     mapping_framework_version?            : string,
     author?                               : string,
     contact?                              : string,
-    references                            : string[],
+    references                            : string | string[],
     comments?                             : string,
     mapping_type                          : string | null,
     capability_group?                     : string,

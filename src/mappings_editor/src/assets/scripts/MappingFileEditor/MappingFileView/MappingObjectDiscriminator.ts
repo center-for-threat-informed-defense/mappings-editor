@@ -1,6 +1,6 @@
 export enum MappingObjectDiscriminator {
+    CapabilityGroup,
     MappingType,
-    MappingGroup,
     MappingStatus,
     SourceObject,
     TargetObject,

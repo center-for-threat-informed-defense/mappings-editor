@@ -22,14 +22,14 @@ export class MappingObject {
     public targetObject: FrameworkObjectProperty;
 
     /**
+     * The mapping object's capability group.
+     */
+    public readonly capabilityGroup: ListItemProperty;
+
+    /**
      * The mapping object's mapping type.
      */
     public readonly mappingType: ListItemProperty;
-
-    /**
-     * The mapping object's mapping group.
-     */
-    public readonly mappingGroup: ListItemProperty;
 
     /**
      * The mapping object's mapping status.
@@ -93,6 +93,16 @@ export class MappingObject {
         this.id = randomUUID();
         this.sourceObject = config.sourceObject;
         this.targetObject = config.targetObject;
+        this.capabilityGroup = config.capabilityGroup ?? new ListItemProperty(
+            "Capability Group", "id", "name", 
+            new ListProperty(
+                "Capability Groups",
+                new ListItem(new Map([
+                    ["id",   new StringProperty("ID")],
+                    ["name", new StringProperty("Name")]
+                ]))
+            )
+        );
         this.mappingType = config.mappingType ?? new ListItemProperty(
             "Mapping Type", "id", "name", 
             new ListProperty(
@@ -101,16 +111,6 @@ export class MappingObject {
                     ["id",          new StringProperty("ID")],
                     ["name",        new StringProperty("Name")],
                     ["description", new StringProperty("Description")]
-                ]))
-            )
-        );
-        this.mappingGroup = config.mappingGroup ?? new ListItemProperty(
-            "Mapping Group", "id", "name", 
-            new ListProperty(
-                "Mapping Groups",
-                new ListItem(new Map([
-                    ["id",   new StringProperty("ID")],
-                    ["name", new StringProperty("Name")]
                 ]))
             )
         );
@@ -168,8 +168,8 @@ export class MappingObject {
                     && this.targetObject.objectVersion === this.file.targetVersion
                     && this.sourceObject.objectVersion === this.file.sourceVersion
                 // Validate ListItemProperties
+                    && !this.capabilityGroup.isValueCached()
                     && !this.mappingType.isValueCached()
-                    && !this.mappingGroup.isValueCached()
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
                     && !this.scoreValue.isValueCached();
@@ -193,8 +193,8 @@ export class MappingObject {
             authorOrganization : this.authorOrganization.duplicate(),
             references         : this.references.duplicate(),
             comments           : this.comments.duplicate(),
+            capabilityGroup    : this.capabilityGroup.duplicate(),
             mappingType        : this.mappingType.duplicate(),
-            mappingGroup       : this.mappingGroup.duplicate(),
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
             scoreValue         : this.scoreValue.duplicate()

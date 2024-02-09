@@ -38,14 +38,14 @@ export type MappingObjectConfiguration = {
     comments?: StringProperty;
 
     /**
+     * The mapping object's capability group.
+     */
+    capabilityGroup?: ListItemProperty;
+
+    /**
      * The mapping object's mapping type.
      */
     mappingType?: ListItemProperty;
-
-    /**
-     * The mapping object's mapping group.
-     */
-    mappingGroup?: ListItemProperty;
 
     /**
      * The mapping object's mapping status.

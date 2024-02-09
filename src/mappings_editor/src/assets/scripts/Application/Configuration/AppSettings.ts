@@ -4,9 +4,9 @@
 export const BaseAppSettings: AppSettings = {
     hotkeys: {
         file: { 
-            import_file: "",
             new_file: "",
             open_file: "",
+            import_file: "",
             save_file: ""
         },
         edit: {
@@ -21,10 +21,10 @@ export const BaseAppSettings: AppSettings = {
             copy: "",
             paste: ""
         },
-        layout: {
-        },
         view: {
-            fullscreen: ""
+            collapse_all_mappings: "",
+            uncollapse_all_mappings: "",
+            fullscreen: "",
         }
     }
 }
@@ -36,7 +36,6 @@ export type AppSettings = {
     hotkeys: {
         file: FileHotkeys,
         edit: EditHotkeys,
-        layout: LayoutHotkeys,
         view: ViewHotkeys
     }
 }
@@ -44,10 +43,10 @@ export type AppSettings = {
 /**
  * File hotkeys
  */
-export type FileHotkeys = { 
-    import_file: string,
+export type FileHotkeys = {
     new_file: string,
-    open_file: string,
+    open_file: string, 
+    import_file: string,
     save_file: string
 }
 
@@ -68,14 +67,10 @@ export type EditHotkeys = {
 }
 
 /**
- * Layout hotkeys
- */
-export type LayoutHotkeys = {
-}
-
-/**
  * View hotkeys
  */
 export type ViewHotkeys = {
+    collapse_all_mappings: string,
+    uncollapse_all_mappings: string,
     fullscreen: string
 }

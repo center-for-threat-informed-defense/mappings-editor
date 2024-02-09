@@ -1,9 +1,9 @@
 {
     "hotkeys": {
         "file": {
-            "import_file": "Meta+I",
             "new_file": "Meta+N",
             "open_file": "Meta+O",
+            "import_file": "Meta+I",
             "save_file": "Meta+S"
         },
         "edit": {
@@ -18,9 +18,9 @@
             "copy": "Meta+C",
             "paste": "Meta+V"
         },
-        "layout": {
-        },
         "view": {
+            "collapse_all_mappings": "Shift+C",
+            "uncollapse_all_mappings": "Shift+U",
             "fullscreen": ""
         }
     }

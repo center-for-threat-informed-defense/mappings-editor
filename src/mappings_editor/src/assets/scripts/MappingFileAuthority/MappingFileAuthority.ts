@@ -1,3 +1,4 @@
+import { Reactivity } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import { 
     DynamicFrameworkObjectProperty, 
@@ -74,8 +75,8 @@ export class MappingFileAuthority {
         const objectTransform
             = (id: string, { name, description }: any) => ({ id, name, description });
         ([
+            [mappingFile.capabilityGroups, file.capability_groups, stringTransform],
             [mappingFile.mappingTypes, file.mapping_types, objectTransform],
-            [mappingFile.mappingGroups, file.mapping_groups, stringTransform],
             [mappingFile.mappingStatuses, file.mapping_statuses, stringTransform],
             [mappingFile.scoreCategories, file.score_categories, stringTransform],
             [mappingFile.scoreValues, file.score_values, stringTransform]
@@ -174,12 +175,13 @@ export class MappingFileAuthority {
      *  The loaded Mapping File.
      */
     public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
+        const rawThis = Reactivity.toRaw(this);
         // Create new file
-        const newFile = await this.createEmptyMappingFile(file, id);
+        const newFile = await rawThis.createEmptyMappingFile(file, id);
         // Load mapping objects into file
         for(const obj of file.mapping_objects) {
             // Load mapping object
-            const newObject = this.initializeMappingObjectExport(obj, newFile);
+            const newObject = rawThis.initializeMappingObjectExport(obj, newFile);
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
@@ -200,26 +202,26 @@ export class MappingFileAuthority {
         const newObject = file.createMappingObject();
         // Load framework object property values
         newObject.sourceObject.cacheObjectValue(
-            obj.source_id,
-            obj.source_text,
+            obj.source_id || null,
+            obj.source_text || null,
             obj.source_framework,
             obj.source_version
         );
         newObject.targetObject.cacheObjectValue(
-            obj.target_id,
-            obj.target_text,
+            obj.target_id || null,
+            obj.target_text || null,
             obj.target_framework,
             obj.target_version
         );
         // Configure author
         if(obj.author) {
-            newObject.author.value = obj.author;
+            newObject.author.value = obj.author || null;
         }
         if(obj.author_contact) {
-            newObject.authorContact.value = obj.author_contact
+            newObject.authorContact.value = obj.author_contact || null
         }
         if(obj.author_organization) {
-            newObject.authorOrganization.value = obj.author_organization;
+            newObject.authorOrganization.value = obj.author_organization || null;
         }
         // Configure references
         for(const url of obj.references) {
@@ -228,20 +230,50 @@ export class MappingFileAuthority {
             )
         }
         // Configure comments
-        newObject.comments.value = obj.comments;
+        newObject.comments.value = obj.comments || null;
         // Configure mapping type
-        newObject.mappingType.exportValue   = obj.mapping_type;
-        newObject.mappingGroup.exportValue  = obj.mapping_group;
-        newObject.mappingStatus.exportValue = obj.mapping_status;
-        newObject.scoreCategory.exportValue = obj.score_category;
-        newObject.scoreValue.exportValue    = obj.score_value;
+        newObject.capabilityGroup.exportValue  = obj.capability_group;
+        newObject.mappingType.exportValue      = obj.mapping_type;
+        newObject.mappingStatus.exportValue    = obj.mapping_status;
+        newObject.scoreCategory.exportValue    = obj.score_category;
+        newObject.scoreValue.exportValue       = obj.score_value;
         // Return object
         return newObject;
     }
     
 
     ///////////////////////////////////////////////////////////////////////////
-    //  3. Migrate Mapping File  //////////////////////////////////////////////
+    //  3. Import Mapping File  ///////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Imports one mapping file into another.
+     * @param file
+     *  The file to import into.
+     * @param importFile
+     *  The file to import.
+     * @returns
+     *  The ids of the imported mapping objects.
+     */
+    public importMappingFile(file: MappingFile, importFile: MappingFileExport): Set<string> {
+        const rawThis = Reactivity.toRaw(this);
+        const rawFile = Reactivity.toRaw(file);
+        const imported = new Map();
+        // Initialize mapping objects
+        for (const objectExport of importFile.mapping_objects){
+            const obj = rawThis.initializeMappingObjectExport(objectExport, rawFile);
+            imported.set(obj.id, obj);
+        }
+        // Insert mapping objects
+        file.insertMappingObjectsAfter([...imported.values()]);
+        // Return ids
+        return new Set([...imported.keys()]);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Migrate Mapping File  //////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -261,7 +293,7 @@ export class MappingFileAuthority {
 
     
     ///////////////////////////////////////////////////////////////////////////
-    //  4. Audit Mapping File  ////////////////////////////////////////////////
+    //  5. Audit Mapping File  ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -273,7 +305,7 @@ export class MappingFileAuthority {
     
     
     ///////////////////////////////////////////////////////////////////////////
-    //  5. Export Mapping File  ///////////////////////////////////////////////
+    //  6. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -307,15 +339,15 @@ export class MappingFileAuthority {
                 description : item.getAsString("description")
             });
         const argSets: [ListProperty, string, any][] = [
+            [file.capabilityGroups, "id", stringTransform],
             [file.mappingTypes, "id", objectTransform],
-            [file.mappingGroups, "id", stringTransform],
             [file.mappingStatuses, "id", stringTransform],
             [file.scoreCategories, "id", stringTransform],
             [file.scoreValues, "id", stringTransform]
         ];
         const [
+            capability_groups,
             mapping_types,
-            mapping_groups,
             mapping_statuses,
             score_categories,
             score_values
@@ -341,8 +373,8 @@ export class MappingFileAuthority {
             author_organization    : file.authorOrganization.value,
             creation_date          : file.creationDate,
             modified_date          : file.modifiedDate,
+            capability_groups      : Object.fromEntries(capability_groups),
             mapping_types          : Object.fromEntries(mapping_types),
-            mapping_groups         : Object.fromEntries(mapping_groups),
             mapping_statuses       : Object.fromEntries(mapping_statuses),
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
@@ -379,8 +411,8 @@ export class MappingFileAuthority {
                 author_organization : obj.authorOrganization.value,
                 references,
                 comments            : obj.comments.value,
+                capability_group    : obj.capabilityGroup.exportValue,
                 mapping_type        : obj.mappingType.exportValue,
-                mapping_group       : obj.mappingGroup.exportValue,
                 mapping_status      : obj.mappingStatus.exportValue,
                 score_category      : obj.scoreCategory.exportValue,
                 score_value         : obj.scoreValue.exportValue

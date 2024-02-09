@@ -139,9 +139,9 @@ export default defineComponent({
           type: this.getPropertyField(object.scoreValue)
         },
         { 
-          key: "mapping-group",
-          prop: object.mappingGroup,
-          type: this.getPropertyField(object.mappingGroup)
+          key: "capability-group",
+          prop: object.capabilityGroup,
+          type: this.getPropertyField(object.capabilityGroup)
         },
         {
           key: "mapping-status",
@@ -412,7 +412,7 @@ export default defineComponent({
   grid-area: 2 / 3 / 2 / 5;
 }
 
-.mapping-group {
+.capability-group {
   grid-area: 1 / 1;
 }
 

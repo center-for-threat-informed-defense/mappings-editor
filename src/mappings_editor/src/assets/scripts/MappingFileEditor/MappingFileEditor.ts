@@ -7,6 +7,7 @@ import {
     EditorDirective,
     type DirectiveIssuer,
     type DirectiveArguments,
+    Reactivity,
 } from ".";
 import {
     EditableStrictFrameworkListing,
@@ -350,12 +351,13 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      */
     public reindexFile(ids: string[]): void;
     public reindexFile(ids?: string[]) {
+        const rawThis = Reactivity.toRaw(this);
         // Collect objects
         const objects = [];
         if (ids) {
             objects.push(...ids);
         } else {
-            objects.push(...this.file.mappingObjects.keys());
+            objects.push(...rawThis.file.mappingObjects.keys());
             // Wipe indices
             this._invalidObjects.clear();
             this._searchIndex = new FlexSearch.Document({
@@ -373,11 +375,11 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         }
         // Index objects
         for (const id of objects) {
-            const obj = this.file.mappingObjects.get(id);
+            const obj = rawThis.file.mappingObjects.get(id);
             // If object no longer exists...
             if (!obj) {
                 this._invalidObjects.delete(id);
-                this._searchIndex.remove(id)
+                rawThis._searchIndex.remove(id)
                 continue;
             }
             // If object still exists...
@@ -386,7 +388,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             } else {
                 this._invalidObjects.add(obj.id);
             }
-            this._searchIndex.update({
+            rawThis._searchIndex.update({
                 id: id,
                 source_object_id: obj.sourceObject.objectId,
                 source_object_text: obj.sourceObject.objectText,

@@ -1,5 +1,11 @@
-import { type MappingFile, MappingObject, Property, ListItemProperty, FrameworkObjectProperty, ComputedProperty } from "../../MappingFile";
 import { MappingObjectDiscriminator } from "./MappingObjectDiscriminator";
+import { 
+    MappingObject,
+    Property,
+    ListItemProperty,
+    FrameworkObjectProperty,
+    ComputedProperty
+} from "../../MappingFile";
 import { 
     BreakoutControl,
     FilterControl, 
@@ -9,7 +15,7 @@ import {
 } from "./Controls";
 import {
     MappingFileViewItem,
-    MappingGroupSectionView,
+    CapabilityGroupSectionView,
     MappingObjectView,
     MappingStatusSectionView,
     MappingTypeSectionView,
@@ -18,13 +24,10 @@ import {
     TargetObjectSectionView
 } from "./MappingFileViewItem";
 import { clamp } from "../../Utilities";
+import { Reactivity } from "..";
+import type { MappingFile } from "../../MappingFile";
 
 export class MappingFileView {
-
-    /**
-     * A function that unwraps `this` from a reactive context.
-     */
-    public static toRaw: <T>(obj: T) => T = obj => obj;
 
     /**
      * The view's sizing configuration.
@@ -221,7 +224,7 @@ export class MappingFileView {
     public rebuildBreakouts() {
 
         const discriminatorIndex: DiscriminatorIndex = new Map();
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
 
         // 1. Reload mapping objects
         const mappingObjects = new Map();
@@ -387,10 +390,10 @@ export class MappingFileView {
         dis: MappingObjectDiscriminator
     ): Property {
         switch(dis) {
+            case MappingObjectDiscriminator.CapabilityGroup:
+                return obj.capabilityGroup;
             case MappingObjectDiscriminator.MappingType:
                 return obj.mappingType;
-            case MappingObjectDiscriminator.MappingGroup:
-                return obj.mappingGroup;
             case MappingObjectDiscriminator.MappingStatus:
                 return obj.mappingStatus;
             case MappingObjectDiscriminator.SourceObject:
@@ -460,18 +463,18 @@ export class MappingFileView {
     ): Generator<Property> {
         const obj = file.createMappingObject();
         switch(dis) {
+            case MappingObjectDiscriminator.CapabilityGroup:
+                for(const value of file.capabilityGroups.value.keys()) {
+                    obj.capabilityGroup.value = value;
+                    yield obj.capabilityGroup;
+                }
+                break;
             case MappingObjectDiscriminator.MappingType:
                 for(const value of file.mappingTypes.value.keys()) {
                     obj.mappingType.value = value;
                     yield obj.mappingType;
                 }
                 break; 
-            case MappingObjectDiscriminator.MappingGroup:
-                for(const value of file.mappingGroups.value.keys()) {
-                    obj.mappingGroup.value = value;
-                    yield obj.mappingGroup;
-                }
-                break;
             case MappingObjectDiscriminator.MappingStatus:
                 for(const value of file.mappingStatuses.value.keys()) {
                     obj.mappingStatus.value = value;
@@ -651,10 +654,10 @@ export class MappingFileView {
         }
         // Create section
         switch(dis) {
+            case MappingObjectDiscriminator.CapabilityGroup:
+                return new CapabilityGroupSectionView(this, value, text);
             case MappingObjectDiscriminator.MappingType:
                 return new MappingTypeSectionView(this, value, text);
-            case MappingObjectDiscriminator.MappingGroup:
-                return new MappingGroupSectionView(this, value, text);
             case MappingObjectDiscriminator.MappingStatus:
                 return new MappingStatusSectionView(this, value, text);
             case MappingObjectDiscriminator.SourceObject:
@@ -733,7 +736,7 @@ export class MappingFileView {
      * Recalculates all {@link MappingFileViewItem} positions.
      */
     public recalculateViewItemPositions() {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         // Recalculate view item positions
         let offset = 0;
         let maxLayer = 0;
@@ -845,7 +848,7 @@ export class MappingFileView {
      */
     public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
     public setAllItemsSelect(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         if(!value) {
             for(const id of rawThis.selected) {
                 const _mo = rawThis._mappingObjects;
@@ -860,6 +863,30 @@ export class MappingFileView {
                 if(predicate(item)) {
                     this.setItemSelect(item, true);
                 }
+            }
+        }
+    }
+
+    /**
+     * Collapses / Uncollapses all view items.
+     * @param value
+     *  True to collapse the item, false to uncollapse the item.
+     */
+    public setAllItemsCollapse(value: boolean): void;
+    
+    /**
+     * Collapses / Uncollapses all view items that match the predicate.
+     * @param value
+     *  True to collapse the item, false to uncollapse the item.
+     * @param predicate
+     *  The predicate to execute on each item.
+     */
+    public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean): void;
+    public setAllItemsCollapse(value: boolean, predicate: (item: MappingFileViewItem) => boolean = () => true) {
+        const rawThis = Reactivity.toRaw(this);
+        for(const item of rawThis.getItems()) {
+            if(predicate(item)) {
+                item.collapsed = value;
             }
         }
     }
@@ -936,7 +963,7 @@ export class MappingFileView {
      * Updates the set of visible items.
      */
     private updateVisibleItems() {
-        const rawThis = MappingFileView.toRaw(this);
+        const rawThis = Reactivity.toRaw(this);
         const margin = this._sizing.loadMargin;
         const topBoundary = this._viewPosition - margin;
         const botBoundary = this._viewPosition + this._viewHeight + margin;
@@ -1060,8 +1087,8 @@ export class MappingFileView {
             this, 
             new Map([
                 [
-                    MappingObjectDiscriminator.MappingGroup,
-                    { text: "Mapping Group", enabled: true }
+                    MappingObjectDiscriminator.CapabilityGroup,
+                    { text: "Capability Group", enabled: true }
                 ],
                 [
                     MappingObjectDiscriminator.MappingStatus,
@@ -1093,8 +1120,8 @@ export class MappingFileView {
     private defineFilterSets(file: MappingFile): Map<MappingObjectDiscriminator, FilterControl> {
         const filterSets = new Map<MappingObjectDiscriminator, FilterControl>([
             [
-                MappingObjectDiscriminator.MappingGroup,
-                new ListPropertyFilterControl(this, "name", file.mappingGroups)
+                MappingObjectDiscriminator.CapabilityGroup,
+                new ListPropertyFilterControl(this, "name", file.capabilityGroups)
             ],
             [
                 MappingObjectDiscriminator.MappingStatus,

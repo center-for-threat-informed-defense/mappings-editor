@@ -1,26 +1,12 @@
-import { randomUUID } from "@/assets/scripts/Utilities";
-import type { FrameworkListing } from ".";
 import { Property } from "../Property";
+import type { FrameworkListing } from ".";
 
 export abstract class FrameworkObjectProperty extends Property {
 
     /**
-     * The unknown framework identifier.
-     * @remarks
-     *  A UUID is used to ensure the unknown framework never accidentally
-     *  collides with a known framework.
-     */
-    public static UNKNOWN_FRAMEWORK_ID: string
-        = `[UNKNOWN_FRAMEWORK:${ randomUUID() }]`;
-
-    /**
      * The unknown framework version.
-     * @remarks
-     *  A UUID is used to ensure the unknown framework version never
-     *  accidentally collides with a known framework version.
      */
-    public static UNKNOWN_FRAMEWORK_VERSION: string
-        = `[UNKNOWN_VERSION:${ randomUUID() }]`;
+    public static UNKNOWN_FRAMEWORK_VERSION: string = "[UNKNOWN_VERSION]";
 
 
     /**

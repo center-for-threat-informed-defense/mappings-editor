@@ -1,7 +1,7 @@
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { AppCommand } from "../AppCommand";
+import { Reactivity, type MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";
 
@@ -43,32 +43,35 @@ export class PasteMappingObjects extends AppCommand {
      */
     public execute(): void {
         navigator.clipboard.readText().then((text: string) => {
-            const fileView = this.editor.view;
+            const view = this.editor.view;
+            const rawEditor = Reactivity.toRaw(this.editor);
+            const rawFileAuthority = Reactivity.toRaw(this.fileAuthority);
+            const rawFileSerializer = Reactivity.toRaw(this.fileSerializer); 
             // Deserialize items
-            const file = this.fileAuthority.exportMappingFile(this.editor.file, false);
-            const exports = this.fileSerializer.processPaste(text, file);
+            const file = rawFileAuthority.exportMappingFile(rawEditor.file, false);
+            const exports = rawFileSerializer.processPaste(text, file);
             // Configure insert
-            const ids: string[] = [];
-            const insert = EditorCommands.createGroupCommand();
+            const objs = new Map();
             for(let i = exports.length - 1; 0 <= i; i--){
                 // Create object
-                const obj = this.fileAuthority.initializeMappingObjectExport(exports[i], this.editor.file);
+                const obj = rawFileAuthority.initializeMappingObjectExport(exports[i], rawEditor.file);
                 // Store object id
-                ids.push(obj.id);
-                // Insert object
-                insert.do(EditorCommands.insertMappingObject(this.editor.file, obj));   
+                objs.set(obj.id, obj);
             }
             // Configure view command
             const cmd = EditorCommands.createSplitPhaseViewCommand(
-                insert,
+                EditorCommands.insertMappingObjects(this.editor.file, [...objs.values()]),
                 () => [
-                    EditorCommands.rebuildViewBreakouts(fileView),
-                    EditorCommands.unselectAllMappingObjectViews(fileView),
-                    EditorCommands.selectMappingObjectViewsById(fileView, ids),
+                    EditorCommands.rebuildViewBreakouts(view),
+                    EditorCommands.unselectAllMappingObjectViews(view),
+                    EditorCommands.selectMappingObjectViewsById(view, [...objs.keys()]),
                 ]
             )
             // Execute insert
             this.editor.execute(cmd);
+            // Move first item into view
+            const firstItem = view.getItems(o => objs.has(o.id)).next().value;
+            view.moveToViewItem(firstItem.object.id, 0, true, false);
         }).catch(reason => {
             console.error("Failed to read clipboard: ", reason);
         })

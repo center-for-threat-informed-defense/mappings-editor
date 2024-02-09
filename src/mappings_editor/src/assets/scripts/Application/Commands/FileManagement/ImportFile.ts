@@ -1,55 +1,59 @@
+import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { AppCommand } from "../AppCommand";
+import { MappingFileEditor, Reactivity } from "@/assets/scripts/MappingFileEditor";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
-import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
-import { MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFileAuthority, MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 
 export class ImportFile extends AppCommand {
 
-     /**
-     * The file to import.
+    /**
+     * The editor to import into.
      */
-     private _importedFile: MappingFileExport;
+    public readonly editor: MappingFileEditor;
 
     /**
-     * The application context.
+     * The mapping file authority to use.
      */
-    private _context: ApplicationStore;
+    public readonly fileAuthority: MappingFileAuthority;
+
+    /**
+     * The mapping file export to import.
+     */
+    public readonly importFile: MappingFileExport;
 
 
     /**
-     * Loads a new mapping objects from an imported file into the application.
+     * Imports a mapping file export into the active editor.
      * @param context
      *  The application context.
-     * @param importedFile
-     *  The mapping file to load merge.
+     * @param importFile
+     *  The mapping file export to import.
      */
-    constructor(context: ApplicationStore, importedFile: MappingFileExport) {
+    constructor(context: ApplicationStore, importFile: MappingFileExport) {
         super();
-        this._context = context;
-        this._importedFile = importedFile;
-        const activeEditorFile = this._context.activeEditor.file;
-        // throw error if imported file's source framework does not match the current file's source framework
-        if (activeEditorFile.sourceFramework !== this._importedFile.source_framework) {
-            alert("The imported file's mapping framework must be the same as the active file's mapping framework.")
-            throw new Error(`The imported file's mapping framework must be the same as the active file's mapping framework.`)
+        this.editor = context.activeEditor as MappingFileEditor;
+        this.fileAuthority = context.fileAuthority as MappingFileAuthority;
+        // Validate source framework
+        if(this.editor.file.sourceFramework !== importFile.source_framework) {
+            throw new Error(
+                `The imported file's source framework ('${ 
+                    importFile.source_framework
+                }') doesn't match this file's source framework ('${
+                    this.editor.file.sourceFramework
+                }').`
+            );
         }
-        // throw error if imported file's target framework does not match the current file's target framework
-        if (activeEditorFile.targetFramework !== this._importedFile.target_framework){
-            alert("The imported file's target framework must be the same as the active file's target framework.")
-            throw new Error(`The imported file's target framework must be the same as the active file's target framework.`)
+        // Validate target framework
+        if(this.editor.file.targetFramework !== importFile.target_framework) {
+            throw new Error(
+                `The imported file's target framework ('${ 
+                    importFile.target_framework
+                }') doesn't match this file's target framework ('${
+                    this.editor.file.targetFramework
+                }').`
+            );
         }
-        // if versions do not match, explicitly set the imported file's mapping objects to the version
-        if (activeEditorFile.sourceVersion !== this._importedFile.source_version) {
-            for (const mappingObject of this._importedFile.mapping_objects){
-                mappingObject.source_version = this._importedFile.source_version
-            }
-        }
-        if (activeEditorFile.targetVersion !== this._importedFile.target_version) {
-            for (const mappingObject of this._importedFile.mapping_objects){
-                mappingObject.target_version = this._importedFile.target_version
-            }
-        }
+        this.importFile = importFile;
     }
 
 
@@ -57,34 +61,30 @@ export class ImportFile extends AppCommand {
      * Executes the command.
      */
     public execute(): void {
-        // unselect any items that are currently selected
-        this._context.activeEditor.view.setAllItemsSelect(false);
-
-        let objIds: Set<string> = new Set();
-        let objects: MappingObject[] = [];
-        
-        let rawFile = MappingFileView.toRaw(this._context.activeEditor.file);
-        let rawFileAuthority = MappingFileView.toRaw(this._context.fileAuthority)
-        for (const mappingObj of this._importedFile.mapping_objects){
-            const mappingObjExport = rawFileAuthority.initializeMappingObjectExport(
-                mappingObj, rawFile as MappingFile
-            );
-            objects.push(mappingObjExport)
-            // store ids of inserted objects
-            objIds.add(mappingObjExport.id);
+        const file = this.editor.file;
+        const view = this.editor.view;
+        const rawEditor = Reactivity.toRaw(this.editor);
+        const rawFileAuthority = Reactivity.toRaw(this.fileAuthority);
+        // Compile mapping items
+        const objs = new Map();
+        for(const exp of this.importFile.mapping_objects) {
+            const obj = rawFileAuthority.initializeMappingObjectExport(exp, rawEditor.file);
+            objs.set(obj.id, obj);
         }
-        rawFile.insertMappingObjectsAfter(objects);
-        this._context.activeEditor.view.rebuildBreakouts();
-
-        // move view to the item in imported items that has the lowest headOffset
-        const topItem = this._context.activeEditor.view.getItems(o => objIds.has(o.id)).next().value;
-        this._context.activeEditor.view.moveToViewItem(topItem.object.id, 0, true, false);
-
-        // select each inserted object
-        for(const objId of objIds){
-            this._context.activeEditor.view.getItem(objId).select(true);
-        }
-        this._context.activeEditor.reindexFile([...objIds]);
+        // Configure view command
+        const cmd = EditorCommands.createSplitPhaseViewCommand(
+            EditorCommands.insertMappingObjects(file, [...objs.values()]),
+            () => [
+                EditorCommands.rebuildViewBreakouts(view),
+                EditorCommands.unselectAllMappingObjectViews(view),
+                EditorCommands.selectMappingObjectViewsById(view, [...objs.keys()])
+            ]
+        )
+        // Execute insert
+        this.editor.execute(cmd);
+        // Move first item into view
+        const firstItem = view.getItems(o => objs.has(o.id)).next().value;
+        view.moveToViewItem(firstItem.object.id, 0, true, false);
     }
 
 }

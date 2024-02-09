@@ -15,7 +15,7 @@ const config: AppConfiguration = {
                 },
                 {
                     text: "Change Log",
-                    url: "https://github.com/center-for-threat-informed-defense/cti-blueprints/blob/main/src/cti_authoring_tool/CHANGELOG.md"
+                    url: "https://github.com/center-for-threat-informed-defense/mappings-editor/blob/main/src/mappings_editor/CHANGELOG.md"
                 }
             ]
         }

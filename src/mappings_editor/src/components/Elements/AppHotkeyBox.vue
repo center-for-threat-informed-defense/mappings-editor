@@ -32,7 +32,6 @@ export default defineComponent({
         ...this.hotkeys.nativeHotkeys, 
         ...this.hotkeys.fileHotkeys,
         ...this.hotkeys.editHotKeys,
-        ...this.hotkeys.layoutHotkeys,
         ...this.hotkeys.viewHotkeys
       ]
     }
@@ -49,11 +48,7 @@ export default defineComponent({
       if(!emitter) {
         return;
       }
-      try {
-        this.$emit("execute", emitter());
-      } catch(ex: any) {
-        console.error(ex);
-      }
+      this.$emit("execute", emitter());
     }
 
   },

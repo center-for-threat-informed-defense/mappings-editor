@@ -1,8 +1,10 @@
-import { DeleteMappingObject } from "./DeleteMappingObject";
 import { CreateMappingObject } from "./CreateMappingObject";
+import { InsertMappingObject } from "./InsertMappingObject";
+import { DeleteMappingObject } from "./DeleteMappingObject";
+import { InsertMappingObjects } from "./InsertMappingObjects";
+import { DeleteMappingObjects } from "./DeleteMappingObjects";
 import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
-import { InsertMappingObject } from "./InsertMappingObject";
 
 /**
  * Creates a new {@link MappingObject} in a {@link MappingFile}.
@@ -29,12 +31,38 @@ export function insertMappingObject(file: MappingFile, obj: MappingObject): Edit
 }
 
 /**
- * Removes a {@link MappingObject} from its parent {@link MappingFile}.
+ * Inserts multiple {@link MappingObject}s into a {@link MappingFile}.
+ * @param file
+ *  The mapping file to operate on.
+ * @param objects
+ *  The mapping objects to insert.
+ * @returns
+ *  A command that represents the action.
+ */
+export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): EditorCommand {
+    return new InsertMappingObjects(file, objs);
+}
+
+/**
+ * Deletes a {@link MappingObject} from its {@link MappingFile}.
+ * @remarks
+ *  Prefer {@link deleteMappingObjects} when deleting multiple objects.
  * @param object
- *  The mapping object to remove.
+ *  The mapping object to delete.
  * @returns
  *  A command that represents the action.
  */
 export function deleteMappingObject(object: MappingObject): EditorCommand {
     return new DeleteMappingObject(object); 
+}
+
+/**
+ * Deletes multiple {@link MappingObject}s from their {@link MappingFile}.
+ * @param object
+ *  The mapping objects to delete.
+ * @returns
+ *  A command that represents the action.
+ */
+export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
+    return new DeleteMappingObjects(objects);
 }

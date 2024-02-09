@@ -24,9 +24,6 @@
           @execute="onExecute"
         />
       </div>
-      <div class="frame right">
-        <div class="resize-handle" @pointerdown="startResize($event, Handle.Right)"></div>
-      </div>
       <div class="frame bottom">
         <AppFooterBar id="app-footer-bar"/>
       </div>
@@ -139,6 +136,7 @@ export default defineComponent({
           this.application.execute(cmd);
         }
       } catch(ex: any) {
+        alert(`Error: ${ ex.message }`)
         console.error(ex);
       }
     },

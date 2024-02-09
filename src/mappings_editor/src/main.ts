@@ -1,14 +1,16 @@
 // @ts-ignore
 import process from 'process'
 import App from './App.vue'
+import * as MappingFileEditor from '@/assets/scripts/MappingFileEditor'
+import * as MappingFileAuthority from './assets/scripts/MappingFileAuthority'
 import { createPinia } from 'pinia'
-import { MappingFileView } from '@/assets/scripts/MappingFileEditor'
 import { createApp, toRaw } from 'vue'
 import "@/assets/fonts/inter.css"
 import "@/assets/fonts/dm_mono.css"
 
 // Configure Libraries
-MappingFileView.toRaw = toRaw;
+MappingFileEditor.Reactivity.toRaw = toRaw;
+MappingFileAuthority.Reactivity.toRaw = toRaw;
 
 // Create application
 const app = createApp(App)

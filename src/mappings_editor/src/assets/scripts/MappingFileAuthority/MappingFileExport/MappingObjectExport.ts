@@ -66,14 +66,14 @@ export type MappingObjectExport = {
     comments: string | null;
 
     /**
+     * The object's capability group.
+     */
+    capability_group: string | null;
+
+    /**
      * The object's mapping type.
      */
     mapping_type: string | null;
-
-    /**
-     * The object's mapping group.
-     */
-    mapping_group: string | null;
     
     /**
      * The object's mapping status.

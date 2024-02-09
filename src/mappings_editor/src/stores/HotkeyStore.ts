@@ -50,15 +50,15 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
             const editor = app.activeEditor;
             return [
                 {
+                    data: () => AppCommands.loadFileFromFileSystem(app),
+                    shortcut: file.open_file,
+                    repeatable: false
+                },
+                {
                     data: () => AppCommands.importFileFromFileSystem(app),
                     shortcut: file.import_file,
                     repeatable: false,
                     disabled: editor.id === MappingFileEditor.Phantom.id
-                },
-                {
-                    data: () => AppCommands.loadFileFromFileSystem(app),
-                    shortcut: file.open_file,
-                    repeatable: false
                 },
                 {
                     data: () => AppCommands.saveActiveFileToDevice(app),
@@ -127,23 +127,25 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
         },
 
         /**
-         * Returns the layout hotkeys.
-         * @returns
-         *  The layout hotkeys.
-         */
-        layoutHotkeys(): Hotkey<CommandEmitter>[] {
-            return [];
-        },
-
-        /**
          * Returns the view hotkeys.
          * @returns
          *  The view hotkeys.
          */
         viewHotkeys(): Hotkey<CommandEmitter>[] {
             const app = useApplicationStore();
+            const editor = app.activeEditor as MappingFileEditor;
             const view = app.settings.hotkeys.view;
             return  [
+                {
+                    data: () => EditorCommands.collapseAllMappingObjectViews(editor.view),
+                    shortcut: view.collapse_all_mappings,
+                    repeatable: false
+                },
+                {
+                    data: () => EditorCommands.uncollapseAllMappingObjectViews(editor.view),
+                    shortcut: view.uncollapse_all_mappings,
+                    repeatable: false
+                },
                 {
                     data: () => AppCommands.switchToFullscreen(),
                     shortcut: view.fullscreen,
