@@ -70,7 +70,11 @@ export default defineComponent({
      * Search input behavior.
      */
     onInput(event: KeyboardEvent) {
-      this.showNavigation = this.searchTerm !== "";
+      if(this.searchTerm === "") {
+        this.clearSearch();
+      } else {
+        this.showNavigation = true;
+      }
       switch(event.key) {
         case "Enter":
           this.traverseSearchResults(1);
@@ -86,7 +90,11 @@ export default defineComponent({
      */
     clearSearch() {
       this.searchTerm = "";
+      // Hide search navigation
       this.showNavigation = false;
+      // Clear selection
+      const cmd = EditorCommands.unselectAllMappingObjectViews(this.editor.view);
+      this.$emit("execute", cmd)
     },
 
     /**
