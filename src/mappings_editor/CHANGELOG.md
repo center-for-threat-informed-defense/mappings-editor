@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.1.1](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.0...mappings_editor-v0.1.1) (2024-02-09)
+
+
+### Features
+
+* add "clear search" button ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* add "collapse/uncollapse all mapping objects" menu items ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* add auto-migrate capabilities to framework objects ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* add basic runtime error notifications ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+
+
+### Bug Fixes
+
+* correct "Change Log" link ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* deserialize empty strings to `null` on select mapping object fields ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* deserialize mapping object `references` to a list of links (not characters) ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* eliminate scroll glitch that occurs when moving uncollapsed mapping objects ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* eliminate scroll glitch that occurs when undeleting end-of-file mapping objects ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* remove "Layout" menu ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* remove deprecated mapping statuses ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+
+
+### Performance Improvements
+
+* improve file indexing speed ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* improve import file speed ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* improve mass cut, copy, and paste speed ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+* improve mass delete speed ([8f41917](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8f41917597dae67c714c63f67cf014e99d168f4e))
+
 ## [0.1.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.0.1...mappings_editor-v0.1.0) (2024-02-07)
 
 
