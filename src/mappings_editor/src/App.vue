@@ -24,9 +24,6 @@
           @execute="onExecute"
         />
       </div>
-      <div class="frame right">
-        <!-- <div class="resize-handle" @pointerdown="startResize($event, Handle.Right)"></div> -->
-      </div>
       <div class="frame bottom">
         <AppFooterBar id="app-footer-bar"/>
       </div>
