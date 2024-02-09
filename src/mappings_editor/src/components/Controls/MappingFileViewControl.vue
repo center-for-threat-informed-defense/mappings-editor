@@ -526,14 +526,18 @@ export default defineComponent({
       const viewPosition = this.editor.view.viewPosition;
       if(this.cachedViewPosition !== viewPosition) {
         this.cachedViewPosition = viewPosition;
-        // Update scroll position
-        this.scrollbox.moveScrollPosition(viewPosition);
-        // TODO: Open box which allows user to move view back to cachedViewPosition.
-        //       Don't open box if last content height is different from current
-        //       content height.
-        // setTimeout(() => { 
-        //   scrollbox.moveScrollPosition(lastPosition);
-        // }, 2000)
+        // After DOM update...
+        this.$nextTick(() => {
+          // Update scroll position
+          this.scrollbox.moveScrollPosition(viewPosition);
+          // TODO:
+          // Display button which allows user to move view back to
+          // lastPosition. Don't display button if last content height is
+          // different from current content height.
+          // setTimeout(() => { 
+          //   scrollbox.moveScrollPosition(lastPosition);
+          // }, 2000)
+        });
       }
     },
 
