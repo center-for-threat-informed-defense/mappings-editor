@@ -11,7 +11,7 @@
       @select="updatePropertyObjectId"
       v-if="showMenu"
     />
-    <div :class="['value-container', { 'search-open': showSearch }]">
+    <div :class="['value-container', { 'search-open': showSearch, 'is-cached': isCached }]">
       <div :class="['value', { 'is-null': isNull }]">
         <div class="object-id" :style="objectIdStyle">
           <p>{{ property.objectId ?? idPlaceholder }}</p>
@@ -33,6 +33,7 @@
         v-if="showSearch"
         autocomplete="off"
       />
+      <div class="invalid-icon">⚠</div>
       <div class="dropdown-arrow">▼</div>
     </div>
   </div>
@@ -85,6 +86,15 @@ export default defineComponent({
      */
     isNull(): boolean {
       return this.property.objectId === null;
+    },
+
+    /**
+     * Tests if the option's value is cached.
+     * @returns
+     *  True if the option's value is cached, false otherwise.
+     */
+    isCached(): boolean {
+      return this.property.isObjectValueCached();
     },
     
     /**
@@ -350,7 +360,6 @@ export default defineComponent({
   text-overflow: ellipsis;
 }
 
-
 .value .object-text {
   flex: 1;
   white-space: nowrap;
@@ -372,6 +381,22 @@ export default defineComponent({
   font-size: inherit;
   font-weight: inherit;
   background: #404040;
+}
+
+.value-container.is-cached .object-id {
+  color: #cccccc;
+  background: #404040;
+}
+
+.invalid-icon {
+  display: none;
+  color: #adadad;
+  font-size: 10.5pt;
+  margin-right: 9px;
+}
+
+.value-container.is-cached .invalid-icon {
+  display: block;
 }
 
 .dropdown-arrow {

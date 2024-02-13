@@ -13,9 +13,10 @@
     />
     <div :class="['value', {
       'is-null': isNull,
+      'is-cached': isCached,
       'is-targeted': property.isTargeted,
-      'options-open': showOptions }]"
-    >
+      'options-open': showOptions
+    }]">
       <input 
         ref="objectIdField"
         type="text"
@@ -32,20 +33,22 @@
         autocomplete="off"
       />
       <span></span>
-      <input 
-        type="text"
-        name="object-text"
-        class="object-text"
-        @input="onObjectTextInput"
-        @keyup.stop
-        @keydown.stop
-        @focusin="onObjectTextFocusIn"
-        @focusout="onObjectTextFocusOut"
-        v-model="objectText"
-        :disabled="isObjectTextFieldDisabled"
-        :placeholder="objectTextPlaceholder"
-        autocomplete="off"
-      />
+      <div class="object-text-container">
+        <input 
+          type="text"
+          name="object-text"
+          class="object-text"
+          @input="onObjectTextInput"
+          @keyup.stop
+          @keydown.stop
+          @focusin="onObjectTextFocusIn"
+          @focusout="onObjectTextFocusOut"
+          v-model="objectText"
+          :disabled="isObjectTextFieldDisabled"
+          :placeholder="objectTextPlaceholder"
+          autocomplete="off"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -100,6 +103,15 @@ export default defineComponent({
      */
     isNull(): boolean {
       return this.property.objectId === null;
+    },
+
+    /**
+     * Tests if the option's value is cached.
+     * @returns
+     *  True if the option's value is cached, false otherwise.
+     */
+    isCached(): boolean {
+      return this.property.isObjectValueCached();
     },
     
     /**
@@ -428,10 +440,19 @@ export default defineComponent({
   background: #637bc9;
 }
 
-.value .object-text {
+.value .object-text-container {
   flex: 1;
   display: flex;
   align-items: center;
+  height: 100%;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  box-sizing: border-box;
+  background: #404040;
+}
+
+.value .object-text {
+  flex: 1;
   color: inherit;
   font-family: inherit;
   font-size: inherit;
@@ -442,15 +463,7 @@ export default defineComponent({
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   box-sizing: border-box;
-  background: #404040;
-  overflow: hidden;
-}
-
-.value .object-id p,
-.value .object-text p {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  background: none;
 }
 
 .value .object-id::placeholder,
@@ -466,11 +479,11 @@ export default defineComponent({
   border-top-left-radius: 0px;
 }
 
-.options-list:not(.flip) + .value.options-open .object-text {
+.options-list:not(.flip) + .value.options-open .object-text-container {
   border-bottom-right-radius: 0px;
 }
 
-.options-list.flip + .value.options-open .object-text {
+.options-list.flip + .value.options-open .object-text-container {
   border-top-right-radius: 0px;
 }
 
@@ -484,16 +497,37 @@ export default defineComponent({
   background: #404040;
 }
 
-.value.is-null .object-text {
+.value.is-null .object-text-container {
   user-select: none;
   pointer-events: none;
 }
 
-.value .object-text:disabled {
+/** === Invalid Value Text === */
+
+.value.is-cached .object-id {
+  color: #cccccc;
+  background: #404040;
+}
+
+.value.is-cached .object-text-container::after {
+  content: "⚠";
+  color: #adadad;
+  font-size: 10.5pt;
+  margin-right: 9px;
+}
+
+/** === Disabled Value Text === */
+
+.value.is-null .object-text-container,
+.value.is-cached .object-text-container  {
   color: #a8a8a8;
-  padding: 0px 10px 0px 14px;
   border: solid 1px #404040;
   background: #303030;
+}
+
+.value.is-null .object-text,
+.value.is-cached .object-text {
+  padding: 0px 14px;
 }
 
 /** === Focused Value Text === */
