@@ -10,7 +10,7 @@
       @select="updateProperty"
       v-if="showMenu"
     />
-    <div :class="['value-container', { 'search-open': showSearch }]">
+    <div :class="['value-container', { 'search-open': showSearch, 'is-cached': isCached }]">
       <div :class="['value-text', { 'is-null': isNull }]">
         {{ property.exportText ?? placeholder }}
       </div>
@@ -27,6 +27,7 @@
         v-if="showSearch"
         autocomplete="off"
       />
+      <div class="invalid-icon">⚠</div>
       <div class="dropdown-arrow">▼</div>
     </div>
   </div>
@@ -75,6 +76,15 @@ export default defineComponent({
      */
     isNull(): boolean {
       return this.property.value === null;
+    },
+
+    /**
+     * Tests if the option's value is cached.
+     * @returns
+     *  True if the option's value is cached, false otherwise.
+     */
+    isCached(): boolean {
+      return this.property.isValueCached();
     },
     
     /**
@@ -347,6 +357,17 @@ export default defineComponent({
 
 .value-text.is-null {
   color: #999;
+}
+
+.invalid-icon {
+  display: none;
+  color: #adadad;
+  font-size: 10.5pt;
+  margin-right: 9px;
+}
+
+.value-container.is-cached .invalid-icon {
+  display: block;
 }
 
 .dropdown-arrow {
