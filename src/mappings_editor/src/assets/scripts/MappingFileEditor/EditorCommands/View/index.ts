@@ -392,7 +392,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 new ReindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
-                new MoveCameraToViewItem(view, undefined, camera, camera)
+                new MoveCameraToViewItem(view, camera, camera)
             ];
         }
     )
