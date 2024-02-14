@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.1...mappings_editor-v0.1.2) (2024-02-14)
+
+
+### Features
+
+* visually distinguish invalid mapping object fields ([79e3f59](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/79e3f59d169301ae2368dff1497aa75e0aad9e3c))
+
+
+### Bug Fixes
+
+* always keep the actively-edited mapping object in view ([2ce7549](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/2ce7549b19cee991fa924fdfa51bb496718e3dc2))
+
 ## [0.1.1](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.0...mappings_editor-v0.1.1) (2024-02-09)
 
 
