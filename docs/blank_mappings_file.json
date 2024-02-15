@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "mapping_version": "1.0.0",
+    "attack_version": "",
+    "technology_domain": "",
+    "mapping_framework": "",
+    "mapping_framework_version": "",
+    "mapping_types": {
+      "example_type": {
+        "name": "Example Mapping Type",
+        "description": "Use this description to explain the semantics of the mapping type."
+      }
+    },
+    "capability_groups": {
+      "example_group": "Example Group"
+    }
+  }
+}
