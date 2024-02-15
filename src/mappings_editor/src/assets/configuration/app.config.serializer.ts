@@ -172,7 +172,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
     public deserialize(file: string): MappingFileExport {
         const json = JSON.parse(file) as UniversalSchemaMappingFile;
         // Parse mapping objects
-        const mapping_objects = json.mapping_objects.map(
+        const mapping_objects = (json.mapping_objects ?? []).map(
             o => this.toMappingObjectExport(o, json)
         );
         // Parse mapping file
@@ -184,11 +184,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             source_version         : meta.mapping_framework_version,
             target_framework       : `mitre_attack_${ meta.technology_domain }`,
             target_version         : meta.attack_version,
-            author                 : meta.author,
-            author_contact         : meta.contact,
-            author_organization    : meta.organization,
-            creation_date          : new Date(meta.creation_date),
-            modified_date          : new Date(meta.last_update),
+            author                 : meta.author ?? null,
+            author_contact         : meta.contact ?? null,
+            author_organization    : meta.organization ?? null,
+            creation_date          : new Date(meta.creation_date ?? Date.now()),
+            modified_date          : new Date(meta.last_update ?? Date.now()),
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
@@ -418,15 +418,15 @@ type UniversalSchemaMappingFile = {
         technology_domain         : string,
         mapping_framework         : string,
         mapping_framework_version : string,
-        author                    : string | null,
-        contact                   : string | null,
-        organization              : string | null,
-        creation_date             : string,
-        last_update               : string,
+        author?                   : string,
+        contact?                  : string,
+        organization?             : string,
+        creation_date?            : string,
+        last_update?              : string,
         mapping_types             : UniversalSchemaMappingTypes,
         capability_groups         : UniversalSchemaCapabilityGroups
     },
-    mapping_objects               : UniversalSchemaMappingObject[]
+    mapping_objects?              : UniversalSchemaMappingObject[]
 }
 
 /**
