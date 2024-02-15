@@ -1,26 +1,36 @@
 # Mappings Editor
 
-Mappings Editor is a custom-built tool developed under the Mappings Explorer project. This 
-tool enables the mapping of customized security controls or capabilities to [MITRE ATT&CK®](https://attack.mitre.org/), 
-either to be used solely internally within an organization or shared with the Center or other 
-organizations. This lightweight, easy to use tool is being used internally by the Center to 
-create new and update existing capability mappings to ATT&CK objects.
+The Mappings Editor is a custom-built tool developed under the Mappings Explorer project. 
+This lightweight, easy to use tool is being used internally by the [Center for Threat Informed Defense](https://mitre-engenuity.org/cybersecurity/center-for-threat-informed-defense/) 
+to create new and update existing capability mappings to [MITRE ATT&CK®](https://attack.mitre.org/) objects. 
+It is available for your own use as a public beta, but most Mappings Explorer users should 
+not need to use this tool. Instead, you should generally use the mappings data available on 
+the Mappings Explorer website.
 
 **Table Of Contents:**
 
 - [Getting Started](#getting-started)
-- [Questions and Feedback](#questions-and-feedback)
+- [How Do I Contribute?](#how-do-i-contribute)
 - [Notice](#notice)
 
 ## Getting Started
 
-Mappings Editor is provided in this repository as a beta version. Contact the Center at 
-[ctid@mitre-engenuity.org](mailto:ctid@mitre-engenuity.org?subject=subject=Question%20about%20mappings-explorer) to learn more about using Mappings Editor.
+To get started, visit the project website.
+  
+| Resource                                                                                     | Description                                                                                               |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [Mappings Editor](https://center-for-threat-informed-defense.github.io/mappings-explorer/)   | An interactive, web-based tool for creating your own mappings. (This tool is available as a public beta.) |
+| [Mappings Explorer](https://center-for-threat-informed-defense.github.io/mappings-explorer/) | A website to access, explore, search, and download our ATT&CK mappings.                                   |
 
-## Questions and Feedback
+## How Do I Contribute?
 
 We welcome your feedback and contributions to help advance Mappings Editor. Please see 
 the guidance for contributors if are you interested in [contributing.](/CONTRIBUTING.md)
+
+The Mappings Editor is released as a public beta; you may try using it to create your own 
+mappings data. The mappings data can be used internally inside your organization, or if you 
+think the public would benefit, we would be happy to accept pull requests for new mappings. 
+Please [get in touch with us]((mailto:ctid@mitre-engenuity.org?subject=Mappings%20Explorer%20framework%20submission)) ahead of time so that we can coordinate submissions.
 
 Please submit [issues](https://github.com/center-for-threat-informed-defense/mappings-editor/issues) for
 any technical questions/concerns or contact [ctid@mitre-engenuity.org](mailto:ctid@mitre-engenuity.org?subject=subject=Question%20about%20mappings-editor)
