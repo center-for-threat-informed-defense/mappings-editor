@@ -68,7 +68,7 @@ export class MappingFile {
     /**
      * The file's last modified date.
      */
-    public readonly modifiedDate: Date;
+    public modifiedDate: Date;
 
     /**
      * The file's capability groups.

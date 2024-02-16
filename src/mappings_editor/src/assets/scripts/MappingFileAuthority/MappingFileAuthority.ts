@@ -64,8 +64,8 @@ export class MappingFileAuthority {
         
         // Create mapping file
         const mappingFile = new MappingFile({
-            creationDate       : file.creation_date ?? new Date(),
-            modifiedDate       : file.modified_date ?? new Date(),
+            creationDate       : file.creation_date,
+            modifiedDate       : file.modified_date,
             mappingObjectTemplate
         }, id);
 

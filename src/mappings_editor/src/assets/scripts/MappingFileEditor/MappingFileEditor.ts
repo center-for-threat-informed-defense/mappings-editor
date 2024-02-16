@@ -226,6 +226,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     public executeDirectives(args: DirectiveArguments) {
         // Request autosave
         if (args.directives & EditorDirective.Autosave) {
+            // Update last modified
+            this.file.modifiedDate = new Date();
+            // Request autosave
             this.requestAutosave();
         }
         // Update reindex file
