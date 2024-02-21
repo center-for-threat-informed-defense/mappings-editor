@@ -16,6 +16,10 @@ const config: AppConfiguration = {
                 {
                     text: "Change Log",
                     url: "https://github.com/center-for-threat-informed-defense/mappings-editor/blob/main/src/mappings_editor/CHANGELOG.md"
+                },
+                {
+                    text: "User Guide",
+                    url: "https://github.com/center-for-threat-informed-defense/mappings-editor/wiki/Overview"
                 }
             ]
         }
