@@ -201,6 +201,17 @@ export default defineComponent({
     }
     // Load settings
     this.application.execute(AppCommands.loadSettings(this.application, settings));
+    // Load file from query parameters, if possible
+    let params = new URLSearchParams(window.location.search);
+    let src = params.get("src");
+    if(src) {
+      try {
+        this.application.execute(await AppCommands.loadFileFromUrl(this.application, src));
+      } catch(ex) {
+        console.error(`Failed to load file from url: '${ src }'`);
+        console.error(ex);
+      }
+    }
   },
   mounted() {
     this.bodyWidth = this.body!.clientWidth;
