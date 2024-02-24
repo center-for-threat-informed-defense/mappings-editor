@@ -33,7 +33,7 @@ export class PasteMappingObjects extends AppCommand {
     constructor(context: ApplicationStore, editor: MappingFileEditor) {
         super();
         this.fileAuthority = context.fileAuthority as MappingFileAuthority;
-        this.fileSerializer = context.fileSerializer;
+        this.fileSerializer = context.fileSerializer as MappingFileSerializer;
         this.editor = editor;
     }
 
@@ -52,9 +52,9 @@ export class PasteMappingObjects extends AppCommand {
             const exports = rawFileSerializer.processPaste(text, file);
             // Configure insert
             const objs = new Map();
-            for(let i = exports.length - 1; 0 <= i; i--){
+            for(const exp of exports){
                 // Create object
-                const obj = rawFileAuthority.initializeMappingObjectExport(exports[i], rawEditor.file);
+                const obj = rawFileAuthority.initializeMappingObjectExport(exp, rawEditor.file);
                 // Store object id
                 objs.set(obj.id, obj);
             }
