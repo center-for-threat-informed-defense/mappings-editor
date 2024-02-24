@@ -11,6 +11,7 @@ export interface AppConfiguration {
             filename: string
         }[]
     },
+    frameworks_with_navigator_support: Map<string, "enterprise" | "ics" | "mobile">,
     menus: {
         help_menu: {
             help_links: { text: string, url: string }[]

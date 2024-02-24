@@ -85,7 +85,7 @@ export class MappingFileAuthority {
         );
 
         // Set default mapping status
-        if((file.default_mapping_status ?? null) !== null) {
+        if((file.default_mapping_status || null) !== null) {
             const mappingStatus = mappingFile.mappingStatuses.findListItemId(
                 o => o.getAsString("id") === file.default_mapping_status
             ) ?? null;
@@ -93,7 +93,7 @@ export class MappingFileAuthority {
         }
 
         // Set default mapping type
-        if((file.default_mapping_type ?? null) !== null) {
+        if((file.default_mapping_type || null) !== null) {
             const mappingType = mappingFile.mappingTypes.findListItemId(
                 o => o.getAsString("id") === file.default_mapping_type
             ) ?? null;
@@ -225,6 +225,9 @@ export class MappingFileAuthority {
         }
         // Configure references
         for(const url of obj.references) {
+            if(url === "") {
+                continue;
+            }
             newObject.references.insertListItem(
                 newObject.references.createNewItem({ url })
             )
@@ -232,11 +235,11 @@ export class MappingFileAuthority {
         // Configure comments
         newObject.comments.value = obj.comments || null;
         // Configure mapping type
-        newObject.capabilityGroup.exportValue  = obj.capability_group;
-        newObject.mappingType.exportValue      = obj.mapping_type;
-        newObject.mappingStatus.exportValue    = obj.mapping_status;
-        newObject.scoreCategory.exportValue    = obj.score_category;
-        newObject.scoreValue.exportValue       = obj.score_value;
+        newObject.capabilityGroup.exportValue  = obj.capability_group || null;
+        newObject.mappingType.exportValue      = obj.mapping_type || null;
+        newObject.mappingStatus.exportValue    = obj.mapping_status || null;
+        newObject.scoreCategory.exportValue    = obj.score_category || null;
+        newObject.scoreValue.exportValue       = obj.score_value || null;
         // Return object
         return newObject;
     }
@@ -378,7 +381,9 @@ export class MappingFileAuthority {
             mapping_statuses       : Object.fromEntries(mapping_statuses),
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
-            mapping_objects
+            mapping_objects,
+            default_mapping_type   : file.defaultMappingType,
+            default_mapping_status : file.defaultMappingStatus
         }
 
     }

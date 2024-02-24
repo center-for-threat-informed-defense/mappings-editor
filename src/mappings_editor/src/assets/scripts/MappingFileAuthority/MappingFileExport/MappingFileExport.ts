@@ -90,11 +90,11 @@ export type MappingFileExport = {
     /**
      * The file's default mapping status.
      */
-    default_mapping_status?: string | null;
+    default_mapping_status: string | null;
 
     /**
      * The file's default mapping type.
      */
-    default_mapping_type?: string | null;
+    default_mapping_type: string | null;
 
 }

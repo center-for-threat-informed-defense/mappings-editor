@@ -16,7 +16,7 @@ export class SaveFileToDevice extends AppCommand {
     /**
      * The file's contents.
      */
-    public readonly contents: string;
+    public readonly contents: Blob | string;
 
 
     /**
@@ -28,7 +28,7 @@ export class SaveFileToDevice extends AppCommand {
      * @param contents
      *  The file's contents.
      */
-    constructor(name: string, extension: string, contents: string) {
+    constructor(name: string, extension: string, contents: Blob | string) {
         super();
         this.name = name;
         this.extension = extension;
@@ -40,7 +40,7 @@ export class SaveFileToDevice extends AppCommand {
      * Executes the command.
      */
     public execute(): void {
-        Browser.downloadTextFile(
+        Browser.downloadFile(
             this.name,
             this.contents,
             this.extension

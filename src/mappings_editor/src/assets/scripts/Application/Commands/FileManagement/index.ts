@@ -1,12 +1,21 @@
-import { ImportFile } from './ImportFile';
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
+import { ImportFile } from './ImportFile';
+import { ExportType } from "..";
 import { AppCommand } from "../AppCommand";
 import { ClearFileRecoveryBank } from "./ClearFileRecoveryBank";
 import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { SaveFileToDevice } from "./SaveFileToDevice";
+export { ExportType } from './ExportType';
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  1. Open / Import Files  ///////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * Loads an empty mapping file into the application.
@@ -110,6 +119,12 @@ export async function importFileFromUrl(context: ApplicationStore, url: string):
     return importExistingFile(context, await (await fetch(url)).text());
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+//  2. Save / Export Files  ///////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
 /**
  * Saves a mapping file to the user's file system.
  * @param context
@@ -120,6 +135,53 @@ export async function importFileFromUrl(context: ApplicationStore, url: string):
 export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
     return new SaveMappingFileToDevice(context, context.activeEditor as MappingFileEditor);
 }
+
+/**
+ * Exports the mapping file to the users's file system.
+ * @param context
+ *  The application's context.
+ * @param type
+ *  The export type.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function exportActiveFileToDevice(context: ApplicationStore, type: ExportType): Promise<AppCommand> {
+    const editor = context.activeEditor as MappingFileEditor;
+    // Deconstruct file
+    const file = context.fileAuthority.exportMappingFile(editor.file);
+    // Serialize file
+    const options = { type: "text/plain" };
+    let name = editor.name;
+    let blob: Blob;
+    let ext: string;
+    switch(type) {
+        case ExportType.CSV:
+            blob = new Blob([context.fileSerializer.toCsvFile(file)], options);
+            ext = "csv"
+            break;
+        case ExportType.YAML:
+            blob = new Blob([context.fileSerializer.toYamlFile(file)], options);
+            ext = "yaml"
+            break;
+        case ExportType.XLSX:
+            blob = await context.fileSerializer.toExcelFile(file, editor.name || "Mappings");
+            ext = "xlsx"
+            break;
+        case ExportType.NAVIGATOR:
+            blob = new Blob([context.fileSerializer.toNavigatorLayer(file)], options);
+            name = `${ name }_navigator_layer`
+            ext = "json";
+            break;
+    }
+    // Return command
+    return new SaveFileToDevice(name, ext, blob);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  3. File Recovery Bank  ////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * Clears the application's file recovery bank.

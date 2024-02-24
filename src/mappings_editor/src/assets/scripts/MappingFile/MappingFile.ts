@@ -105,11 +105,26 @@ export class MappingFile {
      */
     private readonly _mappingObjectTemplate: MappingObject;
 
+
     /**
      * The file's mapping objects.
      */
     public get mappingObjects(): ReadonlyMap<string, MappingObject> {
         return this._mappingObjects;
+    }
+
+    /**
+     * The file's default mapping type.
+     */
+    public get defaultMappingType(): string | null {
+        return this._mappingObjectTemplate.mappingType.exportValue;
+    }
+
+    /**
+     * The file's default mapping status.
+     */
+    public get defaultMappingStatus(): string | null {
+        return this._mappingObjectTemplate.mappingStatus.exportValue;
     }
 
 
