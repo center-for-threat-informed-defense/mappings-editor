@@ -382,7 +382,7 @@ export default defineComponent({
       }
       // Generate selection
       const views = [];
-      for(; beg.next && end !== beg.prev; beg = beg.next) {
+      for(; beg !== null && end !== beg.prev; beg = beg.next) {
         if(beg instanceof MappingObjectView) {
           views.push(beg);
         }
