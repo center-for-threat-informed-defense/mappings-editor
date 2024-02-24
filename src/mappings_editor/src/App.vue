@@ -274,18 +274,22 @@ ul {
 }
 
 #app-title-bar {
+  position: relative;
   flex-shrink: 0;
   height: 31px;
   color: #bfbfbf;
   background: #262626;
   border-bottom: solid 1px #333333;
+  z-index: 1;
 }
 
 #app-body {
+  position: relative;
   flex: 1;
   display: grid;
   overflow: hidden;
   grid-template-rows: minmax(0, 1fr) 27px;
+  z-index: 0;
 }
 
 #view-filter-sidebar {
