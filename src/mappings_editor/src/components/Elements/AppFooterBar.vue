@@ -188,7 +188,7 @@ export default defineComponent({
       // Show time
       this.showAutosaveTime = true;
       // Set timer
-      this.showAutosaveTimeTimeoutId = setTimeout(() => {
+      this.showAutosaveTimeTimeoutId = window.setTimeout(() => {
         // Hide time
         this.showAutosaveTime = false;
       }, 2500)

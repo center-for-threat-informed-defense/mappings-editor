@@ -156,7 +156,7 @@ export default defineComponent({
      */
     submenuLeave(menu: ContextMenu) {
       if(!menu.disabled) {
-        this.leaveTimeoutId = setTimeout(() => {
+        this.leaveTimeoutId = window.setTimeout(() => {
           this.activeSubMenu = null;
         }, this.leaveTimeout)
       }
