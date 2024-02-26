@@ -368,6 +368,7 @@ export class MappingFileAuthority {
         }
 
         // Compile file
+        const defaultObject = file.mappingObjectTemplate;
         return {
             version                : file.version,
             source_framework       : file.sourceFramework,
@@ -385,8 +386,8 @@ export class MappingFileAuthority {
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
             mapping_objects,
-            default_mapping_type   : file.defaultMappingType,
-            default_mapping_status : file.defaultMappingStatus
+            default_mapping_type   : defaultObject.mappingType.exportValue,
+            default_mapping_status : defaultObject.mappingStatus.exportValue
         }
 
     }
