@@ -41,7 +41,7 @@ export class CutSelectedMappingObjects extends AppCommand {
     constructor(context: ApplicationStore, editor: MappingFileEditor, fileView: MappingFileView) {
         super();
         this.fileAuthority = context.fileAuthority as MappingFileAuthority;
-        this.fileSerializer = context.fileSerializer;
+        this.fileSerializer = context.fileSerializer as MappingFileSerializer;
         this.fileView = fileView;
         this.editor = editor;
     }
