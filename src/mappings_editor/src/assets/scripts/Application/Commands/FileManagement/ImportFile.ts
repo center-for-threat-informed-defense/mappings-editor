@@ -2,7 +2,7 @@ import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorComman
 import { AppCommand } from "../AppCommand";
 import { MappingFileEditor, Reactivity } from "@/assets/scripts/MappingFileEditor";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFileAuthority, MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
+import type { MappingFileAuthority, MappingFileImport } from "@/assets/scripts/MappingFileAuthority";
 
 export class ImportFile extends AppCommand {
 
@@ -19,7 +19,7 @@ export class ImportFile extends AppCommand {
     /**
      * The mapping file export to import.
      */
-    public readonly importFile: MappingFileExport;
+    public readonly importFile: MappingFileImport;
 
 
     /**
@@ -29,7 +29,7 @@ export class ImportFile extends AppCommand {
      * @param importFile
      *  The mapping file export to import.
      */
-    constructor(context: ApplicationStore, importFile: MappingFileExport) {
+    constructor(context: ApplicationStore, importFile: MappingFileImport) {
         super();
         this.editor = context.activeEditor as MappingFileEditor;
         this.fileAuthority = context.fileAuthority as MappingFileAuthority;
@@ -67,8 +67,8 @@ export class ImportFile extends AppCommand {
         const rawFileAuthority = Reactivity.toRaw(this.fileAuthority);
         // Compile mapping items
         const objs = new Map();
-        for(const exp of this.importFile.mapping_objects) {
-            const obj = rawFileAuthority.initializeMappingObjectExport(exp, rawEditor.file);
+        for(const exp of this.importFile.mapping_objects ?? []) {
+            const obj = rawFileAuthority.initializeMappingObjectImport(exp, rawEditor.file);
             objs.set(obj.id, obj);
         }
         // Configure view command

@@ -48,13 +48,12 @@ export class PasteMappingObjects extends AppCommand {
             const rawFileAuthority = Reactivity.toRaw(this.fileAuthority);
             const rawFileSerializer = Reactivity.toRaw(this.fileSerializer); 
             // Deserialize items
-            const file = rawFileAuthority.exportMappingFile(rawEditor.file, false);
-            const exports = rawFileSerializer.processPaste(text, file);
+            const exports = rawFileSerializer.processPaste(text);
             // Configure insert
             const objs = new Map();
             for(const exp of exports){
                 // Create object
-                const obj = rawFileAuthority.initializeMappingObjectExport(exp, rawEditor.file);
+                const obj = rawFileAuthority.initializeMappingObjectImport(exp, rawEditor.file);
                 // Store object id
                 objs.set(obj.id, obj);
             }

@@ -1,5 +1,10 @@
 import { MappingFileSerializer, type TextualObject } from "../scripts/Application";
-import type { MappingFileExport, MappingObjectExport } from "../scripts/MappingFileAuthority";
+import type {
+    MappingFileExport,
+    MappingFileImport,
+    MappingObjectExport,
+    MappingObjectImport
+} from "../scripts/MappingFileAuthority";
 
 export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer {
 
@@ -103,22 +108,22 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         return {
             capability_id             : exp.source_id,
             capability_description    : exp.source_text,
-            mapping_framework         : exp.source_framework,
-            mapping_framework_version : exp.source_version,
+            mapping_type              : exp.mapping_type,
             attack_object_id          : exp.target_id,
             attack_object_name        : exp.target_text,
-            technology_domain         : target_framework,
-            attack_version            : exp.target_version,
-            author                    : exp.author,
-            contact                   : exp.author_contact,
-            references                : exp.references,
-            comments                  : exp.comments,
             capability_group          : exp.capability_group,
-            mapping_type              : exp.mapping_type,
-            status                    : exp.mapping_status,
             score_category            : exp.score_category,
             score_value               : exp.score_value,
-            related_score             : this.computeRelatedScore(obj)
+            related_score             : this.computeRelatedScore(obj),
+            comments                  : exp.comments,
+            references                : exp.references,
+            author                    : exp.author,
+            contact                   : exp.author_contact,
+            status                    : exp.mapping_status,
+            mapping_framework         : exp.source_framework,
+            mapping_framework_version : exp.source_version,
+            technology_domain         : target_framework,
+            attack_version            : exp.target_version
         }
     }
 
@@ -146,26 +151,26 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
 
 
     /**
-     * Deserializes a string to a {@link MappingFileExport}. 
+     * Deserializes a string to a {@link MappingFileImport}. 
      * @param file
      *  The file to deserialize.
      */
-    public deserialize(file: string): MappingFileExport {
+    public deserialize(file: string): MappingFileImport {
         const json = JSON.parse(file) as UniversalSchemaMappingFile;
         // Parse mapping file
         const meta = json.metadata;
         const types = Object.keys(meta.mapping_types);
-        const mappingFileExport: MappingFileExport = { 
+        const mappingFileImport: MappingFileImport = { 
             version                : meta.mapping_version,
             source_framework       : meta.mapping_framework,
             source_version         : meta.mapping_framework_version,
             target_framework       : `mitre_attack_${ meta.technology_domain }`,
             target_version         : meta.attack_version,
-            author                 : meta.author || null,
-            author_contact         : meta.contact || null,
-            author_organization    : meta.organization || null,
-            creation_date          : new Date(meta.creation_date || Date.now()),
-            modified_date          : new Date(meta.last_update || Date.now()),
+            author                 : meta.author,
+            author_contact         : meta.contact,
+            author_organization    : meta.organization,
+            creation_date          : meta.creation_date,
+            modified_date          : meta.last_update,
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
@@ -190,60 +195,48 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         // Parse mapping objects
         for(let i = 0; i < (json.mapping_objects?.length ?? 0); i++) {
             const obj = json.mapping_objects![i];
-            const exp = this.toMappingObjectExport(obj, mappingFileExport);
-            mappingFileExport.mapping_objects[i] = exp;
+            const imp = this.toMappingObjectImport(obj);
+            mappingFileImport.mapping_objects![i] = imp;
         }
         // Return mapping file
-        return mappingFileExport;
+        return mappingFileImport;
     }
 
     /**
-     * Deserializes a list of {@link MappingFileExport}s from the clipboard.
+     * Deserializes a list of {@link MappingObjectImport}s from the clipboard.
      * @param str
      *  The objects to deserialize.
-     * @param file
-     *  The file being pasted into.
      * @returns
-     *  The deserialized {@link MappingFileExport}s.
+     *  The deserialized {@link MappingObjectImport}s.
      */
-    public processPaste(str: string, file: MappingFileExport): MappingObjectExport[] {
+    public processPaste(str: string): MappingObjectImport[] {
         const objects = this.csvToObjects<Partial<UniversalSchemaMappingObject>>(str);
-        if(objects.length === 0) {
-            return [];
-        }
         // Process objects
-        const exports = new Array<MappingObjectExport>(objects.length);
+        const imports = new Array<MappingObjectImport>(objects.length);
         for(let i = 0; i < objects.length; i++) {
-            exports[i] = this.toMappingObjectExport(objects[i], file);
+            imports[i] = this.toMappingObjectImport(objects[i]);
         }
-        return exports;
+        return imports;
     }
     
     /**
      * Converts a {@link UniversalSchemaMappingFile} to a
-     * {@link MappingObjectExport}.
-     * @remarks
-     *  By specifying a `file`, certain keys that have been omitted from the
-     *  mapping object may be reintroduced using the values defined at the
-     *  mapping file level. (e.g. `author`, `author_contact`, etc.)
+     * {@link MappingObjectImport}.
      * @param obj
      *  The universal schema mapping object.
-     * @param file
-     *  The mapping object's universal schema file.
      * @returns
-     *  The mapping object export.
+     *  The mapping object import.
      */
-    private toMappingObjectExport(
-        obj: Partial<UniversalSchemaMappingObject>,
-        file?: MappingFileExport
-    ): MappingObjectExport {
+    private toMappingObjectImport(
+        obj: Partial<UniversalSchemaMappingObject>
+    ): MappingObjectImport {
         // Compute technology domain
         let target_framework = obj.technology_domain
         if(target_framework) {
             target_framework = `mitre_attack_${ target_framework }`;
         }
         // Return mapping object
-        return super.decompressMappingObject({
+        return super.processIncompleteMappingObjectImport({
             source_id           : obj.capability_id,
             source_text         : obj.capability_description,
             source_framework    : obj.mapping_framework,
@@ -262,7 +255,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             mapping_status      : obj.status,
             score_category      : obj.score_category,
             score_value         : obj.score_value
-        }, file);
+        });
     }
 
 

@@ -6,7 +6,7 @@ import { AppCommand } from "../AppCommand";
 import { ClearFileRecoveryBank } from "./ClearFileRecoveryBank";
 import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFileExport } from "@/assets/scripts/MappingFileAuthority";
+import type { MappingFileImport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { SaveFileToDevice } from "./SaveFileToDevice";
 export { ExportType } from './ExportType';
@@ -26,7 +26,7 @@ export { ExportType } from './ExportType';
  * @returns
  *  A command that represents the action.
  */
-export async function loadNewFile(context: ApplicationStore, settings: MappingFileExport): Promise<AppCommand> {
+export async function loadNewFile(context: ApplicationStore, settings: MappingFileImport): Promise<AppCommand> {
     // Create file
     const mappingFile = await context.fileAuthority.createEmptyMappingFile(settings);
     // Return command

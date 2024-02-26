@@ -3,13 +3,10 @@ import Papa from "papaparse";
 import { stringify } from "yaml";
 import { Workbook } from "exceljs";
 import type {
-    CapabilityGroupsExport,
     MappingFileExport,
+    MappingFileImport,
     MappingObjectExport,
-    MappingScoreCategoriesExport,
-    MappingScoreValuesExport,
-    MappingStatusesExport,
-    MappingTypesExport
+    MappingObjectImport
 } from "../../MappingFileAuthority";
 import type { 
     AttackNavigatorLayer,
@@ -54,7 +51,9 @@ export class MappingFileSerializer {
      *  The serialized {@link MappingObjectExport}s.
      */
     public processCopy(objects: MappingObjectExport[]): string {
-        return this.objectsToCsv(objects, "\t");
+        return this.objectsToCsv(
+            objects.map(o => this.compressObjectExport(o)
+        ), "\t");
     }
 
     /**
@@ -70,25 +69,29 @@ export class MappingFileSerializer {
      * @returns
      *  The {@link CompressedMappingObjectExport}.
      */
-    protected compressObjectExport(obj: MappingObjectExport, file?: MappingFileExport): CompressedMappingObjectExport {
+    protected compressObjectExport(
+        obj: MappingObjectExport,
+        file?: MappingFileExport
+    ): CompressedMappingObjectExport {
         return {
-            source_id        : obj.source_id,
-            source_text      : obj.source_text,
-            source_framework : this.maskValue(file, obj, "source_framework"),
-            source_version   : this.maskValue(file, obj, "source_version"),
-            target_id        : obj.target_id,
-            target_text      : obj.target_text,
-            target_framework : this.maskValue(file, obj, "target_framework"),
-            target_version   : this.maskValue(file, obj, "target_version"),
-            author           : this.maskValue(file, obj, "author"),
-            author_contact   : this.maskValue(file, obj, "author_contact"),
-            references       : obj.references,
-            comments         : obj.comments          ?? undefined,
-            capability_group : obj.capability_group  ?? undefined,
-            mapping_type     : obj.mapping_type,
-            mapping_status   : obj.mapping_status    ?? undefined,
-            score_category   : obj.score_category    ?? undefined,
-            score_value      : obj.score_value       ?? undefined,
+            source_id           : obj.source_id,
+            source_text         : obj.source_text,
+            mapping_type        : obj.mapping_type,
+            target_id           : obj.target_id,
+            target_text         : obj.target_text,
+            capability_group    : obj.capability_group  ?? undefined,
+            score_category      : obj.score_category    ?? undefined,
+            score_value         : obj.score_value       ?? undefined,
+            mapping_status      : obj.mapping_status    ?? undefined,
+            comments            : obj.comments          ?? undefined,
+            references          : obj.references,
+            author              : this.maskValue(file, obj, "author"),
+            author_contact      : this.maskValue(file, obj, "author_contact"),
+            author_organization : this.maskValue(file, obj, "author_organization"),
+            source_framework    : this.maskValue(file, obj, "source_framework"),
+            source_version      : this.maskValue(file, obj, "source_version"),
+            target_framework    : this.maskValue(file, obj, "target_framework"),
+            target_version      : this.maskValue(file, obj, "target_version"),
         }
     }
 
@@ -123,110 +126,96 @@ export class MappingFileSerializer {
 
 
     /**
-     * Deserializes a string to a {@link MappingFileExport}. 
+     * Deserializes a string to a {@link MappingFileImport}. 
      * @param file
      *  The file to deserialize.
      * @returns
-     *  The deserialized {@link MappingFileExport}.
+     *  The deserialized {@link MappingFileImport}.
      */
-    public deserialize(file: string): MappingFileExport {
-        const json = JSON.parse(file) as CompressedMappingFileExport;
+    public deserialize(file: string): MappingFileImport {
+        const json = JSON.parse(file) as MappingFileImport;
+        const mapping_objects = json.mapping_objects ?? [];
         // Parse mapping file
         const types = Object.keys(json.mapping_types);
         const default_mapping_type = types.length === 1 ? types[0] : null;
-        const mappingFileExport: MappingFileExport = {
+        const mappingFileImport: MappingFileImport = {
             version                : json.version,
             source_framework       : json.source_framework,
             source_version         : json.source_version,
             target_framework       : json.target_framework,
             target_version         : json.target_version,
-            author                 : json.author || null,
-            author_contact         : json.author_contact || null,
-            author_organization    : json.author_organization || null,
-            creation_date          : new Date(json.creation_date || Date.now()),
-            modified_date          : new Date(json.modified_date || Date.now()),
+            author                 : json.author,
+            author_contact         : json.author_contact,
+            author_organization    : json.author_organization,
+            creation_date          : json.creation_date,
+            modified_date          : json.modified_date ,
             capability_groups      : json.capability_groups,
             mapping_types          : json.mapping_types,
             mapping_statuses       : json.mapping_statuses,
             score_categories       : json.score_categories,
             score_values           : json.score_values,
-            mapping_objects        : [],
+            mapping_objects        : new Array(mapping_objects.length),
             default_mapping_type   : json.default_mapping_type || default_mapping_type,
-            default_mapping_status : json.default_mapping_status || null
+            default_mapping_status : json.default_mapping_status
         }
-        // Decompress mapping objects
-        if(json.mapping_objects) {
-            mappingFileExport.mapping_objects = new Array(json.mapping_objects.length);
-            for(let i = 0; i < json.mapping_objects.length; i++) {
-                const cmp = json.mapping_objects[i];
-                const obj = this.decompressMappingObject(cmp, mappingFileExport);
-                mappingFileExport.mapping_objects[i] = obj;
-            }
+        // Process mapping objects
+        for(let i = 0; i < mapping_objects.length; i++) {
+            const obj = this.processIncompleteMappingObjectImport(mapping_objects[i]);
+            mappingFileImport.mapping_objects![i] = obj; 
         }
         // Return file
-        return mappingFileExport;
+        return mappingFileImport;
     }
 
     /**
-     * Deserializes a list of {@link MappingFileExport}s from the clipboard.
+     * Deserializes a list of {@link MappingObjectImport}s from the clipboard.
      * @param str
      *  The objects to deserialize.
-     * @param file
-     *  The file being pasted into.
      * @returns
-     *  The deserialized {@link MappingFileExport}s.
+     *  The deserialized {@link MappingObjectImport}s.
      */
-    public processPaste(str: string, file: MappingFileExport): MappingObjectExport[] {
-        const objects = this.csvToObjects<Partial<CompressedMappingObjectExport>>(str);
-        if(objects.length === 0) {
-            return [];
-        }
-        // Process objects
-        const exports = new Array<MappingObjectExport>(objects.length);
+    public processPaste(str: string): MappingObjectImport[] {
+        const objects = this.csvToObjects<MappingObjectImport>(str);
+        // Format imports
+        const imports = new Array(objects.length);
         for(let i = 0; i < objects.length; i++) {
-            exports[i] = this.decompressMappingObject(objects[i], file);
+            imports[i] = this.processIncompleteMappingObjectImport(objects[i]);
         }
-        return exports;
+        return imports;
     }
 
     /**
-     * Decompresses a {@link CompressedMappingObjectExport}.
+     * Processes an incompletely defined {@link MappingObjectImport}.
      * @remarks
-     *  By specifying a `file`, certain keys that have been omitted from the
-     *  mapping object may be reintroduced using the values defined at the
-     *  mapping file level. (e.g. `author`, `author_contact`, etc.)
+     *  This function also serves to filter the properties of `obj` down to
+     *  those strictly defined by {@link MappingObjectImport}.
      * @param obj
-     *  The {@link CompressedMappingObjectExport} to decompress.
-     * @param file
-     *  The {@link MappingFileExport} the object export belongs to.
+     *  The {@link MappingObjectImport} to process.
      * @returns
-     *  The {@link MappingObjectExport}.
+     *  The processed object import.
      */
-    protected decompressMappingObject(
-        obj: Partial<CompressedMappingObjectExport>,
-        file?: MappingFileExport
-    ): MappingObjectExport {
-        const mapping_type   = obj.mapping_type   || (file?.default_mapping_type ?? null);
-        const mapping_status = obj.mapping_status || (file?.default_mapping_status ?? null);
+    protected processIncompleteMappingObjectImport(
+        obj: Partial<MappingObjectImport> | MappingObjectImport
+    ): MappingObjectImport {
         return {
-            source_id           : obj.source_id        || null,
-            source_text         : obj.source_text      || null,
-            source_framework    : this.resolveValue(file, obj, "source_framework"),
-            source_version      : this.resolveValue(file, obj, "source_version"),
-            target_id           : obj.target_id        || null,
-            target_text         : obj.target_text      || null,
-            target_framework    : this.resolveValue(file, obj, "target_framework"),
-            target_version      : this.resolveValue(file, obj, "target_version"),
-            author              : this.resolveValue(file, obj, "author", null),
-            author_contact      : this.resolveValue(file, obj, "author_contact", null),
-            author_organization : this.resolveValue(file, obj, "author_organization", null),
-            references          : this.parseReferences(obj.references),
-            comments            : obj.comments         || null,
-            capability_group    : obj.capability_group || null,
-            mapping_type        : mapping_type,
-            mapping_status      : mapping_status,
-            score_category      : obj.score_category   || null,
-            score_value         : obj.score_value      || null
+            source_id           : obj.source_id,
+            source_text         : obj.source_text,
+            source_version      : obj.source_version,
+            source_framework    : obj.source_framework,
+            target_id           : obj.target_id,
+            target_text         : obj.target_text,
+            target_version      : obj.target_version,
+            target_framework    : obj.target_framework,
+            author              : obj.author,
+            author_contact      : obj.author_contact,
+            author_organization : obj.author_organization,
+            references          : obj.references,
+            comments            : obj.comments,
+            capability_group    : obj.capability_group,
+            mapping_type        : obj.mapping_type,
+            mapping_status      : obj.mapping_status,
+            score_category      : obj.score_category,
+            score_value         : obj.score_value
         }
     }
 
@@ -240,46 +229,23 @@ export class MappingFileSerializer {
      *  The {@link MappingObjectExport}.
      * @param key
      *  The value's key.
-     * @param default
-     *  The default value if the value could not be resolved.
      * @returns
      *  The value.
      */
     protected resolveValue<T extends DuplicatedExportKey>(
-        file: MappingFileExport | undefined,
-        obj: Partial<CompressedMappingObjectExport>,
-        key: T,
-        def?: any
-    ): Required<MappingObjectExport>[T] {
+        file: MappingFileImport,
+        obj: Partial<MappingObjectImport>,
+        key: T
+    ): Required<MappingObjectExport>[T] | undefined {
         let value;
         if(obj[key] !== undefined) {
             value = obj[key]!;
-        } else if(file) {
+        } else if(file[key] !== undefined) {
             value = file[key]!;
-        } else if(def !== undefined) {
-            value = def;
         } else {
             throw new Error(`Failed to resolve '${ key }'.`);
         }
         return value;
-    }
-
-    /**
-     * Pareses a set of references in the form of an array or a string of
-     * comma-separated values.
-     * @param references
-     *  The references. 
-     * @returns
-     *  The parsed references.
-     */
-    protected parseReferences(references?: string | string[]): string[] {
-        if(Array.isArray(references)) {
-            return references;
-        }
-        if(typeof references === "string" && references !== "") {
-            return references.split(/,/);
-        }
-        return [];
     }
 
 
@@ -647,51 +613,27 @@ export type TextualObject = {
 }
 
 /**
- * The compressed Mapping File Export format.
- */
-type CompressedMappingFileExport = { 
-    version                 : string;
-    source_framework        : string;
-    source_version          : string;
-    target_framework        : string;
-    target_version          : string;
-    author?                 : string | null;
-    author_contact?         : string | null;
-    author_organization?    : string | null;
-    creation_date?          : string;
-    modified_date?          : string;
-    capability_groups       : CapabilityGroupsExport;
-    mapping_types           : MappingTypesExport;
-    mapping_statuses        : MappingStatusesExport
-    score_categories        : MappingScoreCategoriesExport;
-    score_values            : MappingScoreValuesExport;
-    mapping_objects?        : CompressedMappingObjectExport[];
-    default_mapping_status? : string | null;
-    default_mapping_type?   : string | null;
-}
-
-/**
  * The compressed Mapping Object Export format.
  */
 type CompressedMappingObjectExport = {
-    source_id            : string | null,
-    source_text          : string | null,
-    source_version?      : string,
-    source_framework?    : string,
-    target_id            : string | null,
-    target_text          : string | null,
-    target_version?      : string,
-    target_framework?    : string,
+    source_id            : string | null;
+    source_text          : string | null;
+    mapping_type         : string | null;
+    target_id            : string | null;
+    target_text          : string | null;
+    capability_group?    : string;
+    score_category?      : string;
+    score_value?         : string;
+    mapping_status?      : string;
+    comments?            : string;
+    references           : string | string[];
     author?              : string;
     author_contact?      : string;
     author_organization? : string;
-    references           : string | string[],
-    comments?            : string;
-    capability_group?    : string;
-    mapping_type         : string | null;
-    mapping_status?      : string;
-    score_category?      : string;
-    score_value?         : string;
+    source_version?      : string;
+    source_framework?    : string;
+    target_version?      : string;
+    target_framework?    : string;
 }
 
 /**
