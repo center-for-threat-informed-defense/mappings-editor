@@ -394,9 +394,9 @@ export class MappingFileSerializer {
             }
             if(metadata.length) {
                 technique.metadata.push(
+                    { divider: true },
                     { name: "capability",  value: obj.source_id },
                     ...metadata,
-                    { divider: true }
                 )
             }   
         }
@@ -423,9 +423,6 @@ export class MappingFileSerializer {
             },
         }
         for(const [id, technique] of techniques) {
-            if(technique.metadata.length) {
-                technique.metadata.unshift({ divider: true });
-            }
             layer.techniques.push({
                 techniqueID : id,
                 score       : technique.source_ids.size,
