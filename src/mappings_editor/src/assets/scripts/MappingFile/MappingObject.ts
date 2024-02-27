@@ -125,7 +125,7 @@ export class MappingObject {
         this.author = config.author;
         this.authorContact = config.authorContact;
         this.authorOrganization  = config.authorOrganization;
-        this.references = new ListProperty(
+        this.references = config.references ?? new ListProperty(
             "References",
             new ListItem(new Map([
                 ["url", new StringProperty("URL")]
