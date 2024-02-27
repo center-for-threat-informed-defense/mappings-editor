@@ -1,4 +1,5 @@
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
+import { randomUUID } from "@/assets/scripts/Utilities";
 import { AppCommand } from "../AppCommand";
 import { Reactivity, type MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
@@ -44,32 +45,29 @@ export class PasteMappingObjects extends AppCommand {
     public execute(): void {
         navigator.clipboard.readText().then((text: string) => {
             const view = this.editor.view;
-            const rawEditor = Reactivity.toRaw(this.editor);
-            const rawFileAuthority = Reactivity.toRaw(this.fileAuthority);
             const rawFileSerializer = Reactivity.toRaw(this.fileSerializer); 
+            const convert = Reactivity.toRaw(this.fileAuthority.convertMappingObjectImportToParams);
             // Deserialize items
-            const exports = rawFileSerializer.processPaste(text);
-            // Configure insert
-            const objs = new Map();
-            for(const exp of exports){
-                // Create object
-                const obj = rawFileAuthority.initializeMappingObjectImport(exp, rawEditor.file);
-                // Store object id
-                objs.set(obj.id, obj);
+            const imports = rawFileSerializer.processPaste(text);
+            // Compile mapping objects
+            const objects = new Map<string, EditorCommands.IdentifiedMappingObjectParameters>();
+            for(const obj of imports){
+                const objectId = randomUUID()
+                objects.set(objectId, { objectId, ...convert(obj) })
             }
-            // Configure view command
+            // Compile view command
             const cmd = EditorCommands.createSplitPhaseViewCommand(
-                EditorCommands.insertMappingObjects(this.editor.file, [...objs.values()]),
+                EditorCommands.importMappingObjects(this.editor.file, [...objects.values()]),
                 () => [
                     EditorCommands.rebuildViewBreakouts(view),
                     EditorCommands.unselectAllMappingObjectViews(view),
-                    EditorCommands.selectMappingObjectViewsById(view, [...objs.keys()]),
+                    EditorCommands.selectMappingObjectViewsById(view, [...objects.keys()]),
                 ]
             )
             // Execute insert
             this.editor.execute(cmd);
             // Move first item into view
-            const firstItem = view.getItems(o => objs.has(o.id)).next().value;
+            const firstItem = view.getItems(o => objects.has(o.id)).next().value;
             view.moveToViewItem(firstItem.object.id, 0, true, false);
         }).catch(reason => {
             console.error("Failed to read clipboard: ", reason);
