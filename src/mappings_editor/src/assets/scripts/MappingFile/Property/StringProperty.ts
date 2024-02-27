@@ -18,8 +18,10 @@ export class StringProperty extends Property {
     /**
      * The property's value setter.
      */
-    public set value(value: string | null) {
-        if(value === "" || value === null) {
+    public set value(value: string | null | undefined) {
+        if(value === undefined) {
+            return;
+        } else if(value === "" || value === null) {
             this._value = null;
         } else {
             this._value = value;
