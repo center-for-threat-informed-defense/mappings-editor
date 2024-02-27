@@ -3,6 +3,11 @@ import type { MappingObject } from "../MappingObject";
 export type MappingFileConfiguration = {
 
     /**
+     * The file's id.
+     */
+    fileId?: string;
+
+    /**
      * The file's creation date.
      */
     creationDate: Date;

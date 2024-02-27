@@ -1,4 +1,4 @@
-import { Reactivity, type MappingObjectImport, type MappingFileImport } from ".";
+import { Reactivity, type MappingFileImport, type MappingObjectImport } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import { 
     DynamicFrameworkObjectProperty, 
@@ -6,11 +6,11 @@ import {
     EditableStrictFrameworkListing, 
     FrameworkObjectProperty,
     ListItem,
-    ListItemProperty,
     ListProperty, 
     MappingObject,
     StrictFrameworkObjectProperty,
     StringProperty,
+    type MappingObjectParameters,
 } from "../MappingFile";
 import type { FrameworkRegistry } from "./FrameworkRegistry";
 import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
@@ -71,10 +71,11 @@ export class MappingFileAuthority {
         // Create mapping file
         const now = Date.now();
         const mappingFile = new MappingFile({
+            fileId             : id,
             creationDate       : new Date(file.creation_date ?? now),
             modifiedDate       : new Date(file.modified_date ?? now),
             mappingObjectTemplate
-        }, id);
+        });
 
         // Load dictionaries into file lists
         const stringTransform 
@@ -187,96 +188,41 @@ export class MappingFileAuthority {
         const newFile = await rawThis.createEmptyMappingFile(file, id);
         // Load mapping objects into file
         for(const obj of file.mapping_objects ?? []) {
-            // Load mapping object
-            const newObject = rawThis.initializeMappingObjectImport(obj, newFile);
-            // Insert mapping object  
+            const newObject = newFile.createMappingObject(
+                this.convertMappingObjectImportToParams(obj)
+            );
             newFile.insertMappingObject(newObject);
         }
         return newFile;
     }
 
     /**
-     * Initializes a {@link MappingObject} from a {@link MappingFileExport}.
+     * Converts a mapping object import to a set of mapping object parameters.
      * @param obj
-     *  The exported object.
-     * @param file
-     *  The {@link MappingFile} the {@link MappingObject} should be linked to.
+     *  The {@link MappingObjectImport}.
      * @returns
-     *  The newly created {@link MappingObject}.
+     *  The converted {@link MappingObjectParameters}.
      */
-    public initializeMappingObjectImport(obj: MappingObjectImport, file: MappingFile): MappingObject {
-        // Create mapping object
-        const newObject = file.createMappingObject();
-        // Load framework object property values
-        const source_id = obj.source_id || null;
-        const target_id = obj.target_id || null;
-        const source_text = source_id ? obj.source_text || null : null;
-        const target_text = target_id ? obj.target_text || null : null;
-        newObject.sourceObject.cacheObjectValue(
-            source_id,
-            source_text,
-            obj.source_framework,
-            obj.source_version
-        );
-        newObject.targetObject.cacheObjectValue(
-            target_id,
-            target_text,
-            obj.target_framework,
-            obj.target_version
-        );
-        // Configure author
-        this.trySetStringProperty(newObject.author, obj.author);
-        this.trySetStringProperty(newObject.authorContact, obj.author_contact);
-        this.trySetStringProperty(newObject.authorOrganization, obj.author_organization);
-        // Configure references
-        if(typeof obj.references === "string" && obj.references !== "") {
-            obj.references = obj.references.split(/,/);
-        }
-        if(Array.isArray(obj.references)) {
-            for(const url of obj.references) {
-                if(url === "") {
-                    continue;
-                }
-                newObject.references.insertListItem(
-                    newObject.references.createNewItem({ url })
-                )
-            }
-        }
-        // Configure comments
-        this.trySetStringProperty(newObject.comments, obj.comments);
-        // Configure mapping type
-        this.trySetListItemProperty(newObject.capabilityGroup, obj.capability_group);
-        this.trySetListItemProperty(newObject.mappingType, obj.mapping_type);
-        this.trySetListItemProperty(newObject.mappingStatus, obj.mapping_status);
-        this.trySetListItemProperty(newObject.scoreCategory, obj.score_category);
-        this.trySetListItemProperty(newObject.scoreValue, obj.score_value);
-        // Return object
-        return newObject;
-    }
-
-    /**
-     * Attempts to set a {@link StringProperty}'s value.
-     * @param prop
-     *  The {@link StringProperty}.
-     * @param value
-     *  The property's value.
-     */
-    private trySetStringProperty(prop: StringProperty, value?: string | null) {
-        if(value !== undefined) {
-            prop.value = value || null;
-        }
-    }
-
-    /**
-     * Attempts to set a {@link ListItemProperty}'s value.
-     * @param prop
-     *  The {@link ListItemProperty}.
-     * @param value
-     *  The property's value.
-     */
-    private trySetListItemProperty(prop: ListItemProperty, value?: string | null) {
-        if(value !== undefined) {
-            prop.exportValue = value || null;
+    public convertMappingObjectImportToParams(obj: MappingObjectImport): MappingObjectParameters {
+        return {
+            sourceId           : obj.source_id,
+            sourceText         : obj.source_text,
+            sourceVersion      : obj.source_version,
+            sourceFramework    : obj.source_framework,
+            targetId           : obj.target_id,
+            targetText         : obj.target_text,
+            targetVersion      : obj.target_version,
+            targetFramework    : obj.target_framework,
+            author             : obj.author,
+            authorContact      : obj.author_contact,
+            authorOrganization : obj.author_organization,
+            references         : obj.references,
+            comments           : obj.comments,
+            capabilityGroup    : obj.capability_group,
+            mappingType        : obj.mapping_type,
+            mappingStatus      : obj.mapping_status,
+            scoreCategory      : obj.score_category,
+            scoreValue         : obj.score_value
         }
     }
 

@@ -3,6 +3,11 @@ import type { FrameworkObjectProperty, ListItemProperty, ListProperty, StringPro
 export type MappingObjectConfiguration = {
 
     /**
+     * The mapping object's id.
+     */
+    objectId?: string;
+
+    /**
      * The mapping object's source.
      */
     sourceObject: FrameworkObjectProperty;

@@ -114,8 +114,8 @@ export class ListProperty extends Property {
     }
 
     /**
-     * Returns the id of the first item in the list where predicate is true,
-     * and undefined otherwise.
+     * Returns the id of the first item in the list where the predicate is
+     * true, and undefined otherwise.
      * @param predicate 
      *  The predicate to execute on each list item.
      * @returns
