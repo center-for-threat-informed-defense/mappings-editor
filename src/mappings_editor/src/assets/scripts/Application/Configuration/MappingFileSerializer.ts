@@ -40,7 +40,7 @@ export class MappingFileSerializer {
             mapping_objects[i] = this.compressObjectExport(file.mapping_objects[i], file);
         }
         // Return file
-        return JSON.stringify({ ...file, mapping_objects }, null, 4)
+        return JSON.stringify({ ...file, mapping_objects }, null, 4);
     }
 
     /**

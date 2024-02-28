@@ -231,7 +231,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         obj: Partial<UniversalSchemaMappingObject>
     ): MappingObjectImport {
         // Compute technology domain
-        let target_framework = obj.technology_domain
+        let target_framework = obj.technology_domain;
         if(target_framework) {
             target_framework = `mitre_attack_${ target_framework }`;
         }

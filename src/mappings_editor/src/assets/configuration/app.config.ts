@@ -7,9 +7,9 @@ const config: AppConfiguration = {
     file_type_extension: "json",
     native_frameworks_manifest: manifest,
     frameworks_with_navigator_support: new Map([
-        ["mitre_attack_enterprise", "enterprise"],
-        ["mitre_attack_mobile",     "mobile"],
-        ["mitre_attack_ics",        "ics"]
+        ["mitre_attack_ics", "ics"],
+        ["mitre_attack_mobile", "mobile"],
+        ["mitre_attack_enterprise", "enterprise"]
     ]),
     menus: {
         help_menu: {
