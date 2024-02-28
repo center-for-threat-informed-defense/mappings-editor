@@ -33,7 +33,7 @@ export class CopySelectedMappingObjects extends AppCommand {
     constructor(context: ApplicationStore, fileView: MappingFileView) {
         super();
         this.fileAuthority = Reactivity.toRaw(context.fileAuthority) as MappingFileAuthority;
-        this.fileSerializer = Reactivity.toRaw(context.fileSerializer);
+        this.fileSerializer = Reactivity.toRaw(context.fileSerializer) as MappingFileSerializer;
         this.fileView = Reactivity.toRaw(fileView);
     }
 

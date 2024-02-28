@@ -304,7 +304,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         if (this._autosaveTimeoutId !== null) {
             clearTimeout(this._autosaveTimeoutId);
         }
-        this._autosaveTimeoutId = setTimeout(() => {
+        this._autosaveTimeoutId = window.setTimeout(() => {
             this._autosaveTimeoutId = null;
             try {
                 this.emit("autosave", this);

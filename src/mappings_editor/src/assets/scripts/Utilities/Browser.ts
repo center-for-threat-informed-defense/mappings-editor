@@ -12,18 +12,20 @@ export class Browser {
     private static _aLink = document.createElement("a");
 
     /**
-     * Downloads a text file.
+     * Downloads a file.
      * @param filename
-     *  The text file's name.
+     *  The file's name.
      * @param text
-     *  The text file's contents.
+     *  The file's contents.
      * @param ext
-     *  The text file's extension.
+     *  The file's extension.
      *  (Default: 'txt')
      */
-    public static downloadTextFile(filename: string, text: string, ext = "txt") {
-        const blob = new Blob([text], { type: "octet/stream" });
-        const url = window.URL.createObjectURL(blob);
+    public static downloadFile(filename: string, contents: Blob | string, ext = "txt") {
+        if(typeof contents === "string") {
+            contents = new Blob([contents], { type: "octet/stream" });
+        }
+        const url = window.URL.createObjectURL(contents);
         this._aLink.href = url;
         this._aLink.download = `${ filename }.${ ext }`;
         this._aLink.click();

@@ -1,5 +1,10 @@
-import { MappingFileSerializer } from "../scripts/Application";
-import type { MappingFileExport, MappingObjectExport } from "../scripts/MappingFileAuthority";
+import { MappingFileSerializer, type TextualObject } from "../scripts/Application";
+import type {
+    MappingFileExport,
+    MappingFileImport,
+    MappingObjectExport,
+    MappingObjectImport
+} from "../scripts/MappingFileAuthority";
 
 export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer {
 
@@ -22,6 +27,31 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
      *  The file to serialize.
      */
     public serialize(file: MappingFileExport): string {
+        return JSON.stringify(this.toUniversalMappingFile(file), null, 4);
+    }
+
+    /**
+     * Serializes a list of {@link MappingObjectExport}s to the clipboard.
+     * @param objects
+     *  The objects to serialize.
+     * @returns
+     *  The serialized {@link MappingObjectExport}s.
+     */
+    public processCopy(objects: MappingObjectExport[]): string {
+        return this.objectsToCsv(objects.map(o => this.toUniversalMappingObject(o)), "\t");
+    }
+
+    /**
+     * Converts {@link MappingFileExport} to a
+     * {@link UniversalSchemaMappingFile}.
+     * @param file
+     *  The mapping file export.
+     * @returns
+     *  The universal schema mapping file.
+     */
+    private toUniversalMappingFile(
+        file: MappingFileExport
+    ): UniversalSchemaMappingFile {
         // Parse mapping objects
         const mapping_objects = file.mapping_objects.map(
             o => this.toUniversalMappingObject(o, file)
@@ -45,29 +75,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             },
             mapping_objects
         }
-        return JSON.stringify(unifiedSchemaFile, null, 4);
-    }
-
-    /**
-     * Serializes a list of {@link MappingObjectExport}s to the clipboard.
-     * @param objects
-     *  The objects to serialize.
-     * @returns
-     *  The serialized {@link MappingObjectExport}s.
-     */
-    public processCopy(objects: MappingObjectExport[]): string {
-        // Convert objects
-        const objs = objects.map(o => this.toUniversalMappingObject(o));
-        // Serialize to CSV
-        if(objs.length === 0) {
-            return "";
-        }
-        type keys = (keyof UniversalSchemaMappingObject)[];
-        const header = Object.keys(objs[0]) as keys;
-        return [
-            header.map(t => this.keyToTitleCase(t)).join("\t"),
-            ...objs.map(o => header.map(k => o[k]).join("\t"))
-        ].join("\r\n");
+        return unifiedSchemaFile;
     }
 
     /**
@@ -88,56 +96,34 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         obj: MappingObjectExport,
         file?: MappingFileExport
     ): UniversalSchemaMappingObject {
-        return {
-            capability_id             : obj.source_id,
-            capability_description    : obj.source_text,
-            mapping_framework         : this.maskValue(file, obj, "source_framework"),
-            mapping_framework_version : this.maskValue(file, obj, "source_version"),
-            attack_object_id          : obj.target_id,
-            attack_object_name        : obj.target_text,
-            technology_domain         : this.maskValue(file, obj, "target_framework"),
-            attack_version            : this.maskValue(file, obj, "target_version"),
-            author                    : this.maskValue(file, obj, "author"),
-            contact                   : this.maskValue(file, obj, "author_contact"),
-            references                : obj.references,
-            comments                  : obj.comments       ?? undefined,
-            capability_group          : obj.capability_group  ?? undefined,
-            mapping_type              : obj.mapping_type,
-            status                    : obj.mapping_status ?? undefined,
-            score_category            : obj.score_category ?? undefined,
-            score_value               : obj.score_value    ?? undefined,
-            related_score             : this.computeRelatedScore(obj)
+        // Compress object export
+        const exp = super.compressObjectExport(obj, file);
+        // Compute technology domain
+        let target_framework = exp.target_framework;
+        if(target_framework) {
+            const match = /mitre_attack_(.*)/i.exec(target_framework);
+            target_framework = match !== null ? match[1] : target_framework;
         }
-    }
-
-    /**
-     * Returns the value of the specified {@link MappingObjectExport} key if
-     * the value differs from the {@link MappingFileExport}.  
-     * @param file
-     *  The {@link MappingFileExport}.
-     * @param obj
-     *  The {@link MappingObjectExport}.
-     * @param key
-     *  The value's key.
-     * @returns
-     *  The value.
-     */
-    private maskValue(
-        file: MappingFileExport | undefined,
-        obj: MappingObjectExport,
-        key: DuplicatedExportKey
-    ): string | undefined {
-        if(!file || file[key] !== obj[key]) {
-            let match;
-            switch(key) {
-                case "target_framework":
-                    match = /mitre_attack_(.*)/i.exec(obj[key]);
-                    return match !== null ? match[1] : obj[key];
-                default:
-                    return obj[key] ?? undefined;
-            }
-        } else {
-            return undefined;
+        // Return universal schema object
+        return {
+            capability_id             : exp.source_id,
+            capability_description    : exp.source_text,
+            mapping_type              : exp.mapping_type,
+            attack_object_id          : exp.target_id,
+            attack_object_name        : exp.target_text,
+            capability_group          : exp.capability_group,
+            score_category            : exp.score_category,
+            score_value               : exp.score_value,
+            related_score             : this.computeRelatedScore(obj),
+            comments                  : exp.comments,
+            references                : exp.references,
+            author                    : exp.author,
+            contact                   : exp.author_contact,
+            status                    : exp.mapping_status,
+            mapping_framework         : exp.source_framework,
+            mapping_framework_version : exp.source_version,
+            technology_domain         : target_framework,
+            attack_version            : exp.target_version
         }
     }
 
@@ -165,245 +151,152 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
 
 
     /**
-     * Deserializes a string to a {@link MappingFileExport}. 
+     * Deserializes a string to a {@link MappingFileImport}. 
      * @param file
      *  The file to deserialize.
      */
-    public deserialize(file: string): MappingFileExport {
+    public deserialize(file: string): MappingFileImport {
         const json = JSON.parse(file) as UniversalSchemaMappingFile;
-        // Parse mapping objects
-        const mapping_objects = (json.mapping_objects ?? []).map(
-            o => this.toMappingObjectExport(o, json)
-        );
         // Parse mapping file
         const meta = json.metadata;
         const types = Object.keys(meta.mapping_types);
-        return { 
+        const mappingFileImport: MappingFileImport = { 
             version                : meta.mapping_version,
             source_framework       : meta.mapping_framework,
             source_version         : meta.mapping_framework_version,
             target_framework       : `mitre_attack_${ meta.technology_domain }`,
             target_version         : meta.attack_version,
-            author                 : meta.author ?? null,
-            author_contact         : meta.contact ?? null,
-            author_organization    : meta.organization ?? null,
-            creation_date          : new Date(meta.creation_date ?? Date.now()),
-            modified_date          : new Date(meta.last_update ?? Date.now()),
+            author                 : meta.author,
+            author_contact         : meta.contact,
+            author_organization    : meta.organization,
+            creation_date          : meta.creation_date,
+            modified_date          : meta.last_update,
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
-                "complete"             : "Complete",
-                "in_progress"          : "In Progress",
-                "non_mappable"         : "Non-Mappable"
+                "complete"         : "Complete",
+                "in_progress"      : "In Progress",
+                "non_mappable"     : "Non-Mappable"
             },
             score_categories: {
-                "protect"      : "Protect",
-                "detect"       : "Detect",
-                "respond"      : "Respond"
+                "protect"          : "Protect",
+                "detect"           : "Detect",
+                "respond"          : "Respond"
             },
             score_values: {
-                "minimal"      : "Minimal",
-                "partial"      : "Partial",
-                "significant"  : "Significant"
+                "minimal"          : "Minimal",
+                "partial"          : "Partial",
+                "significant"      : "Significant"
             },
-            mapping_objects,
+            mapping_objects        : new Array(json.mapping_objects?.length),
             default_mapping_status : "in_progress",
-            default_mapping_type   : types.length === 1 ? types[0] : undefined
+            default_mapping_type   : types.length === 1 ? types[0] : null
         }
+        // Parse mapping objects
+        for(let i = 0; i < (json.mapping_objects?.length ?? 0); i++) {
+            const obj = json.mapping_objects![i];
+            const imp = this.toMappingObjectImport(obj);
+            mappingFileImport.mapping_objects![i] = imp;
+        }
+        // Return mapping file
+        return mappingFileImport;
     }
 
     /**
-     * Deserializes a list of {@link MappingFileExport}s from the clipboard.
+     * Deserializes a list of {@link MappingObjectImport}s from the clipboard.
      * @param str
      *  The objects to deserialize.
-     * @param file
-     *  The file being pasted into.
      * @returns
-     *  The deserialized {@link MappingFileExport}s.
+     *  The deserialized {@link MappingObjectImport}s.
      */
-    public processPaste(str: string, file: MappingFileExport): MappingObjectExport[] {
-        const objs: Partial<UniversalSchemaMappingObject>[] = [];
-        // Deserialize from CSV 
-        const lines = str.split(/\r?\n/).map(l => l.split(/\t/));
-        if(2 <= lines.length) {
-            const header = lines[0];
-            for(let i = 1; i < lines.length; i++) {
-                const entries = [];
-                for(let j = 0; j < header.length; j++) {
-                    entries.push([
-                        this.toKey(header[j]),
-                        lines[i][j] || undefined
-                    ])
-                }
-                objs.push(Object.fromEntries(entries));
-            }
+    public processPaste(str: string): MappingObjectImport[] {
+        const objects = this.csvToObjects<Partial<UniversalSchemaMappingObject>>(str);
+        // Process objects
+        const imports = new Array<MappingObjectImport>(objects.length);
+        for(let i = 0; i < objects.length; i++) {
+            imports[i] = this.toMappingObjectImport(objects[i]);
         }
-        // Convert file
-        const usf = JSON.parse(this.serialize(file)) as UniversalSchemaMappingFile;
-        // Convert objects
-        return objs.map(o => this.toMappingObjectExport(o, usf));
+        return imports;
     }
     
     /**
      * Converts a {@link UniversalSchemaMappingFile} to a
-     * {@link MappingObjectExport}.
-     * @remarks
-     *  By specifying a `file`, certain keys that have been omitted from the
-     *  mapping object may be reintroduced using the values defined at the
-     *  mapping file level. (e.g. `author`, `author_contact`, etc.)
+     * {@link MappingObjectImport}.
      * @param obj
      *  The universal schema mapping object.
-     * @param file
-     *  The mapping object's universal schema file.
      * @returns
-     *  The mapping object export.
+     *  The mapping object import.
      */
-    private toMappingObjectExport(
-        obj: Partial<UniversalSchemaMappingObject>,
-        file?: UniversalSchemaMappingFile
-    ): MappingObjectExport {
-        // Return object
-        return {
-            source_id           : obj.capability_id          ?? null,
-            source_text         : obj.capability_description ?? null,
-            source_framework    : this.resolveValue(file, obj, "mapping_framework"),
-            source_version      : this.resolveValue(file, obj, "mapping_framework_version"),
-            target_id           : obj.attack_object_id       ?? null,
-            target_text         : obj.attack_object_name     ?? null,
-            target_framework    : this.resolveValue(file, obj, "technology_domain"),
-            target_version      : this.resolveValue(file, obj, "attack_version"),
-            author              : this.resolveValue(file, obj, "author", null),
-            author_contact      : this.resolveValue(file, obj, "contact", null),
-            author_organization : null,
-            references          : this.parseReferences(obj.references),
-            comments            : obj.comments               ?? null,
-            capability_group    : obj.capability_group       ?? null,
-            mapping_type        : obj.mapping_type           ?? null,
-            mapping_status      : obj.status                 ?? "in_progress",
-            score_category      : obj.score_category         ?? null,
-            score_value         : obj.score_value            ?? null
+    private toMappingObjectImport(
+        obj: Partial<UniversalSchemaMappingObject>
+    ): MappingObjectImport {
+        // Compute technology domain
+        let target_framework = obj.technology_domain;
+        if(target_framework) {
+            target_framework = `mitre_attack_${ target_framework }`;
         }
-    }
-
-    /**
-     * Returns the value of the specified {@link UniversalSchemaMappingObject}
-     * key. If the value isn't defined on the mapping object, the value is
-     * resolved from a {@link UniversalSchemaMappingFile} instead.  
-     * @param file
-     *  The {@link UniversalSchemaMappingFile}.
-     * @param obj
-     *  The {@link UniversalSchemaMappingObject}.
-     * @param key
-     *  The value's key.
-     * @param default
-     *  The default value if the value could not be resolved.
-     * @returns
-     *  The value.
-     */
-    public resolveValue<T extends DuplicatedSchemaKey>(
-        file: UniversalSchemaMappingFile | undefined,
-        obj: Partial<UniversalSchemaMappingObject>,
-        key: T,
-        def?: any
-    ): Required<UniversalSchemaMappingObject>[T] {
-        let value;
-        if(obj[key] !== undefined) {
-            value = obj[key]!;
-        } else if(file) {
-            value = file.metadata[key]!;
-        } else if(def !== undefined) {
-            value = def;
-        } else {
-            throw new Error(`Failed to resolve '${ key }'.`);
-        }
-        switch(key) {
-            case "technology_domain":
-                return `mitre_attack_${ value }`;
-            default:
-                return value;
-        }
-    }
-
-    /**
-     * Pareses a set of references in the form of an array or a string of
-     * comma-separated values.
-     * @param references
-     *  The references. 
-     * @returns
-     *  The parsed references.
-     */
-    private parseReferences(references?: string | string[]): string[] {
-        if(Array.isArray(references)) {
-            return references;
-        }
-        if(typeof references === "string") {
-            return references.split(/,/);
-        }
-        return [];
+        // Return mapping object
+        return super.processIncompleteMappingObjectImport({
+            source_id           : obj.capability_id,
+            source_text         : obj.capability_description,
+            source_framework    : obj.mapping_framework,
+            source_version      : obj.mapping_framework_version,
+            target_id           : obj.attack_object_id,
+            target_text         : obj.attack_object_name,
+            target_framework    : target_framework,
+            target_version      : obj.attack_version,
+            author              : obj.author,
+            author_contact      : obj.contact,
+            author_organization : undefined,
+            references          : obj.references,
+            comments            : obj.comments,
+            capability_group    : obj.capability_group,
+            mapping_type        : obj.mapping_type,
+            mapping_status      : obj.status,
+            score_category      : obj.score_category,
+            score_value         : obj.score_value
+        });
     }
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  3. String Normalization  //////////////////////////////////////////////
+    //  4. Export  ////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-
+    
     /**
-     * Converts a key to title case.
-     * @example
-     *  keyToTitleCase("hello_world");  // "Hello World"
-     *  keyToTitleCase("example_key");  // "Example Key"
-     *  keyToTitleCase("author");       // "Author"
-     * @param str
-     *  The key to convert.
+     * Converts a {@link MappingFileExport} to a list of objects.
+     * @param file
+     *  The mapping file.
      * @returns
-     *  The key in title case.
+     *  The mapping file represented as a list of objects.
      */
-    private keyToTitleCase(str: string) {
-        return str
-            .split(/_/)
-            .map(o => `${ o[0].toLocaleUpperCase() }${ o.substring(1) }`)
-            .join(" ");
-    }
-
-    /**
-     * Converts text to a key.
-     * @example
-     *  normalize("Hello, Audrey!!!");   // "hello_audrey"
-     *  normalize("  WHITE   SPACE  ");  // "white_space"
-     *  normalize("ⓦⓔⓘⓡⓓ ⓣⓔⓧⓣ");   // "weird_text" 
-     * @param str
-     *  The text to convert.
-     * @returns
-     *  The text as a key.
-     */
-    private toKey(str: string) {
-        return this.normalize(str)
-            .replace(/\s/g, "_")
-    }
-
-    /**
-     * Normalizes a string.
-     * @param str
-     *  The string to normalize.
-     * @returns
-     *  The normalized string.
-     * @example
-     *  normalize("Hello, Audrey!!!");   // "hello audrey"
-     *  normalize("  WHITE   SPACE  ");  // "white space"
-     *  normalize("ⓦⓔⓘⓡⓓ ⓣⓔⓧⓣ");   // "weird text" 
-     * @remarks
-     *  The normalized form of a string has no leading or trailing white
-     *  spaces, no uppercase letters, no non-alphanumeric characters, is
-     *  delimited by single spaces, and is in unicode normalization form.
-     */
-    private normalize(str: string): string {
-        return str
-            .trim()
-            .toLocaleLowerCase()
-            .normalize("NFKD")
-            .replace(/[^a-z0-9\s_]/g, "")
-            .replace(/\s+/g, " ");
+    protected fileToObjects(file: MappingFileExport): TextualObject[] {
+        const objects = [];
+        for(const exp of file.mapping_objects!) {
+            const obj = this.toUniversalMappingObject(exp);
+            objects.push({
+                capability_id             : obj.capability_id,
+                capability_description    : obj.capability_description,
+                mapping_type              : this.getListItemName(file.mapping_types, obj.mapping_type),
+                attack_object_id          : obj.attack_object_id,
+                attack_object_name        : obj.attack_object_name,
+                capability_group          : this.getListItemName(file.capability_groups, obj.capability_group),
+                score_category            : this.getListItemName(file.score_categories, obj.score_category),
+                score_value               : this.getListItemName(file.score_values, obj.score_value),
+                related_score             : obj.related_score,
+                comments                  : obj.comments,
+                references                : obj.references,
+                author                    : obj.author,
+                mapping_framework         : obj.mapping_framework,
+                mapping_framework_version : obj.mapping_framework_version,
+                technology_domain         : obj.technology_domain,
+                attack_version            : obj.attack_version,
+                creation_date             : file.creation_date,
+                last_update               : file.modified_date
+            })
+        }
+        return objects;
     }
 
 }
@@ -469,28 +362,3 @@ type UniversalSchemaMappingObject = {
     score_value?                          : string,
     related_score?                        : string,
 }
-
-/**
- * Computes the type intersection between type `A` and `B`.
- */
-type Intersection<A,B> = {
-    [P in keyof A & keyof B]: A[P] | B[P]
-}
-
-/**
- * All export keys shared between {@link MappingFileExport} and
- * {@link MappingObjectExport}.
- */
-type DuplicatedExportKey = keyof Intersection<
-    MappingFileExport,
-    MappingObjectExport
->;
-
-/**
- * All schema keys shared between {@link UniversalSchemaMappingFile}'s metadata
- * and {@link UniversalSchemaMappingObject}.
- */
-type DuplicatedSchemaKey = keyof Intersection<
-    UniversalSchemaMappingFile["metadata"],
-    UniversalSchemaMappingObject
->

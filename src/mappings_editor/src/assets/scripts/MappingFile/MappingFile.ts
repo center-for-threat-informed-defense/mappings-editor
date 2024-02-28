@@ -96,14 +96,15 @@ export class MappingFile {
     public readonly scoreValues: ListProperty;
 
     /**
+     * The file's mapping object template.
+     */
+    public readonly mappingObjectTemplate: MappingObject;
+
+    /**
      * The file's internal mapping objects.
      */
     private _mappingObjects: Map<string, MappingObject>;
 
-    /**
-     * The file's mapping object template.
-     */
-    private readonly _mappingObjectTemplate: MappingObject;
 
     /**
      * The file's mapping objects.
@@ -142,8 +143,8 @@ export class MappingFile {
         this.mappingStatuses = template.mappingStatus.options;
         this.scoreCategories = template.scoreCategory.options;
         this.scoreValues = template.scoreValue.options;
+        this.mappingObjectTemplate = template;
         this._mappingObjects = new Map<string, MappingObject>();
-        this._mappingObjectTemplate = template;
         // Configure source information
         const sourceListing = template.sourceObject.framework;
         this.sourceFrameworkListing = sourceListing;
@@ -171,7 +172,7 @@ export class MappingFile {
      *  The new mapping object.
      */
     public createMappingObject(): MappingObject {
-        return this._mappingObjectTemplate.duplicate();
+        return this.mappingObjectTemplate.duplicate();
     }
     
     /**
@@ -213,6 +214,9 @@ export class MappingFile {
      *  The mapping object to insert.
      */
     public insertMappingObject(object: MappingObject) {
+        if(object.id === this.mappingObjectTemplate.id) {
+            throw new Error(`Mapping file cannot contain the mapping object template.`);
+        }
         if(this._mappingObjects.has(object.id)) {
             throw new Error(`Mapping file already contains object '${ object.id }'.`);
         }
@@ -244,6 +248,9 @@ export class MappingFile {
     public insertMappingObjectAfter(object: MappingObject, destination?: string): void;
     public insertMappingObjectAfter(object: MappingObject, destination?: MappingObject | string) {
         const id = typeof destination === "string" ? destination : (destination?.id ?? null)
+        if(object.id === this.mappingObjectTemplate.id) {
+            throw new Error(`Mapping file cannot contain the mapping object template.`);
+        }
         if(this._mappingObjects.has(object.id)) {
             throw new Error(`Mapping file already contains object '${ object.id }'.`);
         }
@@ -280,6 +287,9 @@ export class MappingFile {
         const id = typeof destination === "string" ? destination : (destination?.id ?? null)
         const newEntries: [string, MappingObject][] = [];
         for(const obj of objects){
+            if(obj.id === this.mappingObjectTemplate.id) {
+                throw new Error(`Mapping file cannot contain the mapping object template.`);
+            }
             if(this._mappingObjects.has(obj.id)) {
                 throw new Error(`Mapping file already contains object '${ obj.id }'.`);
             }

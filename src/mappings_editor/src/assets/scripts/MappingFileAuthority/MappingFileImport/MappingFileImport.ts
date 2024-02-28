@@ -1,11 +1,13 @@
-import type { MappingObjectExport } from "./MappingObjectExport";
-import type { CapabilityGroupsExport } from "./CapabilityGroupsExport";
-import type { MappingTypesExport } from "./MappingTypesExport";
-import type { MappingStatusesExport } from "./MappingStatusesExport";
-import type { MappingScoreValuesExport } from "./ScoreValuesExport";
-import type { MappingScoreCategoriesExport } from "./ScoreCategoriesExport";
+import type { MappingObjectImport } from ".";
+import type { 
+    CapabilityGroupsExport,
+    MappingScoreCategoriesExport,
+    MappingScoreValuesExport,
+    MappingStatusesExport,
+    MappingTypesExport
+} from "..";
 
-export type MappingFileExport = {
+export type MappingFileImport = {
 
     /**
      * The file's version.
@@ -35,27 +37,27 @@ export type MappingFileExport = {
     /**
      * The file's author.
      */
-    author: string | null;
+    author?: string | null;
 
     /**
      * The author's e-mail.
      */
-    author_contact: string | null;
+    author_contact?: string | null;
 
     /**
      * The author's organization.
      */
-    author_organization: string | null;
+    author_organization?: string | null;
 
     /**
      * The file's creation date.
      */
-    creation_date: Date;
+    creation_date?: string;
 
     /**
      * The file's last modified date.
      */
-    modified_date: Date;
+    modified_date?: string;
 
     /**
      * The file's capability groups.
@@ -85,16 +87,16 @@ export type MappingFileExport = {
     /**
      * The file's objects.
      */
-    mapping_objects: MappingObjectExport[];
+    mapping_objects?: MappingObjectImport[];
 
     /**
      * The file's default mapping status.
      */
-    default_mapping_status: string | null;
+    default_mapping_status?: string | null;
 
     /**
      * The file's default mapping type.
      */
-    default_mapping_type: string | null;
+    default_mapping_type?: string | null;
 
 }

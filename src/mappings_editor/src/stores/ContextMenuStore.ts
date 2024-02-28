@@ -27,6 +27,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             const sections: ContextMenuSection[] = [
                 this.openFileMenu,
                 this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
+                this.exportFileMenu,
                 this.saveFileMenu
             ].filter(Boolean) as ContextMenuSection[];
             // Menu
@@ -60,6 +61,63 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     }
                 ],
             }
+        },
+        
+        /**
+         * Returns the 'export file' menu section.
+         * @returns
+         *  The 'export file' menu section.
+         */
+        exportFileMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const editor = app.activeEditor as MappingFileEditor;
+            const ExportType = AppCommands.ExportType;
+
+            // Determine ATT&CK Navigator Layer support
+            const { frameworks_with_navigator_support: navigatorSupport } = Configuration;
+            const canExportNavigatorLayer = navigatorSupport.has(editor.file.targetFramework);
+
+            // Build options
+            const exportAsOptions: ContextMenuSection = { 
+                id: "export_as_options",
+                items: [
+                    {
+                        text: "CSV File...",
+                        type: MenuType.Item,
+                        data: () => AppCommands.exportActiveFileToDevice(app, ExportType.CSV),
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    },
+                    {
+                        text: "YAML File...",
+                        type: MenuType.Item,
+                        data: () => AppCommands.exportActiveFileToDevice(app, ExportType.YAML),
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    },
+                    {
+                        text: "Excel File...",
+                        type: MenuType.Item,
+                        data: () => AppCommands.exportActiveFileToDevice(app, ExportType.XLSX),
+                        disabled: editor.id === MappingFileEditor.Phantom.id
+                    },
+                    {
+                        text: "ATT&CK Navigator Layer...",
+                        type: MenuType.Item,
+                        data: () => AppCommands.exportActiveFileToDevice(app, ExportType.NAVIGATOR),
+                        disabled: !canExportNavigatorLayer
+                    }
+                ]
+            }
+
+            // Return menu
+            return { 
+                id: "export_as",
+                items: [ {
+                    text: "Export As",
+                    type: MenuType.Submenu,
+                    sections: [ exportAsOptions ]
+                } ]
+            };
+
         },
 
         /**

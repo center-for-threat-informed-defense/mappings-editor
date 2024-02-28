@@ -47,7 +47,7 @@ export default defineComponent({
     onInput() {
       // Reissue update request
       clearTimeout(this.timeoutId);
-      this.timeoutId = setTimeout(() => {
+      this.timeoutId = window.setTimeout(() => {
         this.updateValue();
       }, this.updateDelay)
     },

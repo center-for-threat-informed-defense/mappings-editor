@@ -1,4 +1,4 @@
-import { Reactivity } from ".";
+import { Reactivity, type MappingObjectImport, type MappingFileImport } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import { 
     DynamicFrameworkObjectProperty, 
@@ -6,6 +6,7 @@ import {
     EditableStrictFrameworkListing, 
     FrameworkObjectProperty,
     ListItem,
+    ListItemProperty,
     ListProperty, 
     MappingObject,
     StrictFrameworkObjectProperty,
@@ -46,26 +47,32 @@ export class MappingFileAuthority {
      * @returns
      *  The blank Mapping File.
      */
-    public async createEmptyMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
+    public async createEmptyMappingFile(file: MappingFileImport, id?: string): Promise<MappingFile> {
 
         const sf = file.source_framework,
               sv = file.source_version,
               tf = file.target_framework,
               tv = file.target_version
         
+        // Validate source and target version
+        if(!(sf && sv && tf && tv)) {
+            throw new Error("Mapping File does not define source and target frameworks.");
+        }
+
         // Create template mapping object
         const mappingObjectTemplate = new MappingObject({
             sourceObject       : await this.createFrameworkObjectProp(sf, sv),
             targetObject       : await this.createFrameworkObjectProp(tf, tv),
-            author             : new StringProperty("Author", file.author),
-            authorContact      : new StringProperty("Author E-mail", file.author_contact),
-            authorOrganization : new StringProperty("Author Organization", file.author_organization)
+            author             : new StringProperty("Author", file.author || null),
+            authorContact      : new StringProperty("Author E-mail", file.author_contact || null),
+            authorOrganization : new StringProperty("Author Organization", file.author_organization || null)
         });
         
         // Create mapping file
+        const now = Date.now();
         const mappingFile = new MappingFile({
-            creationDate       : file.creation_date,
-            modifiedDate       : file.modified_date,
+            creationDate       : new Date(file.creation_date ?? now),
+            modifiedDate       : new Date(file.modified_date ?? now),
             mappingObjectTemplate
         }, id);
 
@@ -85,7 +92,7 @@ export class MappingFileAuthority {
         );
 
         // Set default mapping status
-        if((file.default_mapping_status ?? null) !== null) {
+        if((file.default_mapping_status || null) !== null) {
             const mappingStatus = mappingFile.mappingStatuses.findListItemId(
                 o => o.getAsString("id") === file.default_mapping_status
             ) ?? null;
@@ -93,7 +100,7 @@ export class MappingFileAuthority {
         }
 
         // Set default mapping type
-        if((file.default_mapping_type ?? null) !== null) {
+        if((file.default_mapping_type || null) !== null) {
             const mappingType = mappingFile.mappingTypes.findListItemId(
                 o => o.getAsString("id") === file.default_mapping_type
             ) ?? null;
@@ -166,7 +173,7 @@ export class MappingFileAuthority {
 
 
     /**
-     * Loads a Mapping File export.
+     * Loads a Mapping File import.
      * @param file
      *  The exported file.
      * @param id
@@ -174,14 +181,14 @@ export class MappingFileAuthority {
      * @returns
      *  The loaded Mapping File.
      */
-    public async loadMappingFile(file: MappingFileExport, id?: string): Promise<MappingFile> {
+    public async loadMappingFile(file: MappingFileImport, id?: string): Promise<MappingFile> {
         const rawThis = Reactivity.toRaw(this);
         // Create new file
         const newFile = await rawThis.createEmptyMappingFile(file, id);
         // Load mapping objects into file
-        for(const obj of file.mapping_objects) {
+        for(const obj of file.mapping_objects ?? []) {
             // Load mapping object
-            const newObject = rawThis.initializeMappingObjectExport(obj, newFile);
+            const newObject = rawThis.initializeMappingObjectImport(obj, newFile);
             // Insert mapping object  
             newFile.insertMappingObject(newObject);
         }
@@ -197,78 +204,80 @@ export class MappingFileAuthority {
      * @returns
      *  The newly created {@link MappingObject}.
      */
-    public initializeMappingObjectExport(obj: MappingObjectExport, file: MappingFile): MappingObject {
+    public initializeMappingObjectImport(obj: MappingObjectImport, file: MappingFile): MappingObject {
         // Create mapping object
         const newObject = file.createMappingObject();
         // Load framework object property values
+        const source_id = obj.source_id || null;
+        const target_id = obj.target_id || null;
+        const source_text = source_id ? obj.source_text || null : null;
+        const target_text = target_id ? obj.target_text || null : null;
         newObject.sourceObject.cacheObjectValue(
-            obj.source_id || null,
-            obj.source_text || null,
+            source_id,
+            source_text,
             obj.source_framework,
             obj.source_version
         );
         newObject.targetObject.cacheObjectValue(
-            obj.target_id || null,
-            obj.target_text || null,
+            target_id,
+            target_text,
             obj.target_framework,
             obj.target_version
         );
         // Configure author
-        if(obj.author) {
-            newObject.author.value = obj.author || null;
-        }
-        if(obj.author_contact) {
-            newObject.authorContact.value = obj.author_contact || null
-        }
-        if(obj.author_organization) {
-            newObject.authorOrganization.value = obj.author_organization || null;
-        }
+        this.trySetStringProperty(newObject.author, obj.author);
+        this.trySetStringProperty(newObject.authorContact, obj.author_contact);
+        this.trySetStringProperty(newObject.authorOrganization, obj.author_organization);
         // Configure references
-        for(const url of obj.references) {
-            newObject.references.insertListItem(
-                newObject.references.createNewItem({ url })
-            )
+        if(typeof obj.references === "string" && obj.references !== "") {
+            obj.references = obj.references.split(/,/);
+        }
+        if(Array.isArray(obj.references)) {
+            for(const url of obj.references) {
+                if(url === "") {
+                    continue;
+                }
+                newObject.references.insertListItem(
+                    newObject.references.createNewItem({ url })
+                )
+            }
         }
         // Configure comments
-        newObject.comments.value = obj.comments || null;
+        this.trySetStringProperty(newObject.comments, obj.comments);
         // Configure mapping type
-        newObject.capabilityGroup.exportValue  = obj.capability_group;
-        newObject.mappingType.exportValue      = obj.mapping_type;
-        newObject.mappingStatus.exportValue    = obj.mapping_status;
-        newObject.scoreCategory.exportValue    = obj.score_category;
-        newObject.scoreValue.exportValue       = obj.score_value;
+        this.trySetListItemProperty(newObject.capabilityGroup, obj.capability_group);
+        this.trySetListItemProperty(newObject.mappingType, obj.mapping_type);
+        this.trySetListItemProperty(newObject.mappingStatus, obj.mapping_status);
+        this.trySetListItemProperty(newObject.scoreCategory, obj.score_category);
+        this.trySetListItemProperty(newObject.scoreValue, obj.score_value);
         // Return object
         return newObject;
     }
-    
-
-    ///////////////////////////////////////////////////////////////////////////
-    //  3. Import Mapping File  ///////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-
 
     /**
-     * Imports one mapping file into another.
-     * @param file
-     *  The file to import into.
-     * @param importFile
-     *  The file to import.
-     * @returns
-     *  The ids of the imported mapping objects.
+     * Attempts to set a {@link StringProperty}'s value.
+     * @param prop
+     *  The {@link StringProperty}.
+     * @param value
+     *  The property's value.
      */
-    public importMappingFile(file: MappingFile, importFile: MappingFileExport): Set<string> {
-        const rawThis = Reactivity.toRaw(this);
-        const rawFile = Reactivity.toRaw(file);
-        const imported = new Map();
-        // Initialize mapping objects
-        for (const objectExport of importFile.mapping_objects){
-            const obj = rawThis.initializeMappingObjectExport(objectExport, rawFile);
-            imported.set(obj.id, obj);
+    private trySetStringProperty(prop: StringProperty, value?: string | null) {
+        if(value !== undefined) {
+            prop.value = value || null;
         }
-        // Insert mapping objects
-        file.insertMappingObjectsAfter([...imported.values()]);
-        // Return ids
-        return new Set([...imported.keys()]);
+    }
+
+    /**
+     * Attempts to set a {@link ListItemProperty}'s value.
+     * @param prop
+     *  The {@link ListItemProperty}.
+     * @param value
+     *  The property's value.
+     */
+    private trySetListItemProperty(prop: ListItemProperty, value?: string | null) {
+        if(value !== undefined) {
+            prop.exportValue = value || null;
+        }
     }
 
 
@@ -281,14 +290,11 @@ export class MappingFileAuthority {
      * Migrates an existing Mapping File to a new Mapping File.
      * @param file
      *  The existing Mapping File.
-     * @param newFile
-     *  The new Mapping File.
      * @returns
      *  The migrated Mapping File.
      */
-    public async migrateMappingFile(file: MappingFile, newFile: MappingFileExport): Promise<MappingFile> {
-        const migratedFile = await this.createEmptyMappingFile(newFile);
-        return migratedFile;
+    public async migrateMappingFile(file: MappingFile): Promise<MappingFile> {
+        return file;
     }
 
     
@@ -362,6 +368,7 @@ export class MappingFileAuthority {
         }
 
         // Compile file
+        const defaultObject = file.mappingObjectTemplate;
         return {
             version                : file.version,
             source_framework       : file.sourceFramework,
@@ -378,7 +385,9 @@ export class MappingFileAuthority {
             mapping_statuses       : Object.fromEntries(mapping_statuses),
             score_categories       : Object.fromEntries(score_categories),
             score_values           : Object.fromEntries(score_values),
-            mapping_objects
+            mapping_objects,
+            default_mapping_type   : defaultObject.mappingType.exportValue,
+            default_mapping_status : defaultObject.mappingStatus.exportValue
         }
 
     }
