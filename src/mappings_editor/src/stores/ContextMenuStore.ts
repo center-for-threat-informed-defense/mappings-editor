@@ -53,7 +53,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         shortcut: file.open_file
                     },
                     {
-                        text: `Import ${ Configuration.file_type_name }...`,
+                        text: `Import ${ Configuration.file_type_name }s...`,
                         type: MenuType.Item,
                         data: () => AppCommands.importFileFromFileSystem(app),
                         shortcut: file.import_file,

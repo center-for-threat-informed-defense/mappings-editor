@@ -255,9 +255,76 @@ export class MappingFileAuthority {
         }
     }
     
-    
+
     ///////////////////////////////////////////////////////////////////////////
-    //  6. Export Mapping File  ///////////////////////////////////////////////
+    //  6. Merge Mapping Files ////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    
+
+    /**
+     * Merges multiple {@link MappingFileImport}s together.
+     * @param files
+     *  The {@link MappingFileImport}s to merge.
+     * @returns
+     *  The merged file imports
+     */
+    public mergeMappingFileImports(files: MappingFileImport[]): MappingFileImport {
+        type ObjectKeys = KeysOfType<MappingFileImport, object>;
+        type KeysOfType<T,V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
+        
+        // Validate files
+        if(files.length === 0) {
+            throw new Error("No imports provided.");
+        }
+        if(files.length === 1) {
+            return files[0]
+        }
+       
+        // Merge files
+        const listProperties: ObjectKeys[] = [
+            "capability_groups",
+            "mapping_statuses",
+            "mapping_types",
+            "score_categories",
+            "score_values"
+        ]
+        const target = files[0];
+        for(let i = 1; i < files.length; i++) {
+            const file = files[i];
+            // Validate frameworks
+            if(target.source_framework !== file.source_framework) {
+                throw new Error("All files must belong to the same source framework.");
+            }
+            if(target.target_framework !== file.target_framework) {
+                throw new Error("All files must belong to the same target framework.");
+            }
+            // Merge objects
+            if(!target.mapping_objects) {
+                target.mapping_objects = file.mapping_objects;
+            } else if(file.mapping_objects) {
+                target.mapping_objects.push(...file.mapping_objects)
+            }
+            // Merge lists
+            for(const list of listProperties){
+                const src = file[list];
+                const dst = target[list];
+                for(const key in src) {
+                    if(key in dst) {
+                       continue; 
+                    }
+                    dst[key] = src[key];
+                }
+            }
+        }
+
+        // Return merged file
+        return files[0];
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  7. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
