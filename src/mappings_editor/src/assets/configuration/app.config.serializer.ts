@@ -160,6 +160,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         // Parse mapping file
         const meta = json.metadata;
         const types = Object.keys(meta.mapping_types);
+        const mapping_objects = new Array(json.mapping_objects?.length ?? 0);
         const mappingFileImport: MappingFileImport = { 
             version                : meta.mapping_version,
             source_framework       : meta.mapping_framework,
@@ -188,15 +189,15 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 "partial"          : "Partial",
                 "significant"      : "Significant"
             },
-            mapping_objects        : new Array(json.mapping_objects?.length),
+            mapping_objects        : mapping_objects,
             default_mapping_status : "in_progress",
             default_mapping_type   : types.length === 1 ? types[0] : null
         }
         // Parse mapping objects
-        for(let i = 0; i < (json.mapping_objects?.length ?? 0); i++) {
+        for(let i = 0; i < mapping_objects.length; i++) {
             const obj = json.mapping_objects![i];
             const imp = this.toMappingObjectImport(obj);
-            mappingFileImport.mapping_objects![i] = imp;
+            mapping_objects[i] = imp;
         }
         // Return mapping file
         return mappingFileImport;
