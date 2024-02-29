@@ -84,13 +84,11 @@ export class MappingObject {
 
     /**
      * Creates a new {@link MappingObject}.
-     * @param sourceObject
-     *  The source object.
-     * @param targetObject
-     *  The target object.
+     * @param config
+     *  The mapping object's configuration.
      */
     constructor(config: MappingObjectConfiguration) {
-        this.id = randomUUID();
+        this.id = config.objectId ?? randomUUID();
         this.sourceObject = config.sourceObject;
         this.targetObject = config.targetObject;
         this.capabilityGroup = config.capabilityGroup ?? new ListItemProperty(
@@ -127,7 +125,7 @@ export class MappingObject {
         this.author = config.author;
         this.authorContact = config.authorContact;
         this.authorOrganization  = config.authorOrganization;
-        this.references = new ListProperty(
+        this.references = config.references ?? new ListProperty(
             "References",
             new ListItem(new Map([
                 ["url", new StringProperty("URL")]
@@ -180,12 +178,23 @@ export class MappingObject {
 
 
     /**
-     * Duplicate's the mapping object.
+     * Duplicates the mapping object.
      * @returns
      *  The duplicated mapping object.
      */
-    public duplicate(): MappingObject {
+    public duplicate(): MappingObject;
+
+    /**
+     * Duplicates the mapping object.
+     * @param id
+     *  The duplicated mapping object's id.
+     * @returns
+     *  The duplicated mapping object.
+     */
+    public duplicate(id?: string): MappingObject;
+    public duplicate(id?: string): MappingObject {
         return new MappingObject({
+            objectId           : id,
             sourceObject       : this.sourceObject.duplicate(),
             targetObject       : this.targetObject.duplicate(),
             author             : this.author.duplicate(),
@@ -198,7 +207,7 @@ export class MappingObject {
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
             scoreValue         : this.scoreValue.duplicate()
-        })
+        });
     }
 
 }

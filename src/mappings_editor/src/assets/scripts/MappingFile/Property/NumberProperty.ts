@@ -18,8 +18,10 @@ export class NumberProperty extends Property {
     /**
      * The property's value setter.
      */
-    public set value(value: number | null) {
-        if(value === null) {
+    public set value(value: number | null | undefined) {
+        if(value === undefined) {
+            return;
+        } else if(value === null) {
             this._value = null;
         } else {
             this._value = value;

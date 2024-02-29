@@ -1,5 +1,5 @@
 import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
-import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
+import type { MappingFile, MappingObject, MappingObjectParameters } from "@/assets/scripts/MappingFile";
 
 export class CreateMappingObject extends EditorCommand {
 
@@ -19,10 +19,20 @@ export class CreateMappingObject extends EditorCommand {
      * @param file
      *  The mapping file to operate on.
      */
-    constructor(file: MappingFile) {
+    constructor(file: MappingFile);
+
+    /**
+     * Creates a new {@link MappingObject} in a {@link MappingFile}.
+     * @param file
+     *  The mapping file to operate on.
+     * @param params
+     *  The mapping object's parameters.
+     */
+    constructor(file: MappingFile, params?: MappingObjectParameters);
+    constructor(file: MappingFile, params?: MappingObjectParameters) {
         super();
         this.file = file;
-        this.object = file.createMappingObject();
+        this.object = file.createMappingObject(params);
     }
 
 

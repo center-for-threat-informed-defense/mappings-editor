@@ -40,29 +40,53 @@ export class Browser {
     
     /**
      * Prompts the user to select a text file from their file system.
+     * @param accept
+     *  The acceptable file types. (ex. 'txt', 'json', etc.)
+     * @param multipleFiles
+     *  If true, multiple files will be selectable.
+     *  (Default: `false`)
      * @returns
-     *  A Promise that resolves with the chosen text file.
+     *  A Promise that resolves with the chosen text file(s).
      */
-    public static openTextFileDialog(): Promise<TextFile> {
+    public static openTextFileDialog(types?: string[], multipleFiles?: true): Promise<TextFile[]>;
+    public static openTextFileDialog(types?: string[], multipleFiles?: false): Promise<TextFile>;
+    public static openTextFileDialog(types?: string[], multipleFiles: boolean = false): Promise<TextFile | TextFile[]> {
             
         // Create file input
         const fileInput = document.createElement("input");
         fileInput.type = "file";
+        // Configure acceptable file types
+        if(types) {
+            fileInput.accept = types.map(t => `.${ t }`).join(",")
+        }
+        // Configure allowable number of files
+        fileInput.multiple = multipleFiles;
         
         // Configure file input
-        const result = new Promise<TextFile>((resolve) => {
+        const result = new Promise<TextFile | TextFile[]>((resolve, reject) => {
             fileInput.addEventListener("change", (event) => {
-                const file = (event.target as any).files[0];
-                const reader = new FileReader();
-                reader.onload = (e: ProgressEvent<FileReader>) => {
-                    const [filename, extension] = file.name.split(/\.(?=[^.]+$)/);
-                    resolve({
-                        filename,
-                        extension,
-                        contents: e.target?.result
-                    });
+                // Access files
+                const files = (event.target as HTMLInputElement).files;
+                if(files === null) {
+                    reject(new Error("The provided files could not be accessed."));
+                    return;
                 }
-                reader.readAsText(file);
+                // Read files
+                const readingFiles: Promise<TextFile>[] = [];
+                for(const file of files){
+                    readingFiles.push(new Promise(res => {
+                        const reader = new FileReader();
+                        reader.onload = (e: ProgressEvent<FileReader>) => {
+                            const [filename, extension] = file.name.split(/\.(?=[^.]+$)/);
+                            res({ filename, extension, contents: e.target?.result });
+                        }
+                        reader.readAsText(file);
+                    }));
+                }
+                // Return files
+                Promise.all(readingFiles).then(readFiles => {
+                    resolve(multipleFiles ? readFiles : readFiles[0])
+                });
             });
         });
         

@@ -1,13 +1,20 @@
 import { CreateMappingObject } from "./CreateMappingObject";
 import { InsertMappingObject } from "./InsertMappingObject";
 import { DeleteMappingObject } from "./DeleteMappingObject";
+import { ImportMappingObjects } from "./ImportMappingObjects";
 import { InsertMappingObjects } from "./InsertMappingObjects";
 import { DeleteMappingObjects } from "./DeleteMappingObjects";
 import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
+import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
+export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 
 /**
  * Creates a new {@link MappingObject} in a {@link MappingFile}.
+ * @remarks
+ *  Note the difference between `Create` and `Import`. `Create` initializes the
+ *  Mapping Object upon creation of the command and `Import` initializes the
+ *  Mapping Object upon execution of the command.
  * @param file
  *  The mapping file to operate on.
  * @returns
@@ -15,6 +22,23 @@ import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
  */
 export function createMappingObject(file: MappingFile): EditorCommand {
     return new CreateMappingObject(file); 
+}
+
+/**
+ * Imports new {@link MappingObject}s into a {@link MappingFile}.
+ * @remarks
+ *  Note the difference between `Create` and `Import`. `Create` initializes the
+ *  Mapping Object upon creation of the command and `Import` initializes the
+ *  Mapping Object upon execution of the command. 
+ * @param file
+ *  The mapping file to operate on.
+ * @param objects
+ *  The mapping objects' parameters.
+ * @returns 
+ *  A command that represents the action.
+ */
+export function importMappingObjects(file: MappingFile, objects: IdentifiedMappingObjectParameters[]): EditorCommand {
+    return new ImportMappingObjects(file, objects);
 }
 
 /**

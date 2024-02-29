@@ -45,8 +45,10 @@ export class ListItemProperty extends Property {
     /**
      * The property's value setter.
      */
-    public set value(id: string | null) {
-        if(id === null) {
+    public set value(id: string | null | undefined) {
+        if(id === undefined) {
+            return;
+        } else if(id === "" || id === null) {
             this._value = null;
             return;
         }
@@ -77,8 +79,11 @@ export class ListItemProperty extends Property {
     /**
      * The property's export value setter.
      */
-    public set exportValue(value: string | null) {
-        if(value === null) {
+    public set exportValue(value: string | null | undefined) {
+        if(value === undefined) {
+            return;
+        }
+        if(value === "" || value === null) {
             this._value = null;
             return;
         }

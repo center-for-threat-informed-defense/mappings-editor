@@ -1,3 +1,4 @@
+import Configuration from "@/assets/configuration/app.config";
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
 import { ImportFile } from './ImportFile';
@@ -77,20 +78,28 @@ export async function importExistingFile(context: ApplicationStore, file: string
  *  A command that represents the action.
  */
 export async function loadFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
-    const { filename, contents } = await Browser.openTextFileDialog();
+    const { filename, contents } = await Browser.openTextFileDialog([Configuration.file_type_extension], false);
     return loadExistingFile(context, contents as string, filename);
 }
 
 /**
- * Imports a mapping file, from the file system, into the active editor.
+ * Imports mapping files, from the file system, into the active editor.
  * @param context
  *  The application's context.
  * @returns
  *  A command that represents the action.
  */
 export async function importFileFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
-    const { contents } = await Browser.openTextFileDialog();
-    return importExistingFile(context, contents as string);
+    const files = await Browser.openTextFileDialog([Configuration.file_type_extension], true);
+    // Deserialize files
+    const json = new Array<MappingFileImport>(files.length);
+    for(let i = 0; i < json.length; i++) {
+        json[i] = context.fileSerializer.deserialize(files[i].contents as string);
+    }
+    // Merge files
+    const file = context.fileAuthority.mergeMappingFileImports(json);
+    // Return command
+    return new ImportFile(context, file);
 }
 
 /**

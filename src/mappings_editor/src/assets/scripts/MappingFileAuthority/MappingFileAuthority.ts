@@ -1,4 +1,4 @@
-import { Reactivity, type MappingObjectImport, type MappingFileImport } from ".";
+import { Reactivity, type MappingFileImport, type MappingObjectImport } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import { 
     DynamicFrameworkObjectProperty, 
@@ -6,11 +6,11 @@ import {
     EditableStrictFrameworkListing, 
     FrameworkObjectProperty,
     ListItem,
-    ListItemProperty,
     ListProperty, 
     MappingObject,
     StrictFrameworkObjectProperty,
     StringProperty,
+    type MappingObjectParameters,
 } from "../MappingFile";
 import type { FrameworkRegistry } from "./FrameworkRegistry";
 import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
@@ -71,10 +71,11 @@ export class MappingFileAuthority {
         // Create mapping file
         const now = Date.now();
         const mappingFile = new MappingFile({
+            fileId             : id,
             creationDate       : new Date(file.creation_date ?? now),
             modifiedDate       : new Date(file.modified_date ?? now),
             mappingObjectTemplate
-        }, id);
+        });
 
         // Load dictionaries into file lists
         const stringTransform 
@@ -187,96 +188,41 @@ export class MappingFileAuthority {
         const newFile = await rawThis.createEmptyMappingFile(file, id);
         // Load mapping objects into file
         for(const obj of file.mapping_objects ?? []) {
-            // Load mapping object
-            const newObject = rawThis.initializeMappingObjectImport(obj, newFile);
-            // Insert mapping object  
+            const newObject = newFile.createMappingObject(
+                this.convertMappingObjectImportToParams(obj)
+            );
             newFile.insertMappingObject(newObject);
         }
         return newFile;
     }
 
     /**
-     * Initializes a {@link MappingObject} from a {@link MappingFileExport}.
+     * Converts a mapping object import to a set of mapping object parameters.
      * @param obj
-     *  The exported object.
-     * @param file
-     *  The {@link MappingFile} the {@link MappingObject} should be linked to.
+     *  The {@link MappingObjectImport}.
      * @returns
-     *  The newly created {@link MappingObject}.
+     *  The converted {@link MappingObjectParameters}.
      */
-    public initializeMappingObjectImport(obj: MappingObjectImport, file: MappingFile): MappingObject {
-        // Create mapping object
-        const newObject = file.createMappingObject();
-        // Load framework object property values
-        const source_id = obj.source_id || null;
-        const target_id = obj.target_id || null;
-        const source_text = source_id ? obj.source_text || null : null;
-        const target_text = target_id ? obj.target_text || null : null;
-        newObject.sourceObject.cacheObjectValue(
-            source_id,
-            source_text,
-            obj.source_framework,
-            obj.source_version
-        );
-        newObject.targetObject.cacheObjectValue(
-            target_id,
-            target_text,
-            obj.target_framework,
-            obj.target_version
-        );
-        // Configure author
-        this.trySetStringProperty(newObject.author, obj.author);
-        this.trySetStringProperty(newObject.authorContact, obj.author_contact);
-        this.trySetStringProperty(newObject.authorOrganization, obj.author_organization);
-        // Configure references
-        if(typeof obj.references === "string" && obj.references !== "") {
-            obj.references = obj.references.split(/,/);
-        }
-        if(Array.isArray(obj.references)) {
-            for(const url of obj.references) {
-                if(url === "") {
-                    continue;
-                }
-                newObject.references.insertListItem(
-                    newObject.references.createNewItem({ url })
-                )
-            }
-        }
-        // Configure comments
-        this.trySetStringProperty(newObject.comments, obj.comments);
-        // Configure mapping type
-        this.trySetListItemProperty(newObject.capabilityGroup, obj.capability_group);
-        this.trySetListItemProperty(newObject.mappingType, obj.mapping_type);
-        this.trySetListItemProperty(newObject.mappingStatus, obj.mapping_status);
-        this.trySetListItemProperty(newObject.scoreCategory, obj.score_category);
-        this.trySetListItemProperty(newObject.scoreValue, obj.score_value);
-        // Return object
-        return newObject;
-    }
-
-    /**
-     * Attempts to set a {@link StringProperty}'s value.
-     * @param prop
-     *  The {@link StringProperty}.
-     * @param value
-     *  The property's value.
-     */
-    private trySetStringProperty(prop: StringProperty, value?: string | null) {
-        if(value !== undefined) {
-            prop.value = value || null;
-        }
-    }
-
-    /**
-     * Attempts to set a {@link ListItemProperty}'s value.
-     * @param prop
-     *  The {@link ListItemProperty}.
-     * @param value
-     *  The property's value.
-     */
-    private trySetListItemProperty(prop: ListItemProperty, value?: string | null) {
-        if(value !== undefined) {
-            prop.exportValue = value || null;
+    public convertMappingObjectImportToParams(obj: MappingObjectImport): MappingObjectParameters {
+        return {
+            sourceId           : obj.source_id,
+            sourceText         : obj.source_text,
+            sourceVersion      : obj.source_version,
+            sourceFramework    : obj.source_framework,
+            targetId           : obj.target_id,
+            targetText         : obj.target_text,
+            targetVersion      : obj.target_version,
+            targetFramework    : obj.target_framework,
+            author             : obj.author,
+            authorContact      : obj.author_contact,
+            authorOrganization : obj.author_organization,
+            references         : obj.references,
+            comments           : obj.comments,
+            capabilityGroup    : obj.capability_group,
+            mappingType        : obj.mapping_type,
+            mappingStatus      : obj.mapping_status,
+            scoreCategory      : obj.score_category,
+            scoreValue         : obj.score_value
         }
     }
 
@@ -309,9 +255,76 @@ export class MappingFileAuthority {
         }
     }
     
-    
+
     ///////////////////////////////////////////////////////////////////////////
-    //  6. Export Mapping File  ///////////////////////////////////////////////
+    //  6. Merge Mapping Files ////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    
+
+    /**
+     * Merges multiple {@link MappingFileImport}s together.
+     * @param files
+     *  The {@link MappingFileImport}s to merge.
+     * @returns
+     *  The merged file imports
+     */
+    public mergeMappingFileImports(files: MappingFileImport[]): MappingFileImport {
+        type ObjectKeys = KeysOfType<MappingFileImport, object>;
+        type KeysOfType<T,V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
+        
+        // Validate files
+        if(files.length === 0) {
+            throw new Error("No imports provided.");
+        }
+        if(files.length === 1) {
+            return files[0]
+        }
+       
+        // Merge files
+        const listProperties: ObjectKeys[] = [
+            "capability_groups",
+            "mapping_statuses",
+            "mapping_types",
+            "score_categories",
+            "score_values"
+        ]
+        const target = files[0];
+        for(let i = 1; i < files.length; i++) {
+            const file = files[i];
+            // Validate frameworks
+            if(target.source_framework !== file.source_framework) {
+                throw new Error("All files must belong to the same source framework.");
+            }
+            if(target.target_framework !== file.target_framework) {
+                throw new Error("All files must belong to the same target framework.");
+            }
+            // Merge objects
+            if(!target.mapping_objects) {
+                target.mapping_objects = file.mapping_objects;
+            } else if(file.mapping_objects) {
+                target.mapping_objects.push(...file.mapping_objects)
+            }
+            // Merge lists
+            for(const list of listProperties){
+                const src = file[list];
+                const dst = target[list];
+                for(const key in src) {
+                    if(key in dst) {
+                       continue; 
+                    }
+                    dst[key] = src[key];
+                }
+            }
+        }
+
+        // Return merged file
+        return files[0];
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  7. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 

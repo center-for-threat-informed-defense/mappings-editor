@@ -1,6 +1,12 @@
 import { randomUUID } from "../Utilities";
-import { FrameworkListing, ListProperty, StringProperty } from ".";
+import { 
+    FrameworkListing,
+    FrameworkObjectProperty,
+    ListProperty,
+    StringProperty
+} from ".";
 import type { MappingObject } from "./MappingObject";
+import type { MappingObjectParameters } from "./MappingObjectParameters";
 import type { MappingFileConfiguration } from "./MappingFileConfiguration";
 
 export class MappingFile {
@@ -119,19 +125,9 @@ export class MappingFile {
      * @param config
      *  The file's configuration.
      */
-    constructor(config: MappingFileConfiguration);
-
-    /**
-     * Creates a new {@link MappingFile}.
-     * @param config
-     *  The file's configuration.
-     * @param id
-     *  The file's id.
-     */
-    constructor(config: MappingFileConfiguration, id?: string);
-    constructor(config: MappingFileConfiguration, id?: string) {
+    constructor(config: MappingFileConfiguration) {
         const template = config.mappingObjectTemplate;
-        this.id = id ?? randomUUID();
+        this.id = config.fileId ?? randomUUID();
         this.version = ""
         this.author = template.author;
         this.authorContact = template.authorContact;
@@ -159,7 +155,7 @@ export class MappingFile {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  1. Mapping Object Management  /////////////////////////////////////////
+    //  1. Create Mapping Object  /////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -171,9 +167,83 @@ export class MappingFile {
      * @returns
      *  The new mapping object.
      */
-    public createMappingObject(): MappingObject {
-        return this.mappingObjectTemplate.duplicate();
+    public createMappingObject(options: MappingObjectParameters = {}): MappingObject {
+        const obj = this.mappingObjectTemplate.duplicate(options.objectId);
+        // Configure framework objects
+        this.trySetFrameworkObjectProperty(
+            obj.sourceObject,
+            options.sourceId,
+            options.sourceText,
+            options.sourceFramework,
+            options.sourceVersion
+        );
+        this.trySetFrameworkObjectProperty(
+            obj.targetObject,
+            options.targetId,
+            options.targetText,
+            options.targetFramework,
+            options.targetVersion
+        );
+        // Configure author
+        obj.author.value = options.author;
+        obj.authorContact.value = options.authorContact;
+        obj.authorOrganization.value = options.authorOrganization;
+        // Configure comments
+        obj.comments.value = options.comments
+        // Configure references
+        let references = options.references;
+        if(typeof references === "string" && references !== "") {
+            references = references.split(/,/);
+        }
+        if(Array.isArray(references)) {
+            references.filter(Boolean).forEach(url => {
+                const item = obj.references.createNewItem({ url });
+                obj.references.insertListItem(item);
+            });
+        }
+        // Configure capability group
+        obj.capabilityGroup.exportValue = options.capabilityGroup;
+        // Configure mapping type
+        obj.mappingType.exportValue = options.mappingType;
+        // Configure mapping status
+        obj.mappingStatus.exportValue = options.mappingStatus;
+        // Configure score
+        obj.scoreCategory.exportValue = options.scoreCategory;
+        obj.scoreValue.exportValue = options.scoreValue;
+        // Return object
+        return obj;
     }
+
+    /**
+     * Attempts to set a {@link FrameworkObjectProperty}'s value.
+     * @param prop
+     *  The {@link FrameworkObjectProperty}.
+     * @param id
+     *  The object's id.
+     * @param text
+     *  The object's text.
+     * @param framework
+     *  The object's framework.
+     * @param version
+     *  The object's framework version.
+     */
+    private trySetFrameworkObjectProperty(
+        prop: FrameworkObjectProperty,
+        id?: string | null,
+        text?: string | null,
+        framework?: string,
+        version?: string
+    ) {
+        id   = id || null;
+        text = id ? text || null : null;
+        prop.cacheObjectValue(id, text, framework, version);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  2. Query Mapping Objects  /////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
     
     /**
      * Returns the mapping object placed before the provided object.
@@ -207,6 +277,12 @@ export class MappingFile {
             return undefined;
         }
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  3. Insert Mapping Objects  ////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
 
     /**
      * Inserts a mapping object into the mapping file.
@@ -306,6 +382,12 @@ export class MappingFile {
         items.splice(index + 1, 0, ...newEntries);
         this._mappingObjects = new Map(items);   
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Delete Mapping Objects  ////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
 
     /**
      * Removes a mapping object from the mapping file.
