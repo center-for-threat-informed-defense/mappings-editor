@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.3](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.2...mappings_editor-v0.1.3) (2024-03-06)
+
+
+### Features
+
+* add CSV, YAML, XLSX, and ATT&CK Navigator Layer export options  ([b1ed63c](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b1ed63cb920234a59dfdcf6ef3768275d1df010e))
+* add User Guide to Help menu ([ac715c6](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/ac715c675d5dc6624135bf3d6e376ff4c7f7e941))
+* allow multiple Mapping Files to be imported at once ([dc9baca](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/dc9baca69e0e913be07bd6cc4ba268d028be85dc))
+* allow opening of Mapping Files via url with `src` query parameter ([c8acf81](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/c8acf81c59b878b708cfec05d4d90969e197b94c))
+* restrict Mapping File selection to only files of the Mapping File type ([dc9baca](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/dc9baca69e0e913be07bd6cc4ba268d028be85dc))
+
+
+### Bug Fixes
+
+* correct `mapping_objects` deserialization issue that prevents blank Mapping Files from opening ([f00802d](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/f00802d6ee2e8dadf5a33e2e828c8d2a51056059))
+* ensure Mapping File import includes missing group, mapping, and scoring options ([dc9baca](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/dc9baca69e0e913be07bd6cc4ba268d028be85dc))
+* ensure mapping objects are pasted in the same order they're copied ([b1ed63c](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b1ed63cb920234a59dfdcf6ef3768275d1df010e))
+* ensure the last mapping object can be included in a multiselect ([b1ed63c](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b1ed63cb920234a59dfdcf6ef3768275d1df010e))
+* layer context menus on top of the editing interface ([b1ed63c](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/b1ed63cb920234a59dfdcf6ef3768275d1df010e))
+* replace MITRE Engenuity branding with Mappings Explorer branding ([56b0101](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/56b010122c0eeab438bb321eab4179146c0851e2))
+* update Mapping File's `modifiedDate` after each edit ([0ca0e75](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/0ca0e75e12e25b5a7935eb204b44ca2427544609))
+
 ## [0.1.2](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.1...mappings_editor-v0.1.2) (2024-02-14)
 
 
