@@ -218,6 +218,7 @@ export default defineComponent({
 
 .list-item-options-list-field {
   background: #1c1c1c;
+  border-radius: 3px;
 }
 
 .scroll-box {

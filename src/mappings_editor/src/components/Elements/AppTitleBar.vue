@@ -66,11 +66,13 @@ export default defineComponent({
 /** === App Logo === */
 
 .logo {
+  display: flex;
+  align-items: center;
   margin: 0px 6px 0px 12px;
 }
 
 .logo img {
-  height: 10px;
+  height: 14px;
 }
 
 </style>
