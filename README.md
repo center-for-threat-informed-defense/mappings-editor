@@ -19,7 +19,7 @@ To get started, visit the project website.
   
 | Resource                                                                                     | Description                                                                                               |
 | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Mappings Editor](https://center-for-threat-informed-defense.github.io/mappings-editor))     | An interactive, web-based tool for creating your own mappings. (This tool is available as a public beta.) |
+| [Mappings Editor](https://center-for-threat-informed-defense.github.io/mappings-editor)     | An interactive, web-based tool for creating your own mappings. (This tool is available as a public beta.) |
 | [Mappings Explorer](https://center-for-threat-informed-defense.github.io/mappings-explorer/) | A website to access, explore, search, and download our ATT&CK mappings.                                   |
 
 ## How Do I Contribute?
@@ -38,7 +38,7 @@ directly for more general inquiries.
 
 ## Notice
 
-Copyright 2023 MITRE Engenuity. Approved for public release. Document number CT0104
+Copyright 2024 MITRE Engenuity. Approved for public release. Document number CT0104
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
 file except in compliance with the License. You may obtain a copy of the License at
