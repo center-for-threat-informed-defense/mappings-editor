@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.3...mappings_editor-v1.0.0) (2024-03-27)
+
+
+### Miscellaneous Chores
+
+* release Mappings Editor v1.0.0 ([6c28ee8](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/6c28ee8125d6dd25c4beb61697d9b27e85e89804))
+
 ## [0.1.3](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.2...mappings_editor-v0.1.3) (2024-03-06)
 
 
