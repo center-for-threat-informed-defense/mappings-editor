@@ -24,7 +24,7 @@ const config: AppConfiguration = {
                 },
                 {
                     text: "User Guide",
-                    url: "https://github.com/center-for-threat-informed-defense/mappings-editor/wiki/Overview"
+                    url: "https://github.com/center-for-threat-informed-defense/mappings-editor/wiki"
                 }
             ]
         }
