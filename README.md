@@ -1,3 +1,6 @@
+[![MITRE ATT&CK® v8–14](https://img.shields.io/badge/MITRE%20ATT%26CK®-v8–14-red)](https://attack.mitre.org/)
+[![build](https://github.com/center-for-threat-informed-defense/mappings-editor/actions/workflows/editor-build.yml/badge.svg)](https://github.com/center-for-threat-informed-defense/mappings-editor/actions/workflows/editor-build.yml)
+
 # Mappings Editor
 
 The Mappings Editor is a tool developed by the [Center for Threat Informed
