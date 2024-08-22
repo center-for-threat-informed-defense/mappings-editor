@@ -3,6 +3,16 @@
     "files": [
         {
             "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "15.1",
+            "filename": "mitre_attack_enterprise_15.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "15.0",
+            "filename": "mitre_attack_enterprise_15.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_enterprise",
             "frameworkVersion": "14.1",
             "filename": "mitre_attack_enterprise_14.1.json"
         },

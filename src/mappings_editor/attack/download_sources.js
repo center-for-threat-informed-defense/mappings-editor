@@ -8,10 +8,11 @@ const BASE_URL = "https://raw.githubusercontent.com/mitre-attack/attack-stix-dat
  * Enterprise Sources
  */
 const ENTERPRISE_SOURCES = [
-    "14.1", "14.0", "13.1", "13.0", 
-    "12.1", "12.0", "11.2", "11.1", 
-    "11.0", "10.1", "10.0", "9.0",
-    "8.2",  "8.1",  "8.0"
+    "15.1", "15.0", "14.1", "14.0",
+    "13.1", "13.0", "12.1", "12.0",
+    "11.2", "11.1", "11.0", "10.1",
+    "10.0", "9.0",  "8.2",  "8.1",
+    "8.0"
 ].map(version => ({
     url              : `${BASE_URL}/enterprise-attack/enterprise-attack-${ version }.json`,
     frameworkId      : "mitre_attack_enterprise",
@@ -22,8 +23,8 @@ const ENTERPRISE_SOURCES = [
  * ICS Sources
  */
 const ICS_SOURCES = [
-    "14.1", "14.0", "13.1", "13.0", 
-    "12.1", "12.0", "11.3", "11.2", 
+    "14.1", "14.0", "13.1", "13.0",
+    "12.1", "12.0", "11.3", "11.2",
     "11.1", "11.0", "10.1", "10.0",
     "9.0",  "8.2",  "8.1",  "8.0"
 ].map(version => ({
@@ -36,7 +37,7 @@ const ICS_SOURCES = [
  * Mobile Sources
  */
 const MOBILE_SOURCES = [
-    "14.1", "14.0", "13.1", "13.0", 
+    "14.1", "14.0", "13.1", "13.0",
     "12.1", "12.0", "11.3", "10.1",
     "10.0", "9.0",  "8.2",  "8.1",
     "8.0"
@@ -52,7 +53,7 @@ const MOBILE_SOURCES = [
 const STIX_SOURCES = [
     ...ENTERPRISE_SOURCES,
     ...ICS_SOURCES,
-    ...MOBILE_SOURCES    
+    ...MOBILE_SOURCES
 ]
 
 /**
