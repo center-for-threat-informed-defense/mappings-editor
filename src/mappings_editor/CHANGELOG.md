@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.0.0...mappings_editor-v1.1.0) (2024-08-22)
+
+
+### Features
+
+* add support for ATT&CK v15.0 and v15.1 ([931899b](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/931899bf6ea400999af01d5462a7c597851fbddb))
+
 ## [1.0.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v0.1.3...mappings_editor-v1.0.0) (2024-03-27)
 
 
