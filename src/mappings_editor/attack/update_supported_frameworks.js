@@ -12,7 +12,7 @@ const FRAMEWORKS_DIR_PATH = "frameworks";
 /**
  * The framework manifest file.
  */
-const MANIFEST_FILE = "../src/assets/configuration/app.framework.manifest.json"
+const MANIFEST_FILE = "./src/assets/configuration/app.framework.manifest.json"
 
 
 /**
@@ -40,17 +40,17 @@ function filterAttackObjects(objects) {
  * @param {string} path
  *  The framework directory's path.
  * @param  {...string} sources
- *  A list of STIX sources specified by name, version, and url. 
+ *  A list of STIX sources specified by name, version, and url.
  */
 async function updateApplicationFrameworks(path, ...sources) {
-    
+
     // Collect ATT&CK Data
     let downloads = [];
     for(let source of sources) {
         downloads.push(fetchAttackData(source.url));
     }
     let listings = await Promise.all(downloads);
-    
+
     // Generate Framework Listings
     console.log("→ Generating Framework Listing Files...");
     let manifest = {
@@ -61,7 +61,7 @@ async function updateApplicationFrameworks(path, ...sources) {
         let source = sources[i];
         let filename = `${source.frameworkId}_${source.frameworkVersion}.json`
         let filepath = resolve(__dirname,`../public/${ path }/${ filename }`);
-        
+
         // Generate Framework File
         writeFileSync(filepath, JSON.stringify({
             frameworkId: source.frameworkId,
@@ -73,7 +73,7 @@ async function updateApplicationFrameworks(path, ...sources) {
         }, null, 4));
 
         // Update Manifest
-        manifest.files.push({ 
+        manifest.files.push({
             frameworkId: source.frameworkId,
             frameworkVersion: source.frameworkVersion,
             filename
