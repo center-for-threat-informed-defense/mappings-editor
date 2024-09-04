@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.1.0...mappings_editor-v1.2.0) (2024-09-04)
+
+
+### Features
+
+* add `Internal Review`, `Participant Review`, and `Final Draft` mapping statuses ([8a384e7](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/8a384e736d8781d0e0a3291167697d90e0ce7560))
+
 ## [1.1.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.0.0...mappings_editor-v1.1.0) (2024-08-22)
 
 
