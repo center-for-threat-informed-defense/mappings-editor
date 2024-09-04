@@ -22,7 +22,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
 
 
     /**
-     * Serializes a {@link MappingFileExport} to a string. 
+     * Serializes a {@link MappingFileExport} to a string.
      * @param file
      *  The file to serialize.
      */
@@ -144,14 +144,14 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         }
     }
 
-    
+
     ///////////////////////////////////////////////////////////////////////////
     //  2. Deserialization  ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
     /**
-     * Deserializes a string to a {@link MappingFileImport}. 
+     * Deserializes a string to a {@link MappingFileImport}.
      * @param file
      *  The file to deserialize.
      */
@@ -161,7 +161,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         const meta = json.metadata;
         const types = Object.keys(meta.mapping_types);
         const mapping_objects = new Array(json.mapping_objects?.length ?? 0);
-        const mappingFileImport: MappingFileImport = { 
+        const mappingFileImport: MappingFileImport = {
             version                : meta.mapping_version,
             source_framework       : meta.mapping_framework,
             source_version         : meta.mapping_framework_version,
@@ -175,9 +175,12 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
-                "complete"         : "Complete",
-                "in_progress"      : "In Progress",
-                "non_mappable"     : "Non-Mappable"
+                "in_progress"        : "In Progress",
+                "internal_review"    : "Internal Review",
+                "participant_review" : "Participant Review",
+                "final_draft"        : "Final Draft",
+                "complete"           : "Complete",
+                "non_mappable"       : "Non-Mappable"
             },
             score_categories: {
                 "protect"          : "Protect",
@@ -219,7 +222,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
         }
         return imports;
     }
-    
+
     /**
      * Converts a {@link UniversalSchemaMappingFile} to a
      * {@link MappingObjectImport}.
@@ -264,7 +267,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
     //  4. Export  ////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-    
+
     /**
      * Converts a {@link MappingFileExport} to a list of objects.
      * @param file
@@ -334,10 +337,10 @@ type UniversalSchemaCapabilityGroups = {
  * The Universal Schema Mapping Types
  */
 type UniversalSchemaMappingTypes = {
-    [key: string]: { 
+    [key: string]: {
         name        : string,
         description : string
-    }   
+    }
 }
 
 /**
