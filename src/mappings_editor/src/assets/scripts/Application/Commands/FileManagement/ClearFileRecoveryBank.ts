@@ -23,7 +23,7 @@ export class ClearFileRecoveryBank extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         for(const id of this.context.fileRecoveryBank.files.keys()) {
             // Clear everything except the active file
             if(id === this.context.activeEditor.id) {

@@ -40,7 +40,7 @@ export class ImportFile extends AppCommand {
         // Validate source framework
         if(file.sourceFramework !== importFile.source_framework) {
             throw new Error(
-                `The imported file's source framework ('${ 
+                `The imported file's source framework ('${
                     importFile.source_framework
                 }') doesn't match this file's source framework ('${
                     file.sourceFramework
@@ -50,7 +50,7 @@ export class ImportFile extends AppCommand {
         // Validate target framework
         if(file.targetFramework !== importFile.target_framework) {
             throw new Error(
-                `The imported file's target framework ('${ 
+                `The imported file's target framework ('${
                     importFile.target_framework
                 }') doesn't match this file's target framework ('${
                     file.targetFramework
@@ -64,7 +64,7 @@ export class ImportFile extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         const file = this.editor.file;
         const view = this.editor.view;
         const convert = Reactivity.toRaw(this.fileAuthority.convertMappingObjectImportToParams);
@@ -93,7 +93,7 @@ export class ImportFile extends AppCommand {
             ]
         )
         // Execute insert
-        this.editor.execute(cmd);
+        await this.editor.execute(cmd);
         // Move first item into view
         const firstItem = view.getItems(o => objects.has(o.id)).next().value;
         view.moveToViewItem(firstItem.object.id, 0, true, false);
@@ -135,7 +135,7 @@ export class ImportFile extends AppCommand {
         const insertCmd = EditorCommands.createGroupCommand();
         for(const id in obj) {
             if(!prop.findListItemId(i => i.getAsString("id") === id)) {
-                const newItem = prop.createNewItem({ 
+                const newItem = prop.createNewItem({
                     id          : id,
                     name        : obj[id].name,
                     description : obj[id].description

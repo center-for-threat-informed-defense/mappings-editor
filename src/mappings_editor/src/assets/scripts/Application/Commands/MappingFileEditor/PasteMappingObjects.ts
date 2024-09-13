@@ -42,10 +42,11 @@ export class PasteMappingObjects extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
-        navigator.clipboard.readText().then((text: string) => {
+    public async execute(): Promise<void> {
+        try {
+            const text = await navigator.clipboard.readText();
             const view = this.editor.view;
-            const rawFileSerializer = Reactivity.toRaw(this.fileSerializer); 
+            const rawFileSerializer = Reactivity.toRaw(this.fileSerializer);
             const convert = Reactivity.toRaw(this.fileAuthority.convertMappingObjectImportToParams);
             // Deserialize items
             const imports = rawFileSerializer.processPaste(text);
@@ -65,13 +66,13 @@ export class PasteMappingObjects extends AppCommand {
                 ]
             )
             // Execute insert
-            this.editor.execute(cmd);
+            await this.editor.execute(cmd);
             // Move first item into view
             const firstItem = view.getItems(o => objects.has(o.id)).next().value;
             view.moveToViewItem(firstItem.object.id, 0, true, false);
-        }).catch(reason => {
+        } catch(reason) {
             console.error("Failed to read clipboard: ", reason);
-        })
+        }
     }
 
 }

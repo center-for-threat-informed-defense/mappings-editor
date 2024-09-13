@@ -8,7 +8,7 @@ export class ImportMappingObjects extends EditorCommand {
      * The mapping file.
      */
     public readonly file: MappingFile;
-    
+
     /**
      * The new mapping objects to import.
      */
@@ -34,10 +34,10 @@ export class ImportMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         // Create objects
         const file = Reactivity.toRaw(this.file);
-        const objs = new Array<MappingObject>(this.objects.length); 
+        const objs = new Array<MappingObject>(this.objects.length);
         for(let i = 0; i < this.objects.length; i++) {
             objs[i] = file.createMappingObject(this.objects[i]);
         }
@@ -55,7 +55,7 @@ export class ImportMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         // Remove objects
         this.file.removeMappingObjects(this.objects.map(o => o.objectId));
         // Issue directives
@@ -70,6 +70,6 @@ export class ImportMappingObjects extends EditorCommand {
 /**
  * Identified {@link MappingObjectParameters} type definition.
  */
-export type IdentifiedMappingObjectParameters = Omit<MappingObjectParameters, "objectId"> & { 
+export type IdentifiedMappingObjectParameters = Omit<MappingObjectParameters, "objectId"> & {
     objectId: string
 }

@@ -50,11 +50,11 @@ export class CutSelectedMappingObjects extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         // Copy selected objects
         const items = executeCopy(this.fileSerializer, this.fileAuthority, this.fileView);
         // Delete selected objects
-        this.editor.execute(EditorCommands.deleteMappingObjectViews(items));
+        await this.editor.execute(EditorCommands.deleteMappingObjectViews(items));
     }
 
 }

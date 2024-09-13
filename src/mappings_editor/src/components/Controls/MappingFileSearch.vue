@@ -26,12 +26,12 @@
     </template>
   </div>
 </template>
-  
+
 <script lang="ts">
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { unsignedMod } from "@/assets/scripts/Utilities";
 import { defineComponent, type PropType } from 'vue';
-import type { 
+import type {
   EditorCommand,
   MappingFileEditor,
   MappingFileViewItem,
@@ -114,7 +114,7 @@ export default defineComponent({
       }
       // Update total items
       this.searchCount[1] = results.length;
-      // If no matches, bail 
+      // If no matches, bail
       if(results.length === 0) {
         this.searchCount[0] = 0;
         return;
@@ -175,7 +175,7 @@ export default defineComponent({
   }
 });
 </script>
-  
+
 <style scoped>
 
 /** === Main Control === */

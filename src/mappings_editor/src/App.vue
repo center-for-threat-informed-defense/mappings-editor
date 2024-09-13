@@ -35,7 +35,7 @@
 import * as AppCommands from "./assets/scripts/Application/Commands";
 // Dependencies
 import { PointerTracker } from "./assets/scripts/Utilities";
-import { useApplicationStore } from "./stores/ApplicationStore"; 
+import { useApplicationStore } from "./stores/ApplicationStore";
 import { defineComponent, markRaw, ref } from "vue";
 import { Browser, OperatingSystem, clamp } from "./assets/scripts/Utilities";
 import type { Command } from "./assets/scripts/Application";
@@ -131,9 +131,9 @@ export default defineComponent({
     async onExecute(cmd: Command) {
       try {
         if(cmd instanceof Promise) {
-          this.application.execute(await cmd);
+          await this.application.execute(await cmd);
         } else {
-          this.application.execute(cmd);
+          await this.application.execute(cmd);
         }
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`)
@@ -175,13 +175,13 @@ export default defineComponent({
       const max = Math.max(min, this.bodyWidth - minRight - minCenter);
       this.activeFrameSize[Handle.Left] = clamp(size, min, max);
     },
-    
+
     /**
      * Sets the size of the right frame.
      * @param size
      *  The frame's new size.
      */
-    setRightFrameSize(size: number) { 
+    setRightFrameSize(size: number) {
       const minLeft = this.activeFrameSize[Handle.Left];
       const minCenter = this.minFrameSize[Handle.Center];
       const min = this.minFrameSize[Handle.Right];
@@ -200,13 +200,13 @@ export default defineComponent({
       settings = await (await fetch(`${ baseUrl }settings_win.json`)).json();
     }
     // Load settings
-    this.application.execute(AppCommands.loadSettings(this.application, settings));
+    await this.application.execute(AppCommands.loadSettings(this.application, settings));
     // Load file from query parameters, if possible
     let params = new URLSearchParams(window.location.search);
     let src = params.get("src");
     if(src) {
       try {
-        this.application.execute(await AppCommands.loadFileFromUrl(this.application, src));
+        await this.application.execute(await AppCommands.loadFileFromUrl(this.application, src));
       } catch(ex) {
         console.error(`Failed to load file from url: '${ src }'`);
         console.error(ex);

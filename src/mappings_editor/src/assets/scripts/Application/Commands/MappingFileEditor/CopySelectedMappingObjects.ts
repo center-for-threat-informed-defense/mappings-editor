@@ -41,7 +41,7 @@ export class CopySelectedMappingObjects extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         executeCopy(this.fileSerializer, this.fileAuthority, this.fileView);
     }
 

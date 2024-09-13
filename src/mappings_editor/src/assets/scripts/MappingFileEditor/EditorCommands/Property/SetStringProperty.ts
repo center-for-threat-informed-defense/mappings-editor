@@ -17,7 +17,7 @@ export class SetStringProperty extends EditorCommand {
      * The property.
      */
     public readonly prop: StringProperty;
-    
+
 
     /**
      * Sets the value of a {@link StringProperty}.
@@ -32,14 +32,14 @@ export class SetStringProperty extends EditorCommand {
         this.prevValue = prop.value;
         this.nextValue = value;
     }
-    
+
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.value = this.nextValue;
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -49,7 +49,7 @@ export class SetStringProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.value = this.prevValue;
         issueDirective(EditorDirective.Autosave);
     }

@@ -17,7 +17,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      * The property.
      */
     public readonly prop: FrameworkObjectProperty;
-    
+
 
     /**
      * Sets the object text of a {@link FrameworkObjectProperty}.
@@ -32,14 +32,14 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
         this.prevObjectText = prop.objectText;
         this.nextObjectText = objectText;
     }
-    
+
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.objectText = this.nextObjectText;
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -49,7 +49,7 @@ export class SetFrameworkObjectPropertyText extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.objectText = this.prevObjectText;
         issueDirective(EditorDirective.Autosave);
     }

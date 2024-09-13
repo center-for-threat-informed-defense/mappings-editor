@@ -7,7 +7,7 @@ export class ExitDynamicFrameworkObjectProperty extends EditorCommand {
      * The property to exit.
      */
     public readonly prop: DynamicFrameworkObjectProperty;
-    
+
 
     /**
      * Exits a {@link DynamicFrameworkObjectProperty}.
@@ -18,18 +18,18 @@ export class ExitDynamicFrameworkObjectProperty extends EditorCommand {
         super();
         this.prop = prop;
     }
-    
+
 
     /**
      * Executes the editor command.
      */
-    execute(): void {
+    public async execute(): Promise<void> {
         this.prop.isTargeted = false;
     }
 
     /**
      * Undoes the editor command.
      */
-    undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

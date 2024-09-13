@@ -11,6 +11,6 @@ export abstract class AppCommand  {
     /**
      * Executes the command.
      */
-    public abstract execute(): void;
+    public abstract execute(): Promise<void>;
 
 }

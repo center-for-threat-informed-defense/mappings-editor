@@ -39,7 +39,7 @@ export class SaveFileToDevice extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         Browser.downloadFile(
             this.name,
             this.contents,

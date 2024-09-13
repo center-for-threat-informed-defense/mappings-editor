@@ -7,7 +7,7 @@ export class EnterDynamicFrameworkObjectProperty extends EditorCommand {
      * The property to enter.
      */
     public readonly prop: DynamicFrameworkObjectProperty;
-    
+
 
     /**
      * Enters a {@link DynamicFrameworkObjectProperty}.
@@ -18,18 +18,18 @@ export class EnterDynamicFrameworkObjectProperty extends EditorCommand {
         super();
         this.prop = prop;
     }
-    
+
 
     /**
      * Executes the editor command.
      */
-    execute(): void {
+    public async execute(): Promise<void> {
         this.prop.isTargeted = true;
     }
 
     /**
      * Undoes the editor command.
      */
-    undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

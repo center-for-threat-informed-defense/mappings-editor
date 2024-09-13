@@ -14,7 +14,7 @@ export class SwitchToFullscreen extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         const cast = document.body as any;
         if (cast.requestFullscreen) {
             cast.requestFullscreen();

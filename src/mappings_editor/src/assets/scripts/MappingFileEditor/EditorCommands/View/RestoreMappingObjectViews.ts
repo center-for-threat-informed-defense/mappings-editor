@@ -32,12 +32,12 @@ export class RestoreMappingObjectViews extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {}
+    public async execute(): Promise<void> {}
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         if(this.views.length) {
             const file = this.views[0].fileView;
             for(const view of this.views) {

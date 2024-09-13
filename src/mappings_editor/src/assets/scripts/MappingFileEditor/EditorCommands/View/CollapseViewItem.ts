@@ -7,7 +7,7 @@ export class CollapseViewItem extends EditorCommand {
      * The mapping file view.
      */
     public readonly fileView: MappingFileView;
-    
+
     /**
      * The view item to collapse.
      */
@@ -45,7 +45,7 @@ export class CollapseViewItem extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.item.collapsed = this.nextValue;
         if(this.item instanceof MappingObjectView) {
             issueDirective(EditorDirective.Record);
@@ -55,7 +55,7 @@ export class CollapseViewItem extends EditorCommand {
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         this.item.collapsed = this.prevValue;
     }
 

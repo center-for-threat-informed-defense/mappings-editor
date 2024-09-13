@@ -33,7 +33,7 @@ export class SaveFileToRecoveryBank extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         // Create raw references
         const fileAuthority = toRaw(this.context.fileAuthority);
         const fileSerializer = toRaw(this.context.fileSerializer);

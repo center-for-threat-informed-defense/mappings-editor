@@ -27,7 +27,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
      * The property.
      */
     public readonly prop: FrameworkObjectProperty;
-    
+
 
     /**
      * Sets the object id of a {@link FrameworkObjectProperty}.
@@ -63,14 +63,14 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
             this.prevObjectId = prop.objectId;
         }
     }
-    
+
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         if(this.nextObjectId && this.nextObjectText !== undefined) {
             this.prop.setObjectValue(this.nextObjectId, this.nextObjectText);
         } else {
@@ -84,7 +84,7 @@ export class SetFrameworkObjectPropertyId extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         if(this.prevObjectId && this.prevObjectText !== undefined) {
             this.prop.setObjectValue(this.prevObjectId, this.prevObjectText);
         } else {

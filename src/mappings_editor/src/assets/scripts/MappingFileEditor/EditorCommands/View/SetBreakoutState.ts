@@ -2,7 +2,7 @@ import { EditorCommand } from "..";
 import type { BreakoutControl, MappingFileView } from "../..";
 
 export class SetBreakoutState extends EditorCommand {
-    
+
     /**
      * The mapping file view.
      */
@@ -45,13 +45,13 @@ export class SetBreakoutState extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.control.setBreakoutState(this.id, this.value);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

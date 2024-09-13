@@ -7,7 +7,7 @@ export class MoveMappingObjectsAfter extends EditorCommand {
      * The mapping file.
      */
     public readonly file: MappingFile;
-    
+
     /**
      * The id of the object to move.
      */
@@ -51,7 +51,7 @@ export class MoveMappingObjectsAfter extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.file.removeMappingObject(this.object);
         this.file.insertMappingObjectAfter(this.object, this.nextLocation);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
@@ -62,7 +62,7 @@ export class MoveMappingObjectsAfter extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.file.removeMappingObject(this.object);
         this.file.insertMappingObjectAfter(this.object, this.prevLocation);
         issueDirective(EditorDirective.Autosave);

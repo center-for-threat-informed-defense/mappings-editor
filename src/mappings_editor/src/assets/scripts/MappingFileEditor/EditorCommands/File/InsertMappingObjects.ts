@@ -7,7 +7,7 @@ export class InsertMappingObjects extends EditorCommand {
      * The mapping file.
      */
     public readonly file: MappingFile;
-    
+
     /**
      * The mapping objects to insert.
      */
@@ -33,7 +33,7 @@ export class InsertMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.file.insertMappingObjectsAfter(this.objects);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
         for(const obj of this.objects) {
@@ -46,7 +46,7 @@ export class InsertMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.file.removeMappingObjects(this.objects);
         issueDirective(EditorDirective.Autosave);
         for(const obj of this.objects) {

@@ -29,13 +29,13 @@ export class ShowAllItems extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.control.showAll();
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

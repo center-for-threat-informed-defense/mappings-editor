@@ -2,7 +2,7 @@ import { EditorCommand } from "..";
 import type { FilterControl, MappingFileView } from "../..";
 
 export class SetFilterState extends EditorCommand {
-    
+
     /**
      * The mapping file view.
      */
@@ -45,7 +45,7 @@ export class SetFilterState extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         if(this.value) {
             this.control.show(this.id);
         } else {
@@ -56,6 +56,6 @@ export class SetFilterState extends EditorCommand {
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

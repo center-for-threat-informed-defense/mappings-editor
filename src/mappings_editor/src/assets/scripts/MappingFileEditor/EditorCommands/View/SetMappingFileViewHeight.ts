@@ -31,13 +31,13 @@ export class SetMappingFileViewHeight extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.fileView.setViewHeight(this.height);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

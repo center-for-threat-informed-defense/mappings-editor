@@ -7,7 +7,7 @@ export class MoveBreakout extends EditorCommand {
      * The mapping file view.
      */
     public readonly fileView: MappingFileView;
-    
+
     /**
      * The breakout control.
      */
@@ -45,13 +45,13 @@ export class MoveBreakout extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.control.moveBreakout(this.id, this.dst);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

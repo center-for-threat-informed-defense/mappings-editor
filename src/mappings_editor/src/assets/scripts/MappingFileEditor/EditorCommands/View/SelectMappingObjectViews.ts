@@ -42,7 +42,7 @@ export class SelectMappingObjectViews extends EditorCommand {
      *  The item's select state upon redo.
      */
     constructor(
-        view: MappingObjectView, 
+        view: MappingObjectView,
         execSelect?: SelectOptions | boolean,
         undoSelect?: SelectOptions | boolean,
         redoSelect?: SelectOptions | boolean
@@ -62,7 +62,7 @@ export class SelectMappingObjectViews extends EditorCommand {
      *  The item's select state upon redo.
      */
     constructor(
-        views: MappingObjectView[], 
+        views: MappingObjectView[],
         execSelect?: SelectOptions | boolean,
         undoSelect?: SelectOptions | boolean,
         redoSelect?: SelectOptions | boolean
@@ -84,7 +84,7 @@ export class SelectMappingObjectViews extends EditorCommand {
      *  The item's select state upon redo.
      */
     constructor(
-        fileView: MappingFileView, 
+        fileView: MappingFileView,
         id: string,
         execSelect?: SelectOptions | boolean,
         undoSelect?: SelectOptions | boolean,
@@ -107,7 +107,7 @@ export class SelectMappingObjectViews extends EditorCommand {
      *  The item's select state upon redo.
      */
     constructor(
-        fileView: MappingFileView, 
+        fileView: MappingFileView,
         ids: string[],
         execSelect?: SelectOptions | boolean,
         undoSelect?: SelectOptions | boolean,
@@ -165,21 +165,21 @@ export class SelectMappingObjectViews extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.select(this.execSelect);
     }
 
     /**
      * Redoes the editor command.
      */
-    public redo(): void {
+    public async redo(): Promise<void> {
         this.select(this.redoSelect);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         this.select(this.undoSelect);
     }
 
@@ -214,7 +214,7 @@ export class SelectMappingObjectViews extends EditorCommand {
             }
             for(const view of this.view) {
                 view.select(select);
-            }   
+            }
         }
     }
 

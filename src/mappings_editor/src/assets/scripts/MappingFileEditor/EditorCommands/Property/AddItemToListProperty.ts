@@ -17,7 +17,7 @@ export class AddItemToListProperty extends EditorCommand {
      * The property.
      */
     public readonly prop: ListProperty;
-    
+
 
     /**
      * Adds a {@link ListItem} to a {@link ListProperty}.
@@ -34,14 +34,14 @@ export class AddItemToListProperty extends EditorCommand {
         this.item = item;
         this.index = index;
     }
-    
+
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.insertListItem(this.item, this.index);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -51,7 +51,7 @@ export class AddItemToListProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.removeListItem(this.item);
         issueDirective(EditorDirective.Autosave);
     }
