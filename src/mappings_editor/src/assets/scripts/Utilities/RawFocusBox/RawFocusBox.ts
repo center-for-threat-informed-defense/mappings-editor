@@ -36,7 +36,7 @@ export class RawFocusBox {
     /**
      * Indicates if an exit item has just been clicked or not.
      */
-    private _lastTarget: HTMLElement;
+    private _lastTarget: HTMLElement | null;
 
 
     /**
@@ -138,7 +138,7 @@ export class RawFocusBox {
     /**
      * Focus in behavior.
      */
-    public onFocusIn() {
+    private onFocusIn() {
         // If last target was inside an element with an exit flag...
         if(this.isTargetInExitElement(this._lastTarget)) {
             // ...force container out of focus
@@ -157,7 +157,7 @@ export class RawFocusBox {
      * @param event
      *  The focus event.
      */
-    public onFocusOut(event: FocusEvent) {
+    private onFocusOut(event: FocusEvent) {
         // If target is not a child of this container, unfocus.
         const target = event.relatedTarget as Node | null;
         if(this._focused && !this._el!.contains(target)) {
@@ -171,7 +171,7 @@ export class RawFocusBox {
      * @param event
      *  The pointer event.
      */
-    public onPointerEvent(event: PointerEvent | MouseEvent) {
+    private onPointerEvent(event: PointerEvent | MouseEvent) {
         this._lastTarget = event.target as HTMLElement;
         // If target is inside an element with an exit flag...
         if(this.isTargetInExitElement(this._lastTarget)) {
@@ -183,7 +183,16 @@ export class RawFocusBox {
         }
     }
 
-    public isTargetInExitElement(el: HTMLElement) {
+    /**
+     * Tests if an element has (or is contained within an element that has) the
+     * `exit-focus-box` attribute.
+     * @param el
+     *  The element to test.
+     * @returns
+     *  True if the element has (or is contained within an element that has)
+     *  the `exit-focus-box` attribute, false otherwise.
+     */
+    private isTargetInExitElement(el: HTMLElement | null) {
         while(el && this._el !== el) {
             if(el.hasAttribute("exit-focus-box")) {
                 return true;
