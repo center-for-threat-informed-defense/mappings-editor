@@ -36,22 +36,20 @@ export class RegisterFramework extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         // Create raw references
         const fileAuthority = toRaw(this.context.fileAuthority);
         // Register framework
         fileAuthority.registry.registerFramework(this.framework);
-        // Export
+        // Reload open file
         const { id, version: ver } = this.framework;
         const file = toRaw(this.context.activeEditor.file) as MappingFile;
         if(
             (id === file.sourceFramework && ver === file.sourceVersion) ||
             (id === file.targetFramework && ver === file.targetVersion)
         ) {
-            fileAuthority.reloadMappingFile(file).then(file => {
-                this.context.activeEditor.tryDispatchOutstandingAutosave();
-                this.context.execute(new LoadFile(this.context, file));
-            });
+            const reloadedFile = await fileAuthority.reloadMappingFile(file);
+            new LoadFile(this.context, reloadedFile).execute();
         }
     }
 
