@@ -4,6 +4,7 @@
             "new_file": "Control+N",
             "open_file": "Control+O",
             "import_file": "Control+I",
+            "register_framework": "",
             "save_file": "Control+S"
         },
         "edit": {

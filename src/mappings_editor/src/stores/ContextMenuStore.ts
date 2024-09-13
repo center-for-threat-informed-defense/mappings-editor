@@ -27,6 +27,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             const sections: ContextMenuSection[] = [
                 this.openFileMenu,
                 this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
+                this.registerFrameworkMenu,
                 this.exportFileMenu,
                 this.saveFileMenu
             ].filter(Boolean) as ContextMenuSection[];
@@ -62,7 +63,28 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 ],
             }
         },
-        
+
+        /**
+         * Returns the 'register framework' menu section.
+         * @returns
+         *  The 'register framework' menu section.
+         */
+        registerFrameworkMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            const file = app.settings.hotkeys.file;
+            return {
+                id: "register_framework_options",
+                items: [
+                    {
+                        text: `Register Framework...`,
+                        type: MenuType.Item,
+                        data: () => AppCommands.registerFrameworkFromFileSystem(app),
+                        shortcut: file.register_framework
+                    }
+                ],
+            }
+        },
+
         /**
          * Returns the 'export file' menu section.
          * @returns
@@ -78,7 +100,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             const canExportNavigatorLayer = navigatorSupport.has(editor.file.targetFramework);
 
             // Build options
-            const exportAsOptions: ContextMenuSection = { 
+            const exportAsOptions: ContextMenuSection = {
                 id: "export_as_options",
                 items: [
                     {
@@ -109,7 +131,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
 
             // Return menu
-            return { 
+            return {
                 id: "export_as",
                 items: [ {
                     text: "Export As",
@@ -128,7 +150,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         recoverFileMenu(): ContextMenuSection {
             const app = useApplicationStore();
             const files = app.fileRecoveryBank.files;
-            
+
             // Build file list
             const items: ContextMenu[] = [];
             for(const [id, { name, date, contents }] of files) {
@@ -157,7 +179,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 text: "Open Recovered Files",
                 type: MenuType.Submenu,
                 sections: [
-                    { 
+                    {
                         id: "recovered_files",
                         items
                     },
@@ -173,7 +195,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
 
             // Return menu
-            return { 
+            return {
                 id: "recover_file_options",
                 items: [ submenu ]
             };
@@ -215,7 +237,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             return (ids.length === 1 && ids[0] !== editor.id) || 1 < ids.length;
         },
 
-        
+
         ///////////////////////////////////////////////////////////////////////
         //  2. Edit Menus  ////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
@@ -357,7 +379,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
         },
 
-        
+
         ///////////////////////////////////////////////////////////////////////
         //  3. View Menus  ////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
@@ -430,7 +452,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             };
         },
 
-        
+
         ///////////////////////////////////////////////////////////////////////
         //  4. Help Menu  /////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
@@ -455,7 +477,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 type: MenuType.Submenu,
                 sections: [
                     { id: "help_links", items },
-                    { 
+                    {
                         id: "version",
                         items: [
                             {

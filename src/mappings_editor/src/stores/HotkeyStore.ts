@@ -61,6 +61,11 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     disabled: editor.id === MappingFileEditor.Phantom.id
                 },
                 {
+                    data: () => AppCommands.registerFrameworkFromFileSystem(app),
+                    shortcut: file.register_framework,
+                    repeatable: false
+                },
+                {
                     data: () => AppCommands.saveActiveFileToDevice(app),
                     shortcut: file.save_file,
                     repeatable: false,
