@@ -1,7 +1,7 @@
 import "./RawFocusBox.css";
 
 export class RawFocusBox {
-    
+
     /**
      * The focus box's class name.
      */
@@ -32,6 +32,11 @@ export class RawFocusBox {
      * The focus box's event handlers.
      */
     private _eventHandlers: FocusEventHandlers;
+
+    /**
+     * Indicates if an exit item has just been clicked or not.
+     */
+    private _lastTarget: HTMLElement;
 
 
     /**
@@ -65,6 +70,7 @@ export class RawFocusBox {
             emitFocusOut: () => {},
             pointerdown: this.onPointerEvent.bind(this)
         }
+        this._lastTarget = null;
     }
 
 
@@ -133,8 +139,17 @@ export class RawFocusBox {
      * Focus in behavior.
      */
     public onFocusIn() {
-        this._focused = true;
-        this._eventHandlers.emitFocusIn();
+        // If last target was inside an element with an exit flag...
+        if(this.isTargetInExitElement(this._lastTarget)) {
+            // ...force container out of focus
+            this._el!.blur();
+        }
+        // If last target was inside container...
+        else {
+            // ...emit focus
+            this._focused = true;
+            this._eventHandlers.emitFocusIn();
+        }
     }
 
     /**
@@ -157,19 +172,25 @@ export class RawFocusBox {
      *  The pointer event.
      */
     public onPointerEvent(event: PointerEvent | MouseEvent) {
-        // If target is a child of this container...
-        let target = event.target as HTMLElement;
-        while(this._el !== target) {
-            // ...but has the exit flag, emit unfocus.
-            if(target.hasAttribute("exit-focus-box")) {
-                this._focused = false;
-                this._eventHandlers.emitFocusOut();
-                // Force the container out of focus
-                this._el!.blur();
-                return;
-            }
-            target = target.parentElement!;
+        this._lastTarget = event.target as HTMLElement;
+        // If target is inside an element with an exit flag...
+        if(this.isTargetInExitElement(this._lastTarget)) {
+            // ...emit unfocus...
+            this._focused = false;
+            this._eventHandlers.emitFocusOut();
+            // ...and force the container out of focus
+            this._el!.blur();
         }
+    }
+
+    public isTargetInExitElement(el: HTMLElement) {
+        while(el && this._el !== el) {
+            if(el.hasAttribute("exit-focus-box")) {
+                return true;
+            }
+            el = el.parentElement!;
+        }
+        return false;
     }
 
 }
