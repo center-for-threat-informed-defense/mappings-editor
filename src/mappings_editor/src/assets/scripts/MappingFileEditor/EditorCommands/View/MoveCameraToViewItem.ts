@@ -12,7 +12,7 @@ export class MoveCameraToViewItem extends EditorCommand {
      * The view item's id.
      */
     public readonly id: string;
-    
+
     /**
      * The camera's position upon execute.
      */
@@ -32,7 +32,7 @@ export class MoveCameraToViewItem extends EditorCommand {
     /**
      * Moves the camera to a {@link MappingFileViewItem}. This command
      * allows you to set the camera position for each command state
-     * (i.e. execute, undo, and redo). 
+     * (i.e. execute, undo, and redo).
      * @param view
      *  The view item.
      * @param execPosition
@@ -52,7 +52,7 @@ export class MoveCameraToViewItem extends EditorCommand {
     /**
      * Moves the camera to a {@link MappingFileViewItem}. This command
      * allows you to set the camera position for each command state
-     * (i.e. execute, undo, and redo). 
+     * (i.e. execute, undo, and redo).
      * @param fileView
      *  The mapping file view to operate on.
      * @param id
@@ -100,21 +100,21 @@ export class MoveCameraToViewItem extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.move(this.execPosition);
     }
 
     /**
      * Redoes the editor command.
      */
-    public redo(): void {
+    public async redo(): Promise<void> {
         this.move(this.redoPosition);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         this.move(this.undoPosition);
     }
 
@@ -133,7 +133,7 @@ export class MoveCameraToViewItem extends EditorCommand {
 }
 
 type CameraPosition = {
-    
+
     /**
      * The view item's location in the viewport.
      */

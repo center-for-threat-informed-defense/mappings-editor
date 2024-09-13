@@ -25,7 +25,7 @@ export class GroupCommand extends EditorCommand {
      * Executes a series of editor commands.
      */
     constructor();
-    
+
     /**
      * Executes a series of editor commands.
      * @param reverseCommandsOnUndo
@@ -46,7 +46,7 @@ export class GroupCommand extends EditorCommand {
         this._reverseCommandsOnUndo = reverseCommandsOnUndo;
         this._rollbackOnFailure = rollbackOnFailure;
     }
-    
+
 
     /**
      * Appends a command to the command sequence.
@@ -65,8 +65,8 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
-        this._execute("execute", issueDirective);
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
+        return this._execute("execute", issueDirective);
     }
 
     /**
@@ -74,8 +74,8 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public redo(issueDirective: DirectiveIssuer = () => {}): void {
-        this._execute("redo", issueDirective);
+    public async redo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
+        return this._execute("redo", issueDirective);
     }
 
     /**
@@ -83,16 +83,16 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         // Run first phase
         if(this._reverseCommandsOnUndo) {
             const l = this._commands.length - 1;
             for(let i = l; 0 <= i; i--) {
-                this._commands[i].undo(issueDirective);
+                await this._commands[i].undo(issueDirective);
             }
         } else {
             for(let i = 0; i < this._commands.length; i++) {
-                this._commands[i].undo(issueDirective);
+                await this._commands[i].undo(issueDirective);
             }
         }
     }
@@ -104,26 +104,26 @@ export class GroupCommand extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    private _execute(func: "execute" | "redo", issueDirective: DirectiveIssuer) { 
+    private async _execute(func: "execute" | "redo", issueDirective: DirectiveIssuer) {
         let i = 0;
         try {
             for(; i < this._commands.length; i++) {
-                this._commands[i][func](issueDirective);
+                await this._commands[i][func](issueDirective);
             }
         } catch (ex) {
             if(this._rollbackOnFailure) {
                 if(this._reverseCommandsOnUndo) {
                     for(i--; 0 <= i; i--) {
-                        this._commands[i].undo();
+                        await this._commands[i].undo();
                     }
                 } else {
                     for(let j = 0; j < i; j++) {
-                        this._commands[j].undo();
+                        await this._commands[j].undo();
                     }
                 }
             }
             throw ex;
         }
-    } 
+    }
 
 }

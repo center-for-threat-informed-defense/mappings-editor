@@ -32,7 +32,7 @@ export class RemoveFileFromRecoveryBank extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         // Cancel any outstanding saves
         this.editor.tryCancelAutosave();
         // Remove file from recovery bank

@@ -47,7 +47,7 @@ export class LoadFile extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this._context.activeEditor = this._editor;
     }
 

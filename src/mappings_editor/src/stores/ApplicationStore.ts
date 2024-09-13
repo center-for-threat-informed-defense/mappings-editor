@@ -64,13 +64,13 @@ export const useApplicationStore = defineStore('applicationStore', {
          * @param command
          *  The application command.
          */
-        execute(command: AppCommand | EditorCommand) {
+        async execute(command: AppCommand | EditorCommand) {
             if(command instanceof EditorCommand) {
                 // Execute editor command
-                this.activeEditor.execute(command);
+                await this.activeEditor.execute(command);
             } else {
                 // Execute application command
-                command.execute();
+                await command.execute();
             }
             // Temporarily hold any autosaving
             this.activeEditor.tryDelayAutosave();

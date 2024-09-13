@@ -7,7 +7,7 @@ export class DeleteMappingObjects extends EditorCommand {
      * The objects' mapping file.
      */
     public readonly file: MappingFile | null;
-    
+
     /**
      * The mapping object groups to delete.
      */
@@ -17,12 +17,12 @@ export class DeleteMappingObjects extends EditorCommand {
          * The group's preceding object.
          */
         readonly location: string | undefined,
-        
+
         /**
          * A group of contiguous mapping objects.
          */
         readonly objects: MappingObject[]
-    
+
     }>;
 
 
@@ -85,7 +85,7 @@ export class DeleteMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         if(this.file === null) {
             return;
         }
@@ -108,7 +108,7 @@ export class DeleteMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         if(this.file === null) {
             return;
         }

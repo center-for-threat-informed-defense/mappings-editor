@@ -13,6 +13,6 @@ export class NullCommand extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {}
+    public async execute(): Promise<void> {}
 
 }

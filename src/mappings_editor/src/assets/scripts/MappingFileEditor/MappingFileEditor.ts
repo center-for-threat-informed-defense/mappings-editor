@@ -82,7 +82,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * The editor's search index.
      */
     private _searchIndex: Document<MappingObjectDocument>;
-    
+
 
     /**
      * The last time the editor autosaved.
@@ -166,7 +166,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      * @returns
      *  The command directives.
      */
-    public execute(...commands: EditorCommand[]) {
+    public async execute(...commands: EditorCommand[]) {
         // Package command
         let cmd: EditorCommand;
         if (commands.length === 0) {
@@ -183,7 +183,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         // Construct arguments
         const { args, issuer } = this.newDirectiveArguments();
         // Execute command
-        cmd.execute(issuer);
+        await cmd.execute(issuer);
         if (args.directives & EditorDirective.Record) {
             this._redoStack = [];
             this._undoStack.push(cmd);
@@ -246,13 +246,13 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     /**
      * Undoes the last editor command.
      */
-    public undo() {
+    public async undo() {
         if (this._undoStack.length) {
             // Construct arguments
             const { args, issuer } = this.newDirectiveArguments();
             // Execute undo
             const cmd = this._undoStack[this._undoStack.length - 1];
-            cmd.undo(issuer);
+            await cmd.undo(issuer);
             this._redoStack.push(this._undoStack.pop()!);
             this.executeDirectives(args);
         }
@@ -270,13 +270,13 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     /**
      * Redoes the last undone editor command.
      */
-    public redo() {
+    public async redo() {
         if (this._redoStack.length) {
             // Construct arguments
             const { args, issuer } = this.newDirectiveArguments();
             // Execute redo
             const cmd = this._redoStack[this._redoStack.length - 1];
-            cmd.redo(issuer);
+            await cmd.redo(issuer);
             this._undoStack.push(this._redoStack.pop()!);
             this.executeDirectives(args);
         }
@@ -291,7 +291,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         return 0 < this._redoStack.length;
     }
 
-    
+
     ///////////////////////////////////////////////////////////////////////////
     //  3. Autosave  //////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -432,7 +432,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         }
         return results;
     }
-    
+
 
     ///////////////////////////////////////////////////////////////////////////
     //  6. Phantom  ///////////////////////////////////////////////////////////

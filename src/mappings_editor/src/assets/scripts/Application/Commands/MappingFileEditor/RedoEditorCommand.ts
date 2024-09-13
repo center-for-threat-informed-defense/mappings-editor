@@ -23,8 +23,8 @@ export class RedoEditorCommand extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
-        this._editor.redo();
+    public async execute(): Promise<void> {
+        await this._editor.redo();
     }
 
 }

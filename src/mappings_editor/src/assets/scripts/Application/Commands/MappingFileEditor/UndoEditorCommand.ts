@@ -18,13 +18,13 @@ export class UndoEditorCommand extends AppCommand {
         super();
         this._editor = editor;
     }
-    
+
 
     /**
      * Executes the command.
      */
-    public execute(): void {
-        this._editor.undo();
+    public async execute(): Promise<void> {
+        await this._editor.undo();
     }
 
 }

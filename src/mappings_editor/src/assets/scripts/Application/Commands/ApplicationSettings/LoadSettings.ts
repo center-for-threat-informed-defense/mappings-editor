@@ -32,8 +32,8 @@ export class LoadSettings extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
-        this._context.settings = this._settings; 
+    public async execute(): Promise<void> {
+        this._context.settings = this._settings;
     }
 
 }

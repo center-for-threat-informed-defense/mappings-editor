@@ -15,7 +15,7 @@ export class GroupCommand extends AppCommand {
         super();
         this._commands = [];
     }
-    
+
 
     /**
      * Adds a command to the group.
@@ -29,9 +29,9 @@ export class GroupCommand extends AppCommand {
     /**
      * Applies the set of commands.
      */
-    public execute() {
+    public async execute(): Promise<void> {
         for(let i = 0; i < this._commands.length; i++) {
-            this._commands[i].execute();
+            await this._commands[i].execute();
         }
     }
 

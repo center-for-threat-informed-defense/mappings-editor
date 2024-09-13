@@ -11,40 +11,40 @@ export abstract class EditorCommand {
     /**
      * Executes the editor command.
      */
-    public abstract execute(): void;
+    public abstract execute(): Promise<void>;
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public abstract execute(issueDirective?: DirectiveIssuer): void;
+    public abstract execute(issueDirective?: DirectiveIssuer): Promise<void>;
 
     /**
      * Redoes the editor command.
      */
-    public redo(): void;
-    
+    public redo(): Promise<void>;
+
     /**
      * Redoes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public redo(issueDirective?: DirectiveIssuer): void;
-    public redo(issueDirective?: DirectiveIssuer) {
-        this.execute(issueDirective);
+    public async redo(issueDirective?: DirectiveIssuer): Promise<void>;
+    public async redo(issueDirective?: DirectiveIssuer): Promise<void> {
+        return this.execute(issueDirective);
     }
 
     /**
      * Undoes the editor command.
      */
-    abstract undo(): void;
- 
+    abstract undo(): Promise<void>;
+
     /**
      * Undoes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    abstract undo(issueDirective?: DirectiveIssuer): void;
+    abstract undo(issueDirective?: DirectiveIssuer): Promise<void>;
 
 }

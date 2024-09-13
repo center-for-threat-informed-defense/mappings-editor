@@ -31,13 +31,13 @@ export class CollapseAllMappingObjectViews extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.fileView.setAllItemsCollapse(this.value, o => o instanceof MappingObjectView);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {}
+    public async undo(): Promise<void> {}
 
 }

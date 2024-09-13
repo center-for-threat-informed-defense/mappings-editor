@@ -22,7 +22,7 @@ export class OpenHyperlink extends AppCommand {
     /**
      * Executes the command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         window.open(this._url, "_blank");
     }
 

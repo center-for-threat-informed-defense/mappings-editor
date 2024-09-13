@@ -17,7 +17,7 @@ export class DeleteItemFromListProperty extends EditorCommand {
      * The property.
      */
     public readonly prop: ListProperty;
-    
+
 
     /**
      * Deletes a {@link ListItem} from a {@link ListProperty}.
@@ -35,14 +35,14 @@ export class DeleteItemFromListProperty extends EditorCommand {
             throw new Error(`List does not contain item '${ item.id }'.`)
         }
     }
-    
+
 
     /**
      * Executes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.removeListItem(this.item);
         issueDirective(EditorDirective.Record | EditorDirective.Autosave);
     }
@@ -52,7 +52,7 @@ export class DeleteItemFromListProperty extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         this.prop.insertListItem(this.item, this.index);
         issueDirective(EditorDirective.Autosave);
     }

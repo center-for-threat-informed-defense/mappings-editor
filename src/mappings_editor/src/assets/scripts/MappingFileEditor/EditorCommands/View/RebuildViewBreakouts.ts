@@ -7,7 +7,7 @@ export class RebuildViewBreakouts extends EditorCommand {
      */
     public readonly fileView: MappingFileView;
 
-    
+
     /**
      * Rebuilds a {@link MappingFileView}'s breakouts.
      * @param fileView
@@ -22,14 +22,14 @@ export class RebuildViewBreakouts extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.fileView.rebuildBreakouts();
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         this.fileView.rebuildBreakouts();
     }
 

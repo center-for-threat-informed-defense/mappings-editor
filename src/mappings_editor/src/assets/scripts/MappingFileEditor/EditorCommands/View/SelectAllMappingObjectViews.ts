@@ -25,7 +25,7 @@ export class SelectAllMappingObjectViews extends EditorCommand {
 
     /**
      * Custom select behavior for all {@link MappingObjectView}s within a
-     * {@link MappingFileView}. This command allows you to set the select state 
+     * {@link MappingFileView}. This command allows you to set the select state
      * for each command state (i.e. execute and undo).
      * @param fileView
      *  The mapping file view to operate on.
@@ -38,7 +38,7 @@ export class SelectAllMappingObjectViews extends EditorCommand {
 
     /**
      * Custom select behavior for all {@link MappingObjectView}s within a
-     * {@link MappingFileView}. This command allows you to set the select state 
+     * {@link MappingFileView}. This command allows you to set the select state
      * for each command state (i.e. execute, undo, and redo).
      * @param fileView
      *  The mapping file view to operate on.
@@ -62,21 +62,21 @@ export class SelectAllMappingObjectViews extends EditorCommand {
     /**
      * Executes the editor command.
      */
-    public execute(): void {
+    public async execute(): Promise<void> {
         this.select(this.execSelect);
     }
 
     /**
      * Redoes the editor command.
      */
-    public redo(): void {
+    public async redo(): Promise<void> {
         this.select(this.redoSelect);
     }
 
     /**
      * Undoes the editor command.
      */
-    public undo(): void {
+    public async undo(): Promise<void> {
         this.select(this.undoSelect);
 
     }

@@ -21,7 +21,7 @@ export class ReindexMappingObjects extends EditorCommand {
      *  The mapping object's id.
      */
     constructor(ids: string);
-    
+
     /**
      * Reindexes a set of mapping objects.
      * @remarks
@@ -46,7 +46,7 @@ export class ReindexMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public execute(issueDirective: DirectiveIssuer = () => {}): void {
+    public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         for(const id of this.ids) {
             issueDirective(EditorDirective.Reindex, id);
         }
@@ -57,7 +57,7 @@ export class ReindexMappingObjects extends EditorCommand {
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
-    public undo(issueDirective: DirectiveIssuer = () => {}): void {
+    public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         for(const id of this.ids) {
             issueDirective(EditorDirective.Reindex, id);
         }
