@@ -224,12 +224,11 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
      *  The arguments.
      */
     public executeDirectives(args: DirectiveArguments) {
-        // Request autosave
         if (args.directives & EditorDirective.Autosave) {
             // Update last modified
             this.file.modifiedDate = new Date();
-            // Request autosave
-            this.requestAutosave();
+            // Request save
+            this.requestSave();
         }
         // Update reindex file
         if (args.directives & EditorDirective.Reindex) {
@@ -298,41 +297,63 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
 
     /**
-     * Requests a save.
+     * Forces the dispatch of any outstanding save action.
      */
-    private requestAutosave() {
-        if (this._autosaveTimeoutId !== null) {
-            clearTimeout(this._autosaveTimeoutId);
+    public tryDispatchOutstandingAutosave() {
+        if(this.tryCancelAutosave()) {
+            this.save();
         }
-        this._autosaveTimeoutId = window.setTimeout(() => {
-            this._autosaveTimeoutId = null;
-            try {
-                this.emit("autosave", this);
-                this._lastAutosave = new Date();
-            } catch (ex) {
-                this._lastAutosave = new Date(Number.NaN);
-                console.error("Failed to autosave:");
-                console.error(ex);
-            }
-        }, this._autosaveInterval);
     }
 
     /**
-     * Temporarily withholds an outstanding save action (if one exists).
+     * Temporarily withholds any outstanding save action.
      */
     public tryDelayAutosave(): void {
         if (this._autosaveTimeoutId !== null) {
-            this.requestAutosave();
+            this.requestSave();
         }
     }
 
     /**
-     * Cancels an outstanding save action (if one exists).
+     * Cancels any outstanding save action.
+     * @returns
+     *  True if the save action was cancelled.
+     *  False if no save action was scheduled.
      */
     public tryCancelAutosave() {
         if (this._autosaveTimeoutId !== null) {
             clearTimeout(this._autosaveTimeoutId);
             this._autosaveTimeoutId = null;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Performs a save action at the editor's earliest convenience.
+     */
+    private requestSave() {
+        if (this._autosaveTimeoutId !== null) {
+            clearTimeout(this._autosaveTimeoutId);
+        }
+        this._autosaveTimeoutId = window.setTimeout(() => {
+            this._autosaveTimeoutId = null;
+            this.save();
+        }, this._autosaveInterval);
+    }
+
+    /**
+     * Invokes all `autosave` event handlers.
+     */
+    private save() {
+        try {
+            this.emit("autosave", this);
+            this._lastAutosave = new Date();
+        } catch (ex) {
+            this._lastAutosave = new Date(Number.NaN);
+            console.error("Failed to autosave:");
+            console.error(ex);
         }
     }
 

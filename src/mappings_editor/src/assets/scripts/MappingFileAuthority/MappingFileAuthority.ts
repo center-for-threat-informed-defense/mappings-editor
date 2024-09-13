@@ -1,12 +1,12 @@
 import { Reactivity, type MappingFileImport, type MappingObjectImport } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
-import { 
-    DynamicFrameworkObjectProperty, 
-    EditableDynamicFrameworkListing, 
-    EditableStrictFrameworkListing, 
+import {
+    DynamicFrameworkObjectProperty,
+    EditableDynamicFrameworkListing,
+    EditableStrictFrameworkListing,
     FrameworkObjectProperty,
     ListItem,
-    ListProperty, 
+    ListProperty,
     MappingObject,
     StrictFrameworkObjectProperty,
     StringProperty,
@@ -32,7 +32,7 @@ export class MappingFileAuthority {
         this.registry = registry;
     }
 
-    
+
     ///////////////////////////////////////////////////////////////////////////
     //  1. Create Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ export class MappingFileAuthority {
               sv = file.source_version,
               tf = file.target_framework,
               tv = file.target_version
-        
+
         // Validate source and target version
         if(!(sf && sv && tf && tv)) {
             throw new Error("Mapping File does not define source and target frameworks.");
@@ -67,7 +67,7 @@ export class MappingFileAuthority {
             authorContact      : new StringProperty("Author E-mail", file.author_contact || null),
             authorOrganization : new StringProperty("Author Organization", file.author_organization || null)
         });
-        
+
         // Create mapping file
         const now = Date.now();
         const mappingFile = new MappingFile({
@@ -78,7 +78,7 @@ export class MappingFileAuthority {
         });
 
         // Load dictionaries into file lists
-        const stringTransform 
+        const stringTransform
             = (id: string, name: string) => ({ id, name });
         const objectTransform
             = (id: string, { name, description }: any) => ({ id, name, description });
@@ -107,7 +107,7 @@ export class MappingFileAuthority {
             ) ?? null;
             mappingObjectTemplate.mappingType.value = mappingType
         }
-        
+
         return mappingFile;
 
     }
@@ -122,7 +122,7 @@ export class MappingFileAuthority {
      *  The newly created {@link FrameworkObjectProperty}.
      */
     private async createFrameworkObjectProp(id: string, version: string): Promise<FrameworkObjectProperty> {
-        
+
         // If the registry has the framework...
         if(this.registry.hasFramework(id, version)) {
             // ...create a strict framework object property
@@ -143,7 +143,7 @@ export class MappingFileAuthority {
             const listing = new EditableDynamicFrameworkListing(id, version);
             return new DynamicFrameworkObjectProperty("", listing);
         }
-        
+
     }
 
     /**
@@ -226,9 +226,44 @@ export class MappingFileAuthority {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //  4. Reload Mapping File  ///////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Reloads an existing Mapping File.
+     * @remarks
+     *  Reloading a Mapping File can be useful when you want an existing
+     *  Mapping File to take advantage of a newly registered framework.
+     * @param file
+     *  The existing Mapping File.
+     * @returns
+     *  The reloaded Mapping File.
+     */
+    public async reloadMappingFile(file: MappingFile): Promise<MappingFile> {
+        const rawThis = Reactivity.toRaw(this);
+        // Serialize file
+        const fileExport = this.exportMappingFile(file);
+        // Create new file
+        const newFile = await rawThis.createEmptyMappingFile({
+            ...fileExport,
+            creation_date: fileExport.creation_date.toISOString(),
+            modified_date: fileExport.modified_date.toISOString()
+        }, file.id);
+        // Load mapping objects into file
+        for(const obj of fileExport.mapping_objects ?? []) {
+            const newObject = newFile.createMappingObject(
+                this.convertMappingObjectImportToParams(obj)
+            );
+            newFile.insertMappingObject(newObject);
+        }
+        return newFile;
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////
-    //  4. Migrate Mapping File  //////////////////////////////////////////////
+    //  5. Migrate Mapping File  //////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -243,9 +278,9 @@ export class MappingFileAuthority {
         return file;
     }
 
-    
+
     ///////////////////////////////////////////////////////////////////////////
-    //  5. Audit Mapping File  ////////////////////////////////////////////////
+    //  6. Audit Mapping File  ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -254,12 +289,12 @@ export class MappingFileAuthority {
             throw new Error(`Mapping '${ object.id }' must be belong to a Mapping File to be audited.`)
         }
     }
-    
+
 
     ///////////////////////////////////////////////////////////////////////////
-    //  6. Merge Mapping Files ////////////////////////////////////////////////
+    //  7. Merge Mapping Files ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
-    
+
 
     /**
      * Merges multiple {@link MappingFileImport}s together.
@@ -271,7 +306,7 @@ export class MappingFileAuthority {
     public mergeMappingFileImports(files: MappingFileImport[]): MappingFileImport {
         type ObjectKeys = KeysOfType<MappingFileImport, object>;
         type KeysOfType<T,V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
-        
+
         // Validate files
         if(files.length === 0) {
             throw new Error("No imports provided.");
@@ -279,7 +314,7 @@ export class MappingFileAuthority {
         if(files.length === 1) {
             return files[0]
         }
-       
+
         // Merge files
         const listProperties: ObjectKeys[] = [
             "capability_groups",
@@ -310,7 +345,7 @@ export class MappingFileAuthority {
                 const dst = target[list];
                 for(const key in src) {
                     if(key in dst) {
-                       continue; 
+                       continue;
                     }
                     dst[key] = src[key];
                 }
@@ -324,7 +359,7 @@ export class MappingFileAuthority {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    //  7. Export Mapping File  ///////////////////////////////////////////////
+    //  8. Export Mapping File  ///////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -336,7 +371,7 @@ export class MappingFileAuthority {
      *  The exported Mapping File.
      */
     public exportMappingFile(file: MappingFile): MappingFileExport;
-    
+
     /**
      * Exports a Mapping File to a plain JSON object.
      * @param file
@@ -348,12 +383,12 @@ export class MappingFileAuthority {
      */
     public exportMappingFile(file: MappingFile, includeObjects: boolean): MappingFileExport;
     public exportMappingFile(file: MappingFile, includeObjects: boolean = true): MappingFileExport {
-        
+
         // Convert list properties to maps
-        const stringTransform 
+        const stringTransform
             = (item: ListItem) => item.getAsString("name");
         const objectTransform
-            = (item: ListItem) => ({ 
+            = (item: ListItem) => ({
                 name        : item.getAsString("name"),
                 description : item.getAsString("description")
             });
@@ -373,7 +408,7 @@ export class MappingFileAuthority {
         ] = argSets.map(
             args => this.convertListPropertyToDictionary(...args)
         );
-        
+
         // Compile objects
         let mapping_objects: MappingObjectExport[] = [];
         if(includeObjects) {
@@ -445,7 +480,7 @@ export class MappingFileAuthority {
 
 
     /**
-     * Coverts a {@link ListProperty} to a dictionary of values. 
+     * Coverts a {@link ListProperty} to a dictionary of values.
      * @param prop
      *  The {@link ListProperty} to convert.
      * @param key
