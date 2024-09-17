@@ -22,11 +22,16 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
     private _objectText: string | null;
 
     /**
+     * Returns true if the object property is cached, false otherwise.
+     */
+    private _objectCached: boolean;
+
+    /**
      * The property's internal (editable) framework listing.
      */
     private readonly _framework: EditableStrictFrameworkListing;
 
-    
+
     /**
      * The property's (read-only) framework listing.
      */
@@ -46,6 +51,14 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      */
     set objectId(value: string | null) {
         if(this._framework.options.has(value)) {
+            // Pivot reference
+            if(this._objectCached) {
+                this._objectCached = false;
+                this._framework.pivotReference(value, null);
+            } else {
+                this._framework.pivotReference(value, this.objectId);
+            }
+            // Update value
             this._objectId = value;
             this._objectText = this._framework.options.get(value)!;
             // If the previous value originated from an unknown version of the
@@ -89,6 +102,7 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
         super(name, framework);
         this._objectId = null;
         this._objectText = null;
+        this._objectCached = true;
         this._framework = framework;
     }
 
@@ -96,9 +110,9 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
     /**
      * Sets the property's object value. If the specified object value is
      * invalid, the value is cached instead.
-     * @param id 
+     * @param id
      *  The framework object's id.
-     * @param text 
+     * @param text
      *  The framework object's text.
      * @param framework
      *  The framework object's framework.
@@ -136,16 +150,16 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      * Caches the provided object value and, if necessary, removes the object's
      * current value from the underlying framework listing. If no value is
      * provided, the object's current value is cached instead.
-     * 
+     *
      * This function allows a property to be set with an invalid object value
      * (one not included in the framework listing). It also allows a valid
-     * object value to be temporarily withheld from the framework listing. 
-     * 
+     * object value to be temporarily withheld from the framework listing.
+     *
      * The latter can be useful when deleting a FrameworkObjectProperty from a
      * document. While the property is deleted, its value might not need to
      * appear in the underlying framework listing. However, we still want to
      * store its original value so we have the option of restoring it later.
-     * @param id 
+     * @param id
      *  The object's id.
      * @param text
      *  The object's text.
@@ -155,7 +169,11 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      *  The object's framework version.
      */
     public cacheObjectValue(id?: string | null, text?: string | null, framework?: string, version?: string) {
-        this._objectId = id !== undefined ? id : this.objectId;
+        this._objectCached = true;
+        // Pivot off of listing
+        this._framework.pivotReference(null, this.objectId);
+        // Cache value
+        this._objectId = id !== undefined ? id : this._objectId;
         this._objectText = text !== undefined ? text : this.objectText;
         this._objectFramework = framework ?? this._objectFramework;
         this._objectVersion = version ?? this._objectVersion;
@@ -167,7 +185,7 @@ export class StrictFrameworkObjectProperty extends FrameworkObjectProperty {
      *  True if the property's object value is cached, false otherwise.
      */
     public isObjectValueCached(): boolean {
-        return this._framework.options.get(this._objectId) !== this._objectText;
+        return this._objectCached;
     }
 
     /**

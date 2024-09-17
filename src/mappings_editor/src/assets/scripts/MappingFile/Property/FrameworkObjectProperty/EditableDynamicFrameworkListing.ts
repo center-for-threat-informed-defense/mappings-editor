@@ -41,6 +41,13 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
     }
 
     /**
+     * The framework listing's current coverage.
+     */
+    public get coverage(): number {
+        return this._references.size / this._options.size;
+    }
+
+    /**
      * The framework listing's object id length.
      */
     public get objectIdLength(): number {
@@ -99,7 +106,7 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
         if(nextId === prevId) {
             return nextId;
         }
-        // If next object doesn't exists... 
+        // If next object doesn't exists...
         if(!this._options.has(nextId)) {
             // ...define the object
             let objectText = null;
@@ -117,7 +124,7 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
 
         // Increment the object's reference count
         this._references.set(nextId, this._references.get(nextId)! + 1);
-        
+
         // If previous object id exists...
         if(this._options.has(prevId)) {
             // ...decrement its reference count
@@ -134,11 +141,11 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
                 );
             }
         }
-        
+
         // Return the listing id
         return nextId;
     }
-    
+
     /**
      * Sets a framework object's text.
      * @param id
@@ -174,7 +181,7 @@ export class EditableDynamicFrameworkListing extends FrameworkListing {
             throw new Error(`Framework object '${ id }' does not exist.`)
         }
     }
-    
+
     /**
      * Returns the number of times a framework object's id is referenced.
      * @param id

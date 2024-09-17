@@ -76,6 +76,9 @@ export const useApplicationStore = defineStore('applicationStore', {
          *  The application command.
          */
         async execute(command: AppCommand | EditorCommand) {
+            // Update execution cycle
+            this.executionCycle++;
+            // Execute command
             if(command instanceof EditorCommand) {
                 // Execute editor command
                 await this.activeEditor.execute(command);
