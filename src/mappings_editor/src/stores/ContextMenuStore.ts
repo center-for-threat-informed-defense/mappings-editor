@@ -76,10 +76,16 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 id: "register_framework_options",
                 items: [
                     {
-                        text: `Register Framework...`,
+                        text: "Register Framework...",
                         type: MenuType.Item,
                         data: () => AppCommands.registerFrameworkFromFileSystem(app),
                         shortcut: file.register_framework
+                    },
+                    {
+                       text: "Unload All Frameworks",
+                       type: MenuType.Item,
+                       data: () => AppCommands.unloadStoredFrameworks(app),
+                       disabled: 0 === app.frameworkBank.files.size
                     }
                 ],
             }

@@ -1,10 +1,9 @@
 import { toRaw } from "vue";
+import { LoadFile } from "../FileManagement/LoadFile";
 import { AppCommand } from "../AppCommand";
-import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFile } from "@/assets/scripts/MappingFile";
 import type { FrameworkSource } from "@/assets/scripts/MappingFileAuthority";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import { LoadFile } from "../FileManagement/LoadFile";
 
 export class RegisterFramework extends AppCommand {
 

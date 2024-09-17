@@ -1,8 +1,9 @@
-import { FrameworkSourceFile, type Framework } from "@/assets/scripts/MappingFileAuthority";
 import { Browser } from "@/assets/scripts/Utilities";
 import { AppCommand } from "../AppCommand";
 import { LoadSettings } from "./LoadSettings";
-import { RegisterFramework } from "./RegisterFramework";
+import { LoadFrameworkFile } from "./LoadFramework";
+import { UnloadStoredFrameworks } from "./UnloadStoredFrameworks";
+import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import type { AppSettings } from "@/assets/scripts/Application";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 
@@ -20,7 +21,7 @@ export function loadSettings(context: ApplicationStore, settings: AppSettings): 
 }
 
 /**
- * Registers an existing framework with the application.
+ * Registers and saves a framework to the application's Framework Bank.
  * @param context
  *  The application's context.
  * @param file
@@ -31,10 +32,8 @@ export function loadSettings(context: ApplicationStore, settings: AppSettings): 
 export async function registerExistingFramework(context: ApplicationStore, file: string): Promise<AppCommand> {
    // Deserialize framework file
    const json = JSON.parse(file) as Framework;
-   // Load framework into file source
-   const source = new FrameworkSourceFile(json);
    // Return command
-   return new RegisterFramework(context, source);
+   return new LoadFrameworkFile(context, json);
 }
 
 /**
@@ -60,4 +59,16 @@ export async function registerFrameworkFromFileSystem(context: ApplicationStore)
  */
 export async function registerFrameworkFromUrl(context: ApplicationStore, url: string): Promise<AppCommand> {
    return registerExistingFramework(context, await (await fetch(url)).text());
+}
+
+/**
+ * Deregisters and deletes all Frameworks stored in the application's
+ * Framework Bank.
+ * @param context
+ *  The application context.
+ * @returns
+ *  A command that represents the action.
+ */
+export async function unloadStoredFrameworks(context: ApplicationStore) {
+   return new UnloadStoredFrameworks(context);
 }

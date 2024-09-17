@@ -1,12 +1,13 @@
 import Configuration from "@/assets/configuration/app.config";
 import { defineStore } from 'pinia'
-import { FileRecoveryBank } from "@/assets/scripts/Utilities";
+import { FileStore } from "@/assets/scripts/Utilities";
 import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEditor'
-import { FrameworkRegistry, FrameworksSourceUrl, MappingFileAuthority } from '@/assets/scripts/MappingFileAuthority'
+import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFileAuthority, type Framework } from '@/assets/scripts/MappingFileAuthority'
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
 
 // Build Framework Registry
 const registry = new FrameworkRegistry();
+// Load native frameworks
 const manifest = Configuration.native_frameworks_manifest;
 for(const file of manifest.files) {
     registry.registerFramework(
@@ -17,14 +18,24 @@ for(const file of manifest.files) {
         )
     )
 }
+// Load stored frameworks
+const frameworkBank = new FileStore("framework_bank.");
+for(const file of frameworkBank.files.values()) {
+    const framework = JSON.parse(file.contents) as Framework;
+    registry.registerFramework(
+        new FrameworkSourceFile(framework)
+    )
+}
 
 // Define Application Store
 export const useApplicationStore = defineStore('applicationStore', {
     state: () => ({
+        executionCycle: 0,
         activeEditor: MappingFileEditor.Phantom,
         fileAuthority: new MappingFileAuthority(registry),
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
-        fileRecoveryBank: new FileRecoveryBank(),
+        fileRecoveryBank: new FileStore("file_recovery_bank."),
+        frameworkBank: frameworkBank,
         settings: BaseAppSettings
     }),
     getters: {
