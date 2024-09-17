@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.2.0...mappings_editor-v1.3.0) (2024-09-17)
+
+
+### Features
+
+* allow registration of custom Mapping Frameworks ([a8f3319](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/a8f3319516677a1ceca5bcb70e7f8bf905345367))
+* display Mapping Framework coverage in the application's footer ([a8f3319](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/a8f3319516677a1ceca5bcb70e7f8bf905345367))
+
+
+### Bug Fixes
+
+* address issue that prevents dropdown menus from closing in some browsers ([6e15f0b](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/6e15f0b37198bf061276f2a93f47d2aa89a880ee))
+* prevent import commands from corrupting the history buffer when undone ([a8f3319](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/a8f3319516677a1ceca5bcb70e7f8bf905345367))
+
 ## [1.2.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.1.0...mappings_editor-v1.2.0) (2024-09-04)
 
 
