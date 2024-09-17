@@ -19,10 +19,22 @@ export class EditableStrictFrameworkListing extends FrameworkListing {
     private _idLength: number;
 
     /**
+     * The framework listing reference count.
+     */
+    private readonly _references: Map<string | null, number>;
+
+    /**
      * The framework listing.
      */
     public get options(): ReadonlyMap<string | null, string | null> {
         return this._options;
+    }
+
+    /**
+     * The framework listing's current coverage.
+     */
+    public get coverage(): number {
+        return this._references.size / (this._options.size - 1);
     }
 
     /**
@@ -44,8 +56,39 @@ export class EditableStrictFrameworkListing extends FrameworkListing {
         super(framework, version);
         this._options = new Map([[null, null]]);
         this._idLength = FrameworkListing.DEFAULT_OBJ_ID_LEN;
+        this._references = new Map();
     }
 
+    /**
+     * Pivots a framework object reference.
+     * @param nextId
+     *  The object's new id.
+     *  (`null` if it should not have a next id.)
+     * @param prevId
+     *  The object's previous id.
+     *  (`null` if it did not have a previous id.)
+     */
+    public pivotReference(nextId: string | null, prevId: string | null) {
+        if(nextId === prevId) {
+            return;
+        }
+        const prev = this._references.get(prevId);
+        if(prev !== undefined) {
+            if(prev === 1) {
+                this._references.delete(prevId);
+            } else {
+                this._references.set(prevId, prev - 1);
+            }
+        }
+        if(nextId !== null) {
+            const next = this._references.get(nextId);
+            if(next === undefined) {
+                this._references.set(nextId, 1);
+            } else {
+                this._references.set(nextId, next + 1);
+            }
+        }
+    }
 
     /**
      * Registers a framework object.
@@ -62,5 +105,5 @@ export class EditableStrictFrameworkListing extends FrameworkListing {
             throw new Error(`Framework Object '${ id }' already registered.`);
         }
     }
-    
+
 }

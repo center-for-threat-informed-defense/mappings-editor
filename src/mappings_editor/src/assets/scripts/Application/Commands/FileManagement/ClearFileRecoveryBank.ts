@@ -29,7 +29,7 @@ export class ClearFileRecoveryBank extends AppCommand {
             if(id === this.context.activeEditor.id) {
                 continue;
             }
-            this.context.fileRecoveryBank.withdrawFile(id);
+            this.context.fileRecoveryBank.deleteFile(id);
         }
     }
 

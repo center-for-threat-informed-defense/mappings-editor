@@ -44,7 +44,7 @@ export class SaveFileToRecoveryBank extends AppCommand {
         // Serialize file
         const contents = fileSerializer.serialize(file);
         // Store file
-        this.context.fileRecoveryBank.storeOrUpdateFile(
+        this.context.fileRecoveryBank.saveFile(
             this.editor.id,
             this.editor.name,
             contents

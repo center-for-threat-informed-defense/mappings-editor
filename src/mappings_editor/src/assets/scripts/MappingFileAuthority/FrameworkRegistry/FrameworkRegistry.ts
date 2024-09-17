@@ -8,7 +8,7 @@ export class FrameworkRegistry {
      */
     private _registry: Map<string, Map<string, FrameworkSource>>
 
-    
+
     /**
      * Creates a new {@link MappingFrameworkRegistry}.
      */
@@ -29,17 +29,41 @@ export class FrameworkRegistry {
         }
         const framework = this._registry.get(source.id)!;
         // Select framework version
-        if(!framework.has(source.version)) {
-            framework.set(source.version, source);
-        } else {
-            throw new Error(
-                `Framework '${ 
-                    source.id
-                }@${
-                    source.version
-                }' already registered.`
-            );
+        framework.set(source.version, source);
+    }
+
+    /**
+     * Deregisters a framework from the registry, if it exists.
+     * @param id
+     *  The framework's identifier.
+     * @param version
+     *  The framework's version.
+     * @returns
+     *  True if the framework was removed, false otherwise.
+     */
+    public deregisterFramework(id: string, version: string): boolean {
+        const versions = this._registry.get(id);
+        if(versions && versions.has(version)) {
+            versions.delete(version);
+            if(!versions.size) {
+                this._registry.delete(id);
+            }
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Deregisters all frameworks from the registry, if any exist.
+     * @returns
+     *  True if frameworks were deregistered, false otherwise.
+     */
+    public deregisterAllFrameworks(): boolean {
+        if(this._registry.size) {
+            this._registry.clear();
+            return true;
+        }
+        return false;
     }
 
     /**

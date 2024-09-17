@@ -22,6 +22,11 @@ export abstract class FrameworkListing {
     abstract get options(): ReadonlyMap<string | null, string | null>;
 
     /**
+     * The framework listing's current coverage.
+     */
+    abstract get coverage(): number;
+
+    /**
      * The framework listing's object id length.
      */
     abstract get objectIdLength(): number;

@@ -4,6 +4,7 @@
             "new_file": "Meta+N",
             "open_file": "Meta+O",
             "import_file": "Meta+I",
+            "register_framework": "",
             "save_file": "Meta+S"
         },
         "edit": {

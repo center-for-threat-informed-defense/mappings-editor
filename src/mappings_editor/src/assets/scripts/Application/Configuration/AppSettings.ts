@@ -3,10 +3,11 @@
  */
 export const BaseAppSettings: AppSettings = {
     hotkeys: {
-        file: { 
+        file: {
             new_file: "",
             open_file: "",
             import_file: "",
+            register_framework: "",
             save_file: ""
         },
         edit: {
@@ -45,8 +46,9 @@ export type AppSettings = {
  */
 export type FileHotkeys = {
     new_file: string,
-    open_file: string, 
+    open_file: string,
     import_file: string,
+    register_framework: string,
     save_file: string
 }
 

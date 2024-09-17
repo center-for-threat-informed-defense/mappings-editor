@@ -203,6 +203,22 @@ export default defineComponent({
     await this.application.execute(AppCommands.loadSettings(this.application, settings));
     // Load file from query parameters, if possible
     let params = new URLSearchParams(window.location.search);
+    // Load framework from query parameters, if possible
+    let frm = params.getAll("framework");
+    if(frm.length) {
+      // Setup registrations
+      const registrations = frm.map(f => {
+        AppCommands.registerFrameworkFromUrl(this.application, f)
+          .then(cmd => this.application.execute(cmd))
+          .catch(ex => {
+            console.error(`Failed to register framework from url: '${ frm }'`);
+            console.error(ex);
+          })
+      });
+      // Await registrations
+      await Promise.all(registrations);
+    }
+    // Load file from query parameters, if possible
     let src = params.get("src");
     if(src) {
       try {

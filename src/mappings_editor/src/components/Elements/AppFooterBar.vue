@@ -25,10 +25,12 @@
       <div class="metric source-framework">
         <span class="framework">{{ sourceFramework }}:</span>
         <span class="version">{{ sourceVersion }}</span>
+        <span class="coverage">[{{ sourceCoverage }}]</span>
       </div>
       <div class="metric target-framework">
         <span class="framework">{{ targetFramework }}:</span>
         <span class="version">{{ targetVersion }}</span>
+        <span class="coverage">[{{ targetCoverage }}]</span>
       </div>
       <div class="metric mapping-validity valid" v-if="invalidMappingsCount === 0">
         <span class="icon">✓</span>All Mappings Valid
@@ -39,7 +41,7 @@
     </div>
   </div>
 </template>
-    
+
 <script lang="ts">
 // Dependencies
 import { defineComponent } from "vue";
@@ -65,7 +67,8 @@ export default defineComponent({
      *  The number of mappings in the active file.
      */
     mappingCount(): number {
-      return this.application.activeEditor.file.mappingObjects.size;
+      const size = this.application.activeEditor.file.mappingObjects.size;
+      return this.watchClosely(size);
     },
 
     /**
@@ -131,6 +134,16 @@ export default defineComponent({
     },
 
     /**
+     * Returns the active file's source framework coverage.
+     * @returns
+     *  The active file's source framework coverage.
+     */
+     sourceCoverage(): string {
+      const src = this.application.activeEditor.file.sourceFrameworkListing;
+      return this.watchClosely(`${ Math.round(src.coverage * 100) }%`);
+    },
+
+    /**
      * Returns the active file's target framework.
      * @returns
      *  The active file's target framework.
@@ -149,12 +162,23 @@ export default defineComponent({
     },
 
     /**
+     * Returns the active file's target framework coverage.
+     * @returns
+     *  The active file's target framework coverage.
+     */
+    targetCoverage(): string {
+      const tar = this.application.activeEditor.file.targetFrameworkListing;
+      return this.watchClosely(`${ Math.round(tar.coverage * 100) }%`);
+    },
+
+    /**
      * Returns the number of invalid mapping objects in the active view.
      * @returns
      *  The number of invalid mappings object in the active view.
      */
     invalidMappingsCount(): number {
-      return this.application.activeEditor.invalidObjects.size;
+      const size = this.application.activeEditor.invalidObjects.size;
+      return this.watchClosely(size);
     },
 
     /**
@@ -178,6 +202,18 @@ export default defineComponent({
      */
     normalize(str: string) {
       return str.replace(/_/g, " ").toLocaleUpperCase();
+    },
+
+    /**
+     * Returns the provided parameter.
+     * @remarks
+     *  The use of `toRaw()` in performance-critical operations prevents Vue
+     *  from consistently tracking changes to all properties. Tying the result
+     *  of this function to the current execution cycle ensures the provided
+     *  parameter is updated anytime the application executes a command.
+     */
+    watchClosely<T>(o: T): T {
+      return this.application.executionCycle ? o : o;
     }
 
   },
@@ -197,7 +233,7 @@ export default defineComponent({
   components: { FloppyDisk }
 });
 </script>
-    
+
 <style scoped>
 
 /** === Main Element === */
@@ -285,6 +321,10 @@ export default defineComponent({
 .version {
   margin-left: 4px;
   font-weight: 700;
+}
+
+.coverage {
+  margin-left: 4px;
 }
 
 /** === Validity Metrics === */

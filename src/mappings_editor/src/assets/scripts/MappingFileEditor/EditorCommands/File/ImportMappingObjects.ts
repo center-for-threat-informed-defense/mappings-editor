@@ -1,4 +1,5 @@
 import { Reactivity } from "../..";
+import { DeleteMappingObjects } from "./DeleteMappingObjects";
 import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
 import type { MappingFile, MappingObject, MappingObjectParameters } from "@/assets/scripts/MappingFile";
 
@@ -14,6 +15,11 @@ export class ImportMappingObjects extends EditorCommand {
      */
     public readonly objects: IdentifiedMappingObjectParameters[];
 
+    /**
+     * The delete command used to undo the import.
+     */
+    private _deleteCommand: DeleteMappingObjects | null;
+
 
     /**
      * Imports new {@link MappingObject}s into a {@link MappingFile}.
@@ -26,6 +32,7 @@ export class ImportMappingObjects extends EditorCommand {
         super();
         this.file = file;
         this.objects = objects;
+        this._deleteCommand = null;
     }
 
 
@@ -51,18 +58,25 @@ export class ImportMappingObjects extends EditorCommand {
     }
 
     /**
+     * Redoes the editor command.
+     * @param issueDirective
+     *  A function that can issue one or more editor directives.
+     */
+    public async redo(issueDirective?: DirectiveIssuer): Promise<void> {
+        await this._deleteCommand?.undo(issueDirective);
+        this._deleteCommand = null;
+    }
+
+    /**
      * Undoes the editor command.
      * @param issueDirective
      *  A function that can issue one or more editor directives.
      */
     public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
-        // Remove objects
-        this.file.removeMappingObjects(this.objects.map(o => o.objectId));
-        // Issue directives
-        issueDirective(EditorDirective.Autosave);
-        for(const obj of this.objects) {
-            issueDirective(EditorDirective.Reindex, obj.objectId);
-        }
+        this._deleteCommand = new DeleteMappingObjects(
+            this.objects.map(o => this.file.mappingObjects.get(o.objectId)!)
+        )
+        await this._deleteCommand.execute(issueDirective);
     }
 
 }

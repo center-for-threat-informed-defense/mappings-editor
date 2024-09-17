@@ -36,7 +36,7 @@ export class RemoveFileFromRecoveryBank extends AppCommand {
         // Cancel any outstanding saves
         this.editor.tryCancelAutosave();
         // Remove file from recovery bank
-        this.context.fileRecoveryBank.withdrawFile(this.editor.id);
+        this.context.fileRecoveryBank.deleteFile(this.editor.id);
     }
 
 }
