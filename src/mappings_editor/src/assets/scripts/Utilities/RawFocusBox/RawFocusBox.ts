@@ -68,7 +68,8 @@ export class RawFocusBox {
             emitFocusIn: () => {},
             focusOut: this.onFocusOut.bind(this),
             emitFocusOut: () => {},
-            pointerdown: this.onPointerEvent.bind(this)
+            pointerdown: this.onPointerEvent.bind(this),
+            targetUpdate: this.onTargetUpdate.bind(this)
         }
         this._lastTarget = null;
     }
@@ -113,6 +114,7 @@ export class RawFocusBox {
         this._el.addEventListener("focusin", this._eventHandlers.focusIn);
         this._el.addEventListener("focusout", this._eventHandlers.focusOut);
         if(this._pointerEvent) {
+            this._el.addEventListener("pointerdown", this._eventHandlers.targetUpdate);
             this._el.addEventListener(this._pointerEvent, this._eventHandlers.pointerdown);
         }
         this._eventHandlers.emitFocusIn = focusIn;
@@ -125,6 +127,7 @@ export class RawFocusBox {
         this._el?.removeEventListener("focusin", this._eventHandlers.focusIn);
         this._el?.removeEventListener("focusout", this._eventHandlers.focusOut);
         if(this._pointerEvent) {
+            this._el?.removeEventListener("pointerdown", this._eventHandlers.targetUpdate);
             this._el?.removeEventListener(this._pointerEvent, this.onPointerEvent);
         }
     }
@@ -139,8 +142,12 @@ export class RawFocusBox {
      * Focus in behavior.
      */
     private onFocusIn() {
+        // If target currently focused, do nothing
+        if(this._focused) {
+            return;
+        }
         // If last target was inside an element with an exit flag...
-        if(this.isTargetInExitElement(this._lastTarget)) {
+        else if(this.isTargetInExitElement(this._lastTarget)) {
             // ...force container out of focus
             this._el!.blur();
         }
@@ -167,12 +174,20 @@ export class RawFocusBox {
     }
 
     /**
+     * Target update behavior.
+     * @param event
+     *  The pointer event.
+     */
+    private onTargetUpdate(event: PointerEvent) {
+        this._lastTarget = event.target as HTMLElement;
+    }
+
+    /**
      * Pointer event behavior.
      * @param event
      *  The pointer event.
      */
-    private onPointerEvent(event: PointerEvent | MouseEvent) {
-        this._lastTarget = event.target as HTMLElement;
+    private onPointerEvent() {
         // If target is inside an element with an exit flag...
         if(this.isTargetInExitElement(this._lastTarget)) {
             // ...emit unfocus...
@@ -233,6 +248,14 @@ type FocusEventHandlers = {
      * @param event
      *  The pointer event.
      */
-    pointerdown: (event: PointerEvent | MouseEvent) => void
+    pointerdown: (event: PointerEvent | MouseEvent) => void;
+
+    /**
+     * Target update handler.
+     * @param event
+     *  The pointer event.
+     */
+    targetUpdate: (event: PointerEvent) => void;
+
 
 }
