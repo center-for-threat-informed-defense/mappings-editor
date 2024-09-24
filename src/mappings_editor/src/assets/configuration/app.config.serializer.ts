@@ -175,12 +175,13 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
-                "in_progress"        : "In Progress",
-                "internal_review"    : "Internal Review",
-                "participant_review" : "Participant Review",
-                "final_draft"        : "Final Draft",
-                "complete"           : "Complete",
-                "non_mappable"       : "Non-Mappable"
+                "in_progress"          : "In Progress",
+                "internal_review"      : "Internal Review",
+                "participant_review"   : "Participant Review",
+                "participant_reviewed" : "Participant Reviewed",
+                "final_draft"          : "Final Draft",
+                "complete"             : "Complete",
+                "non_mappable"         : "Non-Mappable"
             },
             score_categories: {
                 "protect"          : "Protect",
