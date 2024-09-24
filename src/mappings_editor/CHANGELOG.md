@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.3.0...mappings_editor-v1.4.0) (2024-09-24)
+
+
+### Features
+
+* add `Participant Reviewed` mapping status ([2724959](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/27249592ce146e97683c0650a1accd514f53cc00))
+
 ## [1.3.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.2.0...mappings_editor-v1.3.0) (2024-09-17)
 
 
