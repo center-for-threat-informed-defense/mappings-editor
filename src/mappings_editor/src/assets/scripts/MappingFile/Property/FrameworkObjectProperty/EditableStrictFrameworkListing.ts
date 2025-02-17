@@ -33,8 +33,8 @@ export class EditableStrictFrameworkListing extends FrameworkListing {
     /**
      * The framework listing's current coverage.
      */
-    public get coverage(): number {
-        return this._references.size / (this._options.size - 1);
+    public get coverage(): [number, number] {
+        return [this._references.size, (this._options.size - 1)];
     }
 
     /**

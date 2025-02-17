@@ -24,7 +24,7 @@ export abstract class FrameworkListing {
     /**
      * The framework listing's current coverage.
      */
-    abstract get coverage(): number;
+    abstract get coverage(): [number, number];
 
     /**
      * The framework listing's object id length.

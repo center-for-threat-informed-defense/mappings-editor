@@ -140,7 +140,8 @@ export default defineComponent({
      */
      sourceCoverage(): string {
       const src = this.application.activeEditor.file.sourceFrameworkListing;
-      return this.watchClosely(`${ Math.round(src.coverage * 100) }%`);
+      const [size, total] = src.coverage;
+      return this.watchClosely(`${size} / ${total}`);
     },
 
     /**
@@ -168,7 +169,8 @@ export default defineComponent({
      */
     targetCoverage(): string {
       const tar = this.application.activeEditor.file.targetFrameworkListing;
-      return this.watchClosely(`${ Math.round(tar.coverage * 100) }%`);
+      const [size, total] = tar.coverage;
+      return this.watchClosely(`${size} / ${total}`);
     },
 
     /**
