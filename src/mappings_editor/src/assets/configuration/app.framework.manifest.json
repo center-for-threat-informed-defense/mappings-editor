@@ -3,6 +3,16 @@
     "files": [
         {
             "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "16.1",
+            "filename": "mitre_attack_enterprise_16.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "16.0",
+            "filename": "mitre_attack_enterprise_16.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_enterprise",
             "frameworkVersion": "15.1",
             "filename": "mitre_attack_enterprise_15.1.json"
         },
@@ -88,6 +98,26 @@
         },
         {
             "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "16.1",
+            "filename": "mitre_attack_ics_16.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "16.0",
+            "filename": "mitre_attack_ics_16.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "15.1",
+            "filename": "mitre_attack_ics_15.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "15.0",
+            "filename": "mitre_attack_ics_15.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_ics",
             "frameworkVersion": "14.1",
             "filename": "mitre_attack_ics_14.1.json"
         },
@@ -165,6 +195,26 @@
             "frameworkId": "mitre_attack_ics",
             "frameworkVersion": "8.0",
             "filename": "mitre_attack_ics_8.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "16.1",
+            "filename": "mitre_attack_mobile_16.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "16.0",
+            "filename": "mitre_attack_mobile_16.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "15.1",
+            "filename": "mitre_attack_mobile_15.1.json"
+        },
+        {
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "15.0",
+            "filename": "mitre_attack_mobile_15.0.json"
         },
         {
             "frameworkId": "mitre_attack_mobile",
