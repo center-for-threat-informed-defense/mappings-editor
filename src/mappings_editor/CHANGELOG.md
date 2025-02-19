@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.4.0...mappings_editor-v1.5.0) (2025-02-17)
+
+
+### Features
+
+* add support for ATT&CK v16.0 and v16.1 ([1a452ca](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/1a452cad41568823b7afe8d6fab0b301ba39fe6d))
+* switch framework `coverage` format from `[percent]%` to `[size]/[total]` ([7d39bd8](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/7d39bd8752d08d6e0635858392fb68f5714157d6))
+
 ## [1.4.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.3.0...mappings_editor-v1.4.0) (2024-09-24)
 
 
