@@ -3,8 +3,8 @@
 
 # Mappings Editor
 
-The Mappings Editor is a tool developed by the [Center for Threat Informed
-Defense](https://mitre-engenuity.org/cybersecurity/center-for-threat-informed-defense/).
+The Mappings Editor is a tool developed by the [MITRE Center for Threat Informed
+Defense](https://ctid.mitre.org/).
 This tool is used by our internal team to produce our [Mappings
 Explorer](https://center-for-threat-informed-defense.github.io/mappings-explorer/) data,
 which maps popular security capabilities to the MITRE ATT&CK® knowledge base. We have
@@ -43,18 +43,18 @@ your own mappings data, but please note that we can only offer limited support f
 tool at this time, and the tool is subject to change as we refine the capabilities. The
 mappings data can be used internally inside your organization, or if you produce
 mappings for public benefit, please [get in touch with
-us]((mailto:ctid@mitre-engenuity.org?subject=Mappings%20Explorer%20framework%20submission))
+us]((mailto:ctid@mitre.org?subject=Mappings%20Explorer%20framework%20submission))
 to discuss merging your work into our project.
 
 Please submit
 [issues](https://github.com/center-for-threat-informed-defense/mappings-editor/issues)
 for any technical questions/concerns or contact
-[ctid@mitre-engenuity.org](mailto:ctid@mitre-engenuity.org?subject=subject=Question%20about%20mappings-editor)
+[ctid@mitre.org](mailto:ctid@mitre.org?subject=subject=Question%20about%20mappings-editor)
 directly for more general inquiries.
 
 ## Notice
 
-© 2024 MITRE Engenuity. Approved for public release. Document number(s) CT0104.
+© 2024 The MITRE Corporation. Approved for public release. Document number(s) CT0104.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
 file except in compliance with the License. You may obtain a copy of the License at
