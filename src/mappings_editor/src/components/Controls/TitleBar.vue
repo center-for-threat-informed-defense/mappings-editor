@@ -3,7 +3,7 @@
     <li class="icon">
       <slot name="icon"></slot>
     </li>
-    <li 
+    <li
       v-for="menu of menus"
       :key="menu.text"
       :class="{ active: isActive(menu) }"
@@ -11,14 +11,17 @@
       @mouseenter="menuEnter(menu.text)"
     >
       <p>{{ menu.text }}</p>
-      <ContextMenuListing 
+      <ContextMenuListing
         class="menu-listing"
         :sections="menu.sections"
         @select="menuSelect"
         v-if="isActive(menu)"
       />
     </li>
-  </div> 
+    <div class="filename">
+      <slot name="filename"></slot>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -56,7 +59,7 @@ export default defineComponent({
     isActive(menu: ContextMenuSubmenu): boolean {
       return menu.text === this.activeMenu;
     },
-    
+
     /**
      * Menu selection behavior.
      * @param id
@@ -152,6 +155,13 @@ li.active {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
   z-index: 1;
+}
+
+/** === Active Filename Label === */
+
+.filename {
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 </style>

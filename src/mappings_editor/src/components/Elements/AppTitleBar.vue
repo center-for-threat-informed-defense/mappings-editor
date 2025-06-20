@@ -5,6 +5,9 @@
         <img alt="Logo" title="Logo" :src="icon">
       </span>
     </template>
+    <template v-slot:filename>
+      <p>{{ fileName ? "Active File: " + fileName : "" }}</p>
+    </template>
   </TitleBar>
 </template>
 
@@ -28,7 +31,7 @@ export default defineComponent({
     };
   },
   computed: {
-    
+
     /**
      * Returns the application's menus.
      * @returns
@@ -36,11 +39,18 @@ export default defineComponent({
      */
     menus(): ContextMenuSubmenu[] {
       return [
-        this.contextMenus.fileMenu, 
+        this.contextMenus.fileMenu,
         this.contextMenus.editMenu,
         this.contextMenus.viewMenu,
         this.contextMenus.helpMenu
       ]
+    },
+    fileName(): string {
+      // if there is no active file, display nothing
+      if (!this.application.activeEditor.name || this.application.activeEditor.name === "NONE@0.0.0_NONE@0.0.0") {
+        return "";
+      }
+      return this.application.activeEditor.name;
     }
 
   },
