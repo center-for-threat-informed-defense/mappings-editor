@@ -6,7 +6,7 @@
       </span>
     </template>
     <template v-slot:filename>
-      <p>{{ fileName ? "Active File: " + fileName : "" }}</p>
+      <p>{{ fileName }}</p>
     </template>
   </TitleBar>
 </template>

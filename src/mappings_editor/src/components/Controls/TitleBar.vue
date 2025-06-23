@@ -160,8 +160,7 @@ li.active {
 /** === Active Filename Label === */
 
 .filename {
-  margin-left: auto;
-  margin-right: 20px;
+  margin: auto;
 }
 
 </style>
