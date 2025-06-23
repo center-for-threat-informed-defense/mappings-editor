@@ -1,5 +1,7 @@
+import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { AppCommand } from "../AppCommand";
 import { OpenHyperlink } from "./OpenHyperlink"
+import { SetAutoScroll } from "./SetAutoScroll";
 import { SwitchToFullscreen } from "./SwitchToFullscreen";
 
 /**
@@ -21,3 +23,18 @@ export function openHyperlink(url: string): AppCommand {
 export function switchToFullscreen(): AppCommand {
     return new SwitchToFullscreen();
 }
+
+/**
+ * Toggles autoscroll (scrolls with selection when mappings move)
+ * @param context
+*  The application context.
+* @param value
+*  The new value to put for this parameter
+ * @returns
+ *  A command that represents the action.
+ */
+export function setAutoScroll(context: ApplicationStore, value: boolean): AppCommand {
+    return new SetAutoScroll(context, value);
+}
+
+

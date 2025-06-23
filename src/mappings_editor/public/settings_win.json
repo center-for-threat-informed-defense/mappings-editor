@@ -1,4 +1,7 @@
 {
+    "view": {
+        "auto_scroll": true
+    },
     "hotkeys": {
         "file": {
             "new_file": "Control+N",

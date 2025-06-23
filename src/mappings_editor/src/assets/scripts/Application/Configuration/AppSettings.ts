@@ -2,6 +2,9 @@
  * Base App Settings
  */
 export const BaseAppSettings: AppSettings = {
+    view: {
+        auto_scroll: true
+    },
     hotkeys: {
         file: {
             new_file: "",
@@ -34,6 +37,9 @@ export const BaseAppSettings: AppSettings = {
  * App Settings File
  */
 export type AppSettings = {
+    view: {
+        auto_scroll: boolean
+    },
     hotkeys: {
         file: FileHotkeys,
         edit: EditHotkeys,

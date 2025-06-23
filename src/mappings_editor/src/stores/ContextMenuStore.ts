@@ -402,6 +402,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 type: MenuType.Submenu,
                 sections: [
                     this.collapseMappingsMenu,
+                    this.scrollMenu,
                     this.fullscreenMenu
                 ]
             }
@@ -433,6 +434,26 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         shortcut: view.uncollapse_all_mappings,
                         disabled: editor.id === MappingFileEditor.Phantom.id
                     }
+                ],
+            }
+        },
+
+        /**
+         * Returns the scroll configuration menu section.
+         * @returns
+         *  The scroll configuration mappings menu section.
+         */
+        scrollMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            return {
+                id: "scroll",
+                items: [
+                    {
+                        text: "Auto Scroll on Edit",
+                        type: MenuType.Toggle,
+                        data: () => AppCommands.setAutoScroll(app, !app.settings.view.auto_scroll),
+                        value: app.settings.view.auto_scroll,
+                    },
                 ],
             }
         },

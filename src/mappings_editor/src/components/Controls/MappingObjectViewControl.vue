@@ -5,7 +5,7 @@
         <svg width="11.314" height="7.0711"  viewBox="0 0 2.9934 1.8709">
           <g transform="translate(-.49321 -1.3794)">
             <path
-              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225 
+              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225
               1.1225-1.1225-1.1225-0.37418 0.37418 1.1225 1.1225z"
             />
           </g>
@@ -51,7 +51,7 @@
         <template v-for="{ key, type, prop } of properties" :key="key">
           <div :class="['property', key]">
             <p class="property-name">{{ prop.name }}</p>
-            <component 
+            <component
               class="property-value"
               :is="type"
               :property="prop"
@@ -91,7 +91,7 @@
 // Dependencies
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { defineComponent, type PropType } from 'vue';
-import { 
+import {
   DynamicFrameworkObjectProperty,
   ListItemProperty, Property,
   StrictFrameworkObjectProperty, StringProperty
@@ -104,6 +104,7 @@ import ListItemField from "./Fields/ListItemField.vue";
 import TextAreaField from "./Fields/TextAreaField.vue";
 import StrictFrameworkObjectField from "./Fields/StrictFrameworkObjectField.vue";
 import DynamicFrameworkObjectField from "./Fields/DynamicFrameworkObjectField.vue";
+import { useApplicationStore } from "../../stores/ApplicationStore";
 
 export default defineComponent({
   name: 'MappingObjectViewControl',
@@ -114,7 +115,7 @@ export default defineComponent({
     }
   },
   computed: {
-    
+
     /**
      * Returns the object view's editable properties.
      * @returns
@@ -123,7 +124,7 @@ export default defineComponent({
     properties(): { key: string, prop: Property, type: string }[] {
       let object = this.view.object;
       return [
-        { 
+        {
           key: "comments",
           prop: object.comments,
           type: "TextAreaField"
@@ -138,7 +139,7 @@ export default defineComponent({
           prop: object.scoreValue,
           type: this.getPropertyField(object.scoreValue)
         },
-        { 
+        {
           key: "capability-group",
           prop: object.capabilityGroup,
           type: this.getPropertyField(object.capabilityGroup)
@@ -170,7 +171,8 @@ export default defineComponent({
      *  The command that alter's a property.
      */
     alterProperty(command: EditorCommand) {
-      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command));
+      const app = useApplicationStore();
+      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, app.settings.view.auto_scroll));
     },
 
     /**
@@ -210,14 +212,14 @@ export default defineComponent({
       } else if(prop instanceof StringProperty) {
         return "TextField"
       } else {
-        throw new Error(`Cannot render field type '${ 
+        throw new Error(`Cannot render field type '${
           prop.constructor.name
         }'.`)
       }
     },
 
     /**
-     * Converts a url to an absolute url. 
+     * Converts a url to an absolute url.
      * @param url
      *  The url to convert.
      * @returns
@@ -231,7 +233,7 @@ export default defineComponent({
       if(/^(?:[a-z+]+:)?\/\//i.test(url)) {
         // ...return as is
         return url;
-      } 
+      }
       // If relative url...
       else {
         // ...pre-append https://
@@ -240,7 +242,7 @@ export default defineComponent({
     }
 
   },
-  components: { 
+  components: {
     TextField, ListItemField, ListField, TextAreaField,
     StrictFrameworkObjectField, DynamicFrameworkObjectField,
   }
@@ -315,7 +317,7 @@ export default defineComponent({
   fill: #8c8c8c
 }
 
-.collapse-icon.collapsed svg { 
+.collapse-icon.collapsed svg {
   transform: rotate(270deg);
 }
 
@@ -391,7 +393,7 @@ export default defineComponent({
   flex: 1;
 }
 
-.references { 
+.references {
   grid-area: 2 / 3 / 3 / 5;
 }
 

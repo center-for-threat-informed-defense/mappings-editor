@@ -33,7 +33,7 @@ import { MappingObjectView, type BreakoutControl, type MappingFileViewItem} from
  *  The view's height (in pixels).
  * @returns
  *  A command that represents the action.
- */ 
+ */
 export function setMappingFileViewHeight(fileView: MappingFileView, height: number): EditorCommand {
     return new SetMappingFileViewHeight(fileView, height);
 }
@@ -46,7 +46,7 @@ export function setMappingFileViewHeight(fileView: MappingFileView, height: numb
  *  The view's position (in pixels).
  * @returns
  *  A command that represents the action.
- */ 
+ */
 export function setMappingFileViewPosition(fileView: MappingFileView, position: number): EditorCommand {
     return new SetMappingFileViewPosition(fileView, position);
 }
@@ -57,7 +57,7 @@ export function setMappingFileViewPosition(fileView: MappingFileView, position: 
  *  The mapping file view to operate on.
  * @returns
  *  A command that represents the action.
- */ 
+ */
 export function rebuildViewBreakouts(fileView: MappingFileView): EditorCommand {
     return new RebuildViewBreakouts(fileView);
 }
@@ -307,9 +307,9 @@ export function deleteSelectedMappingObjectViews(fileView: MappingFileView): Edi
  * {@link MappingFileViewItem}.
  * @param views
  *  The mapping object views to move.
- * @param destination 
+ * @param destination
  *  The destination object.
- * @param viewPosition 
+ * @param viewPosition
  *  The mapping file's view position at the beginning of the drag movement.
  * @returns
  *  A command that represent the action.
@@ -376,10 +376,12 @@ export function moveSelectedMappingObjectViews(fileView: MappingFileView, destin
  * @param command
  *  The {@link EditorCommand} that alters the underlying
  *  {@link MappingObject}.
+ * @param autoScroll
+ *  Whether or not to autoscroll (defaults to true)
  * @returns
  *  A command that represents the action.
  */
-export function setMappingObjectViewProperty(view: MappingObjectView, command: EditorCommand): EditorCommand {
+export function setMappingObjectViewProperty(view: MappingObjectView, command: EditorCommand, autoScroll: boolean = true): EditorCommand {
     return createSplitPhaseViewCommand(
         command,
         () => {
@@ -392,7 +394,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 new ReindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
-                new MoveCameraToViewItem(view, camera, camera)
+                new MoveCameraToViewItem(view, autoScroll ? camera : undefined, camera, camera) // todo: optionally provide this param
             ];
         }
     )
