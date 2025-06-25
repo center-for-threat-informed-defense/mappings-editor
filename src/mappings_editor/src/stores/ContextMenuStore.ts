@@ -446,7 +446,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         scrollMenu(): ContextMenuSection {
             const app = useApplicationStore();
             return {
-                id: "scroll",
+                id: "scroll_options",
                 items: [
                     {
                         text: "Auto Scroll on Edit",

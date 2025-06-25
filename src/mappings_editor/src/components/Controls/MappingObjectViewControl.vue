@@ -114,6 +114,11 @@ export default defineComponent({
       required: true
     }
   },
+  data() {
+    return {
+      app: useApplicationStore()
+    }
+  },
   computed: {
 
     /**
@@ -171,8 +176,7 @@ export default defineComponent({
      *  The command that alter's a property.
      */
     alterProperty(command: EditorCommand) {
-      const app = useApplicationStore();
-      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, app.settings.view.auto_scroll));
+      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, this.app.settings.view.auto_scroll));
     },
 
     /**

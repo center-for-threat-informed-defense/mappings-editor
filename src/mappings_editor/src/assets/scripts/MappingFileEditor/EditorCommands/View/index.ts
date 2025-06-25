@@ -394,7 +394,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 new ReindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
-                new MoveCameraToViewItem(view, autoScroll ? camera : undefined, camera, camera) // todo: optionally provide this param
+                new MoveCameraToViewItem(view, autoScroll ? camera : undefined, camera, camera)
             ];
         }
     )
