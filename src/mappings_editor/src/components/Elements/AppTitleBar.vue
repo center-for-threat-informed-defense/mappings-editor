@@ -5,6 +5,9 @@
         <img alt="Logo" title="Logo" :src="icon">
       </span>
     </template>
+    <template v-slot:filename>
+      <p>{{ fileName }}</p>
+    </template>
   </TitleBar>
 </template>
 
@@ -17,6 +20,7 @@ import { useApplicationStore } from "@/stores/ApplicationStore";
 import type { ContextMenuSubmenu, CommandEmitter } from "@/assets/scripts/Application";
 // Components
 import TitleBar from "@/components/Controls/TitleBar.vue";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 
 export default defineComponent({
   name: "AppTitleBar",
@@ -28,7 +32,7 @@ export default defineComponent({
     };
   },
   computed: {
-    
+
     /**
      * Returns the application's menus.
      * @returns
@@ -36,13 +40,19 @@ export default defineComponent({
      */
     menus(): ContextMenuSubmenu[] {
       return [
-        this.contextMenus.fileMenu, 
+        this.contextMenus.fileMenu,
         this.contextMenus.editMenu,
         this.contextMenus.viewMenu,
         this.contextMenus.helpMenu
       ]
+    },
+    fileName(): string {
+      if (this.application.activeEditor.id === MappingFileEditor.Phantom.id) {
+        return "";
+      } else {
+        return this.application.activeEditor.name;
+      }
     }
-
   },
   emits: ["execute"],
   methods: {
