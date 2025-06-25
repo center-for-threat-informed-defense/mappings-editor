@@ -20,6 +20,7 @@ import { useApplicationStore } from "@/stores/ApplicationStore";
 import type { ContextMenuSubmenu, CommandEmitter } from "@/assets/scripts/Application";
 // Components
 import TitleBar from "@/components/Controls/TitleBar.vue";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 
 export default defineComponent({
   name: "AppTitleBar",
@@ -46,13 +47,14 @@ export default defineComponent({
       ]
     },
     fileName(): string {
-      // if there is no active file, display nothing
-      if (!this.application.activeEditor.name || this.application.activeEditor.name === "NONE@0.0.0_NONE@0.0.0") {
+      if (this.application.activeEditor.id === MappingFileEditor.Phantom.id) {
+        // If the phantom editor is loaded, the user hasn't opened anything
         return "";
+      } else {
+        // If the phantom editor isn't loaded, the user MUST have opened their own file
+        return this.application.activeEditor.name;
       }
-      return this.application.activeEditor.name;
     }
-
   },
   emits: ["execute"],
   methods: {
