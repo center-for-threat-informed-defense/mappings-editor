@@ -48,10 +48,8 @@ export default defineComponent({
     },
     fileName(): string {
       if (this.application.activeEditor.id === MappingFileEditor.Phantom.id) {
-        // If the phantom editor is loaded, the user hasn't opened anything
         return "";
       } else {
-        // If the phantom editor isn't loaded, the user MUST have opened their own file
         return this.application.activeEditor.name;
       }
     }
