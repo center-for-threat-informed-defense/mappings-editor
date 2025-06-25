@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.4.0...mappings_editor-v1.5.0) (2025-06-25)
+
+
+### Features
+
+* add 'Auto Scroll on Edit' control ([a2a85bc](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/a2a85bc3c7a49477d2866c222c7d1dd9d3978431))
+* add active filename to editor titlebar ([a3b31a9](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/a3b31a98810eef27ba080c5a4179482327ecb742))
+* add support for ATT&CK v16.0 and v16.1 ([1a452ca](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/1a452cad41568823b7afe8d6fab0b301ba39fe6d))
+* switch framework `coverage` format from `[percent]%` to `[size]/[total]` ([7d39bd8](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/7d39bd8752d08d6e0635858392fb68f5714157d6))
+
 ## [1.4.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.3.0...mappings_editor-v1.4.0) (2024-09-24)
 
 
