@@ -3,7 +3,7 @@
     <div ref="scrollbox" :style="style">
       <div ref="content">
         <ul class="options" v-if="hasOptions">
-          <li 
+          <li
             ref="items"
             v-for="option in options"
             :key="option.value ?? 'null'"
@@ -167,9 +167,9 @@ export default defineComponent({
      * If an <ListItemOptionsList> does not extend past the bottom of the
      * document's body or it's parent <ScrollBox>, it's deemed visible. These
      * checks do not account for any other scroll constructs and do not account
-     * for nested <ScrollBox>'s. 
+     * for nested <ScrollBox>'s.
      */
-    
+
     // Resolve parent
     let sc = "scroll-content";
     let ele = this.$refs.scrollbox as HTMLElement;
@@ -205,7 +205,7 @@ export default defineComponent({
 /**
  * Option type
  */
- type Option = { 
+ type Option = {
   value: string | null,
   text: string
 }

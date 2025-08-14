@@ -1,5 +1,5 @@
-import { EditorCommand } from "..";
-import type { BreakoutControl, MappingFileView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import type { BreakoutControl, MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class SetBreakoutState extends EditorCommand {
 
@@ -11,12 +11,12 @@ export class SetBreakoutState extends EditorCommand {
     /**
      * The breakout control.
      */
-    public readonly control: BreakoutControl;
+    public readonly control: BreakoutControl<string>;
 
     /**
      * The breakout id.
      */
-    public readonly id: number;
+    public readonly id: string;
 
     /**
      * True to enable the breakout, false to disable it.
@@ -33,7 +33,7 @@ export class SetBreakoutState extends EditorCommand {
      * @param value
      *  True to enable the breakout, false to disable it.
      */
-    constructor(control: BreakoutControl, id: number, value: boolean) {
+    constructor(control: BreakoutControl<string>, id: string, value: boolean) {
         super();
         this.fileView = control.fileView;
         this.control = control;

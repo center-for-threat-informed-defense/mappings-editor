@@ -1,13 +1,17 @@
-import { CreateMappingObject } from "./CreateMappingObject";
-import { InsertMappingObject } from "./InsertMappingObject";
-import { DeleteMappingObject } from "./DeleteMappingObject";
-import { ImportMappingObjects } from "./ImportMappingObjects";
-import { InsertMappingObjects } from "./InsertMappingObjects";
-import { DeleteMappingObjects } from "./DeleteMappingObjects";
-import type { EditorCommand } from "..";
+import { 
+    CreateMappingObject,
+    DeleteMappingObject,
+    DeleteMappingObjects,
+    ImportMappingObjects,
+    InsertMappingObject,
+    InsertMappingObjects,
+    MoveMappingObjectsAfter,
+    ReindexMappingObjects
+} from "./index.commands";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
+
 
 /**
  * Creates a new {@link MappingObject} in a {@link MappingFile}.
@@ -20,7 +24,9 @@ export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
  * @returns
  *  A command that represents the action.
  */
-export function createMappingObject(file: MappingFile): EditorCommand {
+export function createMappingObject(
+    file: MappingFile
+): CreateMappingObject {
     return new CreateMappingObject(file); 
 }
 
@@ -37,7 +43,9 @@ export function createMappingObject(file: MappingFile): EditorCommand {
  * @returns 
  *  A command that represents the action.
  */
-export function importMappingObjects(file: MappingFile, objects: IdentifiedMappingObjectParameters[]): EditorCommand {
+export function importMappingObjects(
+    file: MappingFile, objects: IdentifiedMappingObjectParameters[]
+): ImportMappingObjects {
     return new ImportMappingObjects(file, objects);
 }
 
@@ -50,7 +58,9 @@ export function importMappingObjects(file: MappingFile, objects: IdentifiedMappi
  * @returns
  *  A command that represents the action.
  */
-export function insertMappingObject(file: MappingFile, obj: MappingObject): EditorCommand {
+export function insertMappingObject(
+    file: MappingFile, obj: MappingObject
+): InsertMappingObject {
     return new InsertMappingObject(file, obj);
 }
 
@@ -63,7 +73,9 @@ export function insertMappingObject(file: MappingFile, obj: MappingObject): Edit
  * @returns
  *  A command that represents the action.
  */
-export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): EditorCommand {
+export function insertMappingObjects(
+    file: MappingFile, objs: MappingObject[]
+): InsertMappingObjects {
     return new InsertMappingObjects(file, objs);
 }
 
@@ -76,7 +88,9 @@ export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): 
  * @returns
  *  A command that represents the action.
  */
-export function deleteMappingObject(object: MappingObject): EditorCommand {
+export function deleteMappingObject(
+    object: MappingObject
+): DeleteMappingObject {
     return new DeleteMappingObject(object); 
 }
 
@@ -87,6 +101,44 @@ export function deleteMappingObject(object: MappingObject): EditorCommand {
  * @returns
  *  A command that represents the action.
  */
-export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
+export function deleteMappingObjects(
+    objects: MappingObject[]
+): DeleteMappingObjects {
     return new DeleteMappingObjects(objects);
+}
+
+/**
+ * Moves one {@link MappingObject} after another {@link MappingObject}.
+ * @remarks
+ *  When moving multiple mapping objects in a single group command,
+ *  ensure objects are moved in order from first to last.
+ * @param object
+ *  The object to move.
+ * @param location
+ *  The destination object.
+ * @returns
+ *  A command that represents the action.
+ */
+export function moveMappingObjectAfter(
+    object: MappingObject, destination: MappingObject | undefined
+): MoveMappingObjectsAfter {
+    return new MoveMappingObjectsAfter(object, destination);
+}
+
+/**
+ * Reindexes a set of mapping objects.
+ * @remarks
+ *  Ideally, a user of the MappingFileEditor library wouldn't have to
+ *  explicity command the editor to reindex a mapping object when it
+ *  changes. This operation should be accomplished implicitly when a
+ *  mapping file is altered. In time, the existing libraries will be
+ *  refactored to enable this behavior. This command may be deprecated in
+ *  the future.
+ * @param ids
+ *  The mapping objects, specified by id.
+ */
+export function reindexMappingObjects(
+    ids: string[] | string
+): ReindexMappingObjects {
+    return new ReindexMappingObjects(ids);
 }

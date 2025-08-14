@@ -8,11 +8,6 @@ export type FrameworkObject = {
     /**
      * The framework object's name.
      */
-    name: string,
-
-    /**
-     * The framework object's description.
-     */
-    description: string
+    name: string
 
 }

@@ -1,4 +1,4 @@
-import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
+import * as EditorCommand from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { randomUUID } from "@/assets/scripts/Utilities";
 import { AppCommand } from "../AppCommand";
 import { Reactivity } from "@/assets/scripts/MappingFileAuthority";
@@ -6,6 +6,7 @@ import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { ListProperty } from "@/assets/scripts/MappingFile";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileAuthority, MappingFileImport } from "@/assets/scripts/MappingFileAuthority";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class ImportFile extends AppCommand {
 
@@ -24,6 +25,11 @@ export class ImportFile extends AppCommand {
      */
     public readonly editor: MappingFileEditor;
 
+    /**
+     * The active file view.
+     */
+    public readonly view: MappingFileView;
+
 
     /**
      * Imports a mapping file export into the active editor.
@@ -36,6 +42,7 @@ export class ImportFile extends AppCommand {
         super();
         this.fileAuthority = context.fileAuthority as MappingFileAuthority;
         this.editor = context.activeEditor as MappingFileEditor;
+        this.view = context.activeFileView as MappingFileView;
         const file = this.editor.file;
         // Validate source framework
         if(file.sourceFramework !== importFile.source_framework) {
@@ -66,30 +73,30 @@ export class ImportFile extends AppCommand {
      */
     public async execute(): Promise<void> {
         const file = this.editor.file;
-        const view = this.editor.view;
+        const view = this.view;
         const convert = Reactivity.toRaw(this.fileAuthority.convertMappingObjectImportToParams);
         // Compile mapping objects
-        const objects = new Map<string, EditorCommands.IdentifiedMappingObjectParameters>();
+        const objects = new Map<string, EditorCommand.IdentifiedMappingObjectParameters>();
         for(const obj of this.importFile.mapping_objects ?? []) {
             const objectId = randomUUID();
             objects.set(objectId, { objectId, ...convert(obj) });
         }
         // Compile insert command
-        const insertCmd = EditorCommands.createGroupCommand(
+        const insertCmd = EditorCommand.createGroupCommand(
             this.addMissingObjectItems(this.importFile.mapping_types, file.mappingTypes),
             this.addMissingTextItems(this.importFile.capability_groups, file.capabilityGroups),
             this.addMissingTextItems(this.importFile.mapping_statuses, file.mappingStatuses),
             this.addMissingTextItems(this.importFile.score_categories, file.scoreCategories),
             this.addMissingTextItems(this.importFile.score_values, file.scoreValues),
-            EditorCommands.importMappingObjects(file, [...objects.values()])
+            EditorCommand.importMappingObjects(file, [...objects.values()])
         )
         // Compile view command
-        const cmd = EditorCommands.createSplitPhaseViewCommand(
+        const cmd = EditorCommand.createSplitPhaseViewCommand(
             insertCmd,
             () => [
-                EditorCommands.rebuildViewBreakouts(view),
-                EditorCommands.unselectAllMappingObjectViews(view),
-                EditorCommands.selectMappingObjectViewsById(view, [...objects.keys()])
+                EditorCommand.rebuildViewBreakouts(view),
+                EditorCommand.unselectAllMappingObjectViews(view),
+                EditorCommand.selectMappingObjectViewsById(view, [...objects.keys()])
             ]
         )
         // Execute insert
@@ -109,14 +116,14 @@ export class ImportFile extends AppCommand {
      *  A command that represents the action.
      */
     private addMissingTextItems(obj: { [key: string]: string }, prop: ListProperty) {
-        const insertCmd = EditorCommands.createGroupCommand();
+        const insertCmd = EditorCommand.createGroupCommand();
         for(const id in obj) {
             if(!prop.findListItemId(i => i.getAsString("id") === id)) {
                 const newItem = prop.createNewItem({
                     id   : id,
                     name : obj[id]
                 });
-                insertCmd.do(EditorCommands.addItemToListProperty(prop, newItem));
+                insertCmd.do(EditorCommand.addItemToListProperty(prop, newItem));
             }
         }
         return insertCmd;
@@ -132,7 +139,7 @@ export class ImportFile extends AppCommand {
      *  A command that represents the action.
      */
     private addMissingObjectItems(obj: { [key: string]: { name: string, description: string } }, prop: ListProperty) {
-        const insertCmd = EditorCommands.createGroupCommand();
+        const insertCmd = EditorCommand.createGroupCommand();
         for(const id in obj) {
             if(!prop.findListItemId(i => i.getAsString("id") === id)) {
                 const newItem = prop.createNewItem({
@@ -140,7 +147,7 @@ export class ImportFile extends AppCommand {
                     name        : obj[id].name,
                     description : obj[id].description
                 });
-                insertCmd.do(EditorCommands.addItemToListProperty(prop, newItem));
+                insertCmd.do(EditorCommand.addItemToListProperty(prop, newItem));
             }
         }
         return insertCmd;

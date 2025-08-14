@@ -1,8 +1,7 @@
-import { GroupCommand } from "..";
-import { DeleteMappingObject } from "../File/DeleteMappingObject";
-import { RestoreMappingObjectViews } from "./RestoreMappingObjectViews";
-import type { MappingFileView, MappingObjectView } from "../..";
 import { SelectMappingObjectViews } from "./SelectMappingObjectViews";
+import { RestoreMappingObjectViews } from "./RestoreMappingObjectViews";
+import { deleteMappingObject, GroupCommand } from "..";
+import type { MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileView";
 
 export class DeleteMappingObjectView extends GroupCommand {
     
@@ -25,7 +24,7 @@ export class DeleteMappingObjectView extends GroupCommand {
         super();
         this.fileView = view.fileView;
         this.do(new SelectMappingObjectViews(view, false, true))
-        this.do(new DeleteMappingObject(view.object));
+        this.do(deleteMappingObject(view.object));
         this.do(new RestoreMappingObjectViews(view));
     }
 

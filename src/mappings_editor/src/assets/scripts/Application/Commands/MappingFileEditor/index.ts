@@ -1,11 +1,14 @@
 import { AppCommand } from "../AppCommand";
-import { UndoEditorCommand } from "./UndoEditorCommand";
-import { RedoEditorCommand } from "./RedoEditorCommand";
-import { PasteMappingObjects } from "./PasteMappingObjects";
-import { CopySelectedMappingObjects } from "./CopySelectedMappingObjects";
+import { 
+    CopySelectedMappingObjects,
+    CutSelectedMappingObjects,
+    PasteMappingObjects,
+    RedoEditorCommand,
+    UndoEditorCommand
+} from "./index.commands";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { MappingFileEditor, MappingFileView } from "@/assets/scripts/MappingFileEditor";
-import { CutSelectedMappingObjects } from "./CutSelectedMappingObjects";
+import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 
 
 /**

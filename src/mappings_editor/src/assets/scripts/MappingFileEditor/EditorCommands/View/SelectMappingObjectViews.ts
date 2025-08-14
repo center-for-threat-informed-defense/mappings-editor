@@ -1,4 +1,5 @@
-import { EditorCommand, MappingFileView, MappingObjectView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import { MappingFileView, MappingObjectView } from "@/assets/scripts/MappingFileView";
 
 export class SelectMappingObjectViews extends EditorCommand {
 

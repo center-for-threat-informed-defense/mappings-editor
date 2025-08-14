@@ -96,7 +96,8 @@ import {
   ListItemProperty, Property,
   StrictFrameworkObjectProperty, StringProperty
 } from "@/assets/scripts/MappingFile";
-import type { EditorCommand, MappingObjectView } from "@/assets/scripts/MappingFileEditor";
+import type { EditorCommand } from "@/assets/scripts/MappingFileEditor";
+import type { MappingObjectView } from "@/assets/scripts/MappingFileView";
 // Components
 import TextField from "./Fields/TextField.vue";
 import ListField from "./Fields/ListField.vue";

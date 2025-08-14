@@ -1,5 +1,5 @@
 import { toRaw } from "vue";
-import { AppCommand } from "..";
+import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 

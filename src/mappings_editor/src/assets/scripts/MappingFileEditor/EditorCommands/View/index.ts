@@ -1,23 +1,26 @@
-import { ShowAllItems } from "./ShowAllItems";
-import { MoveBreakout } from "./MoveBreakout";
-import { EditorCommand } from "..";
-import { SetFilterState } from "./SetFilterState";
-import { CollapseViewItem } from "./CollapseViewItem";
-import { SetBreakoutState } from "./SetBreakoutState";
-import { MoveCameraToViewItem } from "./MoveCameraToViewItem";
-import { RebuildViewBreakouts } from "./RebuildViewBreakouts";
-import { ReindexMappingObjects } from "../File/ReindexMappingObjects";
-import { DeleteMappingObjectView } from "./DeleteMappingObjectView";
-import { CreateMappingObjectView } from "./CreateMappingObjectView";
-import { DeleteMappingObjectViews } from "./DeleteMappingObjectViews";
-import { SelectMappingObjectViews } from "./SelectMappingObjectViews";
-import { SetMappingFileViewHeight } from "./SetMappingFileViewHeight";
-import { SetMappingFileViewPosition } from "./SetMappingFileViewPosition";
-import { SelectAllMappingObjectViews } from "./SelectAllMappingObjectViews";
-import { CollapseAllMappingObjectViews } from "./CollapseAllMappingObjectViews";
-import { MoveSelectedMappingObjectViews } from "./MoveSelectedMappingObjectViews";
-import { FilterControl, MappingFileView, GroupCommand } from "../..";
-import { MappingObjectView, type BreakoutControl, type MappingFileViewItem} from "../.."
+import { GroupCommand } from "../GroupCommand";
+import { MappingObjectView } from "@/assets/scripts/MappingFileView";
+import { reindexMappingObjects } from "../File";
+import { 
+    CollapseAllMappingObjectViews,
+    CollapseViewItem,
+    CreateMappingObjectFromView, 
+    DeleteMappingObjectView,
+    DeleteMappingObjectViews,
+    MoveBreakout, 
+    MoveCameraToViewItem,
+    MoveSelectedMappingObjectViews,
+    RebuildViewBreakouts, 
+    SelectAllMappingObjectViews,
+    SelectMappingObjectViews,
+    SetBreakoutState,
+    SetFilterState,
+    SetMappingFileViewHeight,
+    SetMappingFileViewPosition,
+    ShowAllItems
+} from "./index.commands";
+import type { EditorCommand } from "../EditorCommand";
+import type { BreakoutControl, FilterControl, MappingFileView, MappingFileViewItem } from "@/assets/scripts/MappingFileView";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,8 +36,10 @@ import { MappingObjectView, type BreakoutControl, type MappingFileViewItem} from
  *  The view's height (in pixels).
  * @returns
  *  A command that represents the action.
- */ 
-export function setMappingFileViewHeight(fileView: MappingFileView, height: number): EditorCommand {
+ */
+export function setMappingFileViewHeight(
+    fileView: MappingFileView, height: number
+): SetMappingFileViewHeight {
     return new SetMappingFileViewHeight(fileView, height);
 }
 
@@ -46,8 +51,10 @@ export function setMappingFileViewHeight(fileView: MappingFileView, height: numb
  *  The view's position (in pixels).
  * @returns
  *  A command that represents the action.
- */ 
-export function setMappingFileViewPosition(fileView: MappingFileView, position: number): EditorCommand {
+ */
+export function setMappingFileViewPosition(
+    fileView: MappingFileView, position: number
+): SetMappingFileViewPosition {
     return new SetMappingFileViewPosition(fileView, position);
 }
 
@@ -57,8 +64,10 @@ export function setMappingFileViewPosition(fileView: MappingFileView, position: 
  *  The mapping file view to operate on.
  * @returns
  *  A command that represents the action.
- */ 
-export function rebuildViewBreakouts(fileView: MappingFileView): EditorCommand {
+ */
+export function rebuildViewBreakouts(
+    fileView: MappingFileView
+): RebuildViewBreakouts {
     return new RebuildViewBreakouts(fileView);
 }
 
@@ -75,7 +84,9 @@ export function rebuildViewBreakouts(fileView: MappingFileView): EditorCommand {
  * @returns
  *  A command that represents the action.
  */
-export function selectMappingObjectView(view: MappingObjectView) {
+export function selectMappingObjectView(
+    view: MappingObjectView
+): SelectMappingObjectViews {
     return new SelectMappingObjectViews(view, { select: true, pivot: false });
 }
 
@@ -86,7 +97,9 @@ export function selectMappingObjectView(view: MappingObjectView) {
  * @returns
  *  A command that represents the action.
  */
-export function selectMappingObjectViews(views: MappingObjectView[]) {
+export function selectMappingObjectViews(
+    views: MappingObjectView[]
+): SelectMappingObjectViews {
     return new SelectMappingObjectViews(views, { select: true, pivot: false });
 }
 
@@ -97,7 +110,9 @@ export function selectMappingObjectViews(views: MappingObjectView[]) {
  * @returns
  *  A command that represents the action.
  */
-export function selectAllMappingObjectViews(fileView: MappingFileView) {
+export function selectAllMappingObjectViews(
+    fileView: MappingFileView
+): SelectAllMappingObjectViews {
     return new SelectAllMappingObjectViews(fileView, true);
 }
 
@@ -108,7 +123,9 @@ export function selectAllMappingObjectViews(fileView: MappingFileView) {
  * @returns
  *  A command that represents the action.
  */
-export function unselectMappingObjectView(item: MappingObjectView) {
+export function unselectMappingObjectView(
+    item: MappingObjectView
+): SelectMappingObjectViews {
     return new SelectMappingObjectViews(item, false);
 }
 
@@ -119,7 +136,9 @@ export function unselectMappingObjectView(item: MappingObjectView) {
  * @returns
  *  A command that represents the action.
  */
-export function unselectAllMappingObjectViews(fileView: MappingFileView) {
+export function unselectAllMappingObjectViews(
+    fileView: MappingFileView
+): SelectAllMappingObjectViews {
     return new SelectAllMappingObjectViews(fileView, false);
 }
 
@@ -132,7 +151,9 @@ export function unselectAllMappingObjectViews(fileView: MappingFileView) {
  * @returns
  *  A command that represents the action.
  */
-export function selectMappingObjectViewsById(fileView: MappingFileView, ids: string[]) {
+export function selectMappingObjectViewsById(
+    fileView: MappingFileView, ids: string[]
+): SelectMappingObjectViews {
     return new SelectMappingObjectViews(fileView, ids, { select: true, pivot: false });
 }
 
@@ -149,7 +170,9 @@ export function selectMappingObjectViewsById(fileView: MappingFileView, ids: str
  * @returns
  *  A command that represents the action.
  */
-export function collapseViewItem(item: MappingFileViewItem) {
+export function collapseViewItem(
+    item: MappingFileViewItem
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new CollapseViewItem(item, true),
         cmd => [
@@ -165,7 +188,9 @@ export function collapseViewItem(item: MappingFileViewItem) {
  * @returns
  *  A command that represents the action.
  */
-export function uncollapseViewItem(item: MappingFileViewItem) {
+export function uncollapseViewItem(
+    item: MappingFileViewItem
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new CollapseViewItem(item, false),
         cmd => [
@@ -181,7 +206,9 @@ export function uncollapseViewItem(item: MappingFileViewItem) {
  * @returns
  *  A command that represents the action.
  */
-export function collapseAllMappingObjectViews(fileView: MappingFileView) {
+export function collapseAllMappingObjectViews(
+    fileView: MappingFileView
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new CollapseAllMappingObjectViews(fileView, true),
         cmd => [
@@ -197,7 +224,9 @@ export function collapseAllMappingObjectViews(fileView: MappingFileView) {
  * @returns
  *  A command that represents the action.
  */
-export function uncollapseAllMappingObjectViews(fileView: MappingFileView) {
+export function uncollapseAllMappingObjectViews(
+    fileView: MappingFileView
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new CollapseAllMappingObjectViews(fileView, false),
         cmd => [
@@ -213,15 +242,17 @@ export function uncollapseAllMappingObjectViews(fileView: MappingFileView) {
 
 
 /**
- * Creates a new {@link MappingObjectView}.
- * @param destination
- *  The view item the new object should be created under.
+ * Creates a new {@link MappingObject}.
+ * @param reference
+ *  A view item to use as a reference when creating the object.
  * @returns
  *  A command that represents the action.
  */
-export function createMappingObjectView(destination: MappingFileViewItem): EditorCommand {
+export function createMappingObjectView(
+    reference: MappingFileViewItem
+): EditorCommand {
     return createSplitPhaseViewCommand(
-        new CreateMappingObjectView(destination),
+        new CreateMappingObjectFromView(reference),
         cmd => [
             new RebuildViewBreakouts(cmd.fileView),
             new SelectMappingObjectViews(cmd.fileView, cmd.object.id, true),
@@ -242,7 +273,9 @@ export function createMappingObjectView(destination: MappingFileViewItem): Edito
  * @returns
  *  A command that represents the action.
  */
-export function deleteMappingObjectView(view: MappingObjectView): EditorCommand {
+export function deleteMappingObjectView(
+    view: MappingObjectView
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new DeleteMappingObjectView(view),
         cmd => {
@@ -267,7 +300,9 @@ export function deleteMappingObjectView(view: MappingObjectView): EditorCommand 
  * @returns
  *  A command that represents the action.
  */
-export function deleteMappingObjectViews(views: MappingObjectView[]): EditorCommand {
+export function deleteMappingObjectViews(
+    views: MappingObjectView[]
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new DeleteMappingObjectViews(views),
         cmd => {
@@ -296,7 +331,9 @@ export function deleteMappingObjectViews(views: MappingObjectView[]): EditorComm
  * @returns
  *  A command that represents the action.
  */
-export function deleteSelectedMappingObjectViews(fileView: MappingFileView): EditorCommand {
+export function deleteSelectedMappingObjectViews(
+    fileView: MappingFileView
+): EditorCommand {
     return deleteMappingObjectViews([...fileView.getItems(
         o => o instanceof MappingObjectView && o.selected
     )] as MappingObjectView[]);
@@ -307,14 +344,16 @@ export function deleteSelectedMappingObjectViews(fileView: MappingFileView): Edi
  * {@link MappingFileViewItem}.
  * @param views
  *  The mapping object views to move.
- * @param destination 
+ * @param destination
  *  The destination object.
- * @param viewPosition 
+ * @param viewPosition
  *  The mapping file's view position at the beginning of the drag movement.
  * @returns
  *  A command that represent the action.
  */
-export function moveMappingObjectViews(views: MappingObjectView[], destination: MappingFileViewItem, viewPosition: number): EditorCommand {
+export function moveMappingObjectViews(
+    views: MappingObjectView[], destination: MappingFileViewItem, viewPosition: number
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new MoveSelectedMappingObjectViews(views, destination),
         cmd => {
@@ -354,7 +393,9 @@ export function moveMappingObjectViews(views: MappingObjectView[], destination: 
  * @returns
  *  A command that represents the action.
  */
-export function moveSelectedMappingObjectViews(fileView: MappingFileView, destination: MappingFileViewItem, viewPosition: number) {
+export function moveSelectedMappingObjectViews(
+    fileView: MappingFileView, destination: MappingFileViewItem, viewPosition: number
+): EditorCommand {
     // Collect selection
     const selected =[...fileView.getItems(
         o => o instanceof MappingObjectView && o.selected
@@ -379,7 +420,9 @@ export function moveSelectedMappingObjectViews(fileView: MappingFileView, destin
  * @returns
  *  A command that represents the action.
  */
-export function setMappingObjectViewProperty(view: MappingObjectView, command: EditorCommand): EditorCommand {
+export function setMappingObjectViewProperty(
+    view: MappingObjectView, command: EditorCommand
+): EditorCommand {
     return createSplitPhaseViewCommand(
         command,
         () => {
@@ -389,7 +432,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 strict: false
             }
             return [
-                new ReindexMappingObjects(view.id),
+                reindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
                 new MoveCameraToViewItem(view, camera, camera)
@@ -413,7 +456,9 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
  * @returns
  *  A command that represents the action.
  */
-export function enableBreakout(control: BreakoutControl, id: number): EditorCommand {
+export function enableBreakout(
+    control: BreakoutControl<string>, id: string
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetBreakoutState(control, id, true),
         cmd => [
@@ -431,7 +476,9 @@ export function enableBreakout(control: BreakoutControl, id: number): EditorComm
  * @returns
  *  A command that represents the action.
  */
-export function disableBreakout(control: BreakoutControl, id: number): EditorCommand {
+export function disableBreakout(
+    control: BreakoutControl<string>, id: string
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetBreakoutState(control, id, false),
         cmd => [
@@ -451,7 +498,9 @@ export function disableBreakout(control: BreakoutControl, id: number): EditorCom
  * @returns
  *  A command that represents the action.
  */
-export function moveBreakout(control: BreakoutControl, id: number, dst: number): EditorCommand {
+export function moveBreakout(
+    control: BreakoutControl<string>, id: string, dst: number
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new MoveBreakout(control, id, dst),
         cmd => [
@@ -475,7 +524,9 @@ export function moveBreakout(control: BreakoutControl, id: number, dst: number):
  * @returns
  *  A command that represents the action.
  */
-export function applyFilter(control: FilterControl, id: string | null): EditorCommand {
+export function applyFilter(
+    control: FilterControl, id: string | null
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetFilterState(control, id, true),
         cmd => [
@@ -493,7 +544,9 @@ export function applyFilter(control: FilterControl, id: string | null): EditorCo
  * @returns
  *  A command that represents the action.
  */
-export function removeFilter(control: FilterControl, id: string | null): EditorCommand {
+export function removeFilter(
+    control: FilterControl, id: string | null
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetFilterState(control, id, false),
         cmd => [
@@ -507,7 +560,9 @@ export function removeFilter(control: FilterControl, id: string | null): EditorC
  * @param control
  *  The filter control.
  */
-export function showAllItems(control: FilterControl): EditorCommand {
+export function showAllItems(
+    control: FilterControl
+): EditorCommand {
     return createSplitPhaseViewCommand(
         new ShowAllItems(control),
         cmd => [

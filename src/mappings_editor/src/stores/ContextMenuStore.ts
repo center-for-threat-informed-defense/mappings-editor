@@ -1,12 +1,13 @@
 import Package from "@/../package.json";
 import Configuration from "@/assets/configuration/app.config";
 import * as AppCommands from "@/assets/scripts/Application/Commands";
-import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
+import * as EditorCommand from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { MenuType } from '@/assets/scripts/Application';
 import { defineStore } from 'pinia'
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { ContextMenu, ContextMenuSection, ContextMenuSubmenu } from '@/assets/scripts/Application';
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export const useContextMenuStore = defineStore('contextMenuStore', {
     getters: {
@@ -305,6 +306,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         clipboardMenu(): ContextMenuSection {
             const app = useApplicationStore();
             const edit = app.settings.hotkeys.edit;
+            const view = app.activeFileView as MappingFileView;
             const editor = app.activeEditor as MappingFileEditor;
             return {
                 id: "clipboard_options",
@@ -312,14 +314,14 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     {
                         text: "Cut",
                         type: MenuType.Item,
-                        data: () => AppCommands.cutEditorCommand(app, editor, editor.view),
+                        data: () => AppCommands.cutEditorCommand(app, editor, view),
                         shortcut: edit.cut,
                         disabled: !app.hasSelection
                     },
                     {
                         text: "Copy",
                         type: MenuType.Item,
-                        data: () => AppCommands.copySelectedMappingObjects(app, editor.view),
+                        data: () => AppCommands.copySelectedMappingObjects(app, view),
                         shortcut: edit.copy,
                         disabled: !app.hasSelection
                     },
@@ -341,14 +343,14 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         deleteMappingMenu(): ContextMenuSection {
             const app = useApplicationStore();
             const edit = app.settings.hotkeys.edit;
-            const editor = app.activeEditor as MappingFileEditor;
+            const view = app.activeFileView as MappingFileView;
             return {
                 id: "delete_mapping",
                 items: [
                     {
                         text: "Delete",
                         type: MenuType.Item,
-                        data: () => EditorCommands.deleteSelectedMappingObjectViews(editor.view),
+                        data: () => EditorCommand.deleteSelectedMappingObjectViews(view),
                         shortcut: edit.delete,
                         disabled: !app.hasSelection
                     }
@@ -364,20 +366,20 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         selectMappingMenu(): ContextMenuSection {
             const app = useApplicationStore();
             const edit = app.settings.hotkeys.edit;
-            const editor = app.activeEditor as MappingFileEditor;
+            const view = app.activeFileView as MappingFileView;
             return {
                 id: "select_mapping",
                 items: [
                     {
                         text: "Select All",
                         type: MenuType.Item,
-                        data: () => EditorCommands.selectAllMappingObjectViews(editor.view),
+                        data: () => EditorCommand.selectAllMappingObjectViews(view),
                         shortcut: edit.select_all
                     },
                     {
                         text: "Unselect All",
                         type: MenuType.Item,
-                        data: () => EditorCommands.unselectAllMappingObjectViews(editor.view),
+                        data: () => EditorCommand.unselectAllMappingObjectViews(view),
                         shortcut: edit.unselect_all,
                         disabled: !app.hasSelection
                     }
@@ -414,24 +416,24 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
          */
         collapseMappingsMenu(): ContextMenuSection {
             const app = useApplicationStore();
-            const view = app.settings.hotkeys.view;
-            const editor = app.activeEditor as MappingFileEditor;
+            const view = app.activeFileView as MappingFileView;
+            const _view = app.settings.hotkeys.view;
             return {
                 id: "collapse_mappings",
                 items: [
                     {
                         text: "Collapse All Mappings",
                         type: MenuType.Item,
-                        data: () => EditorCommands.collapseAllMappingObjectViews(editor.view),
-                        shortcut: view.collapse_all_mappings,
-                        disabled: editor.id === MappingFileEditor.Phantom.id
+                        data: () => EditorCommand.collapseAllMappingObjectViews(view),
+                        shortcut: _view.collapse_all_mappings,
+                        disabled: view.file.id === MappingFileEditor.Phantom.id
                     },
                     {
                         text: "Uncollapse All Mappings",
                         type: MenuType.Item,
-                        data: () => EditorCommands.uncollapseAllMappingObjectViews(editor.view),
-                        shortcut: view.uncollapse_all_mappings,
-                        disabled: editor.id === MappingFileEditor.Phantom.id
+                        data: () => EditorCommand.uncollapseAllMappingObjectViews(view),
+                        shortcut: _view.uncollapse_all_mappings,
+                        disabled: view.file.id === MappingFileEditor.Phantom.id
                     }
                 ],
             }

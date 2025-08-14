@@ -1,8 +1,9 @@
 import { AppCommand } from "../AppCommand";
-import type { ApplicationStore } from "@/stores/ApplicationStore";
+import { MappingFileView, ValueViewFilter } from "@/assets/scripts/MappingFileView";
 import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
-import type { MappingFile } from "@/assets/scripts/MappingFile";
 import { SaveFileToRecoveryBank } from "./SaveFileToRecoveryBank";
+import type { MappingFile } from "@/assets/scripts/MappingFile";
+import type { ApplicationStore } from "@/stores/ApplicationStore";
 
 export class LoadFile extends AppCommand {
 
@@ -44,10 +45,13 @@ export class LoadFile extends AppCommand {
             context.execute(new SaveFileToRecoveryBank(context, editor))
         })
     }
+
+    
     /**
      * Executes the command.
      */
     public async execute(): Promise<void> {
+        // Configure active editor
         this._context.activeEditor = this._editor;
     }
 

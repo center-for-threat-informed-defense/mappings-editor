@@ -1,5 +1,7 @@
-import { EditorCommand, EditorDirective, type DirectiveIssuer } from "..";
-import { MappingObjectView, type MappingFileViewItem, MappingFileView } from "../..";
+import { EditorCommand, EditorDirective } from "..";
+import { MappingObjectView, MappingFileView } from "@/assets/scripts/MappingFileView";
+import type { DirectiveIssuer } from "../DirectiveIssuer";
+import type { MappingFileViewItem } from "@/assets/scripts/MappingFileView";
 
 export class CollapseViewItem extends EditorCommand {
 

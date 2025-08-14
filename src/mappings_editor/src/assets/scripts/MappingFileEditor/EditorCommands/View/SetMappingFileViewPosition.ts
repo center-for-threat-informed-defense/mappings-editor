@@ -1,5 +1,5 @@
-import { EditorCommand } from "..";
-import type { MappingFileView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class SetMappingFileViewPosition extends EditorCommand {
 

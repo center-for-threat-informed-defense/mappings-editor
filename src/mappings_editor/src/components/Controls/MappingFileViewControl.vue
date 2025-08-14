@@ -1,7 +1,7 @@
 <template>
   <div class="mapping-file-control" @pointerdown="onWindowPointerDown">
     <div :class="['editor-contents', editModeClass]" :style="contentStyle" ref="content">
-      <template v-for="item of editor.view.visibleItems" :key="item.id">
+      <template v-for="item of view.visibleItems" :key="item.id">
         <div :class="['item-container', { opaque: isItemOpaque(item) }]" :style="getItemStyle(item)">
           <div class="item-padding" :style="getItemPaddingStyle(item)">
             {{ getItemValidity(item) ? "" : "⚠" }}
@@ -50,10 +50,12 @@
 // Dependencies
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { RawScrollBox } from "@/assets/scripts/Utilities/";
+import { createGroupCommand } from "@/assets/scripts/MappingFileEditor";
 import { clamp, PointerTracker } from "@/assets/scripts/Utilities";
+import { BreakoutSectionView, MappingObjectView } from "@/assets/scripts/MappingFileView";
 import { defineComponent, inject, markRaw, type PropType, toRaw } from 'vue';
-import { MappingObjectView, MappingFileViewItem, BreakoutSectionView } from "@/assets/scripts/MappingFileEditor";
-import type { EditorCommand, MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import type { EditorCommand } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFileView, MappingFileViewItem } from "@/assets/scripts/MappingFileView";
 // Components
 import ScrollBox from "../Containers/ScrollBox.vue"
 import MappingObjectViewControl from "./MappingObjectViewControl.vue";
@@ -68,8 +70,8 @@ export default defineComponent({
     }
   },
   props: {
-    editor: {
-      type: Object as PropType<MappingFileEditor>,
+    view: {
+      type: Object as PropType<MappingFileView>,
       required: true
     },
     paintSelectKeySequence: {
@@ -126,7 +128,7 @@ export default defineComponent({
      *  The content's style.
      */
     contentStyle(): { height: string } {
-      return { height: `${ this.editor.view.contentHeight }px` }
+      return { height: `${ this.view.contentHeight }px` }
     },
 
     /**
@@ -140,7 +142,7 @@ export default defineComponent({
       const y = Math.round(move.tooltipY);
       return { 
         transform: `translate(${ x }px, ${ y }px )`,
-        zIndex: (this.editor.view.maxLayer * 2) + 2
+        zIndex: (this.view.maxLayer * 2) + 2
       };
     },
 
@@ -171,7 +173,7 @@ export default defineComponent({
       if(this.editMode !== EditMode.ItemMove) {
         return { items: [], remaining: 0 };
       }
-      const items = [...this.editor.view.getItems(
+      const items = [...this.view.getItems(
         o => o instanceof MappingObjectView && o.selected
       )] as MappingObjectView[];
       return { 
@@ -222,7 +224,7 @@ export default defineComponent({
         singleSelect = !item.selected;
       }
       if(singleSelect) {
-        this.execute(EditorCommands.unselectAllMappingObjectViews(this.editor.view));
+        this.execute(EditorCommands.unselectAllMappingObjectViews(this.view));
       }
       this.execute(EditorCommands.selectMappingObjectView(item));
       // Switch to item move mode
@@ -238,7 +240,7 @@ export default defineComponent({
      *  The pointer event.
      */
     onWindowPointerDown(event: PointerEvent) {
-      const view = this.editor.view;
+      const view = this.view;
       const content = this.$refs.content as HTMLElement;
       // Update last event
       this.cursor.lastEvent = event;
@@ -307,7 +309,7 @@ export default defineComponent({
       const beg = Math.min(select.sourceLocation, select.targetLocation);
       const end = Math.max(select.sourceLocation, select.targetLocation);
       // Select items
-      for(const item of toRaw(this.editor).view.getItemsAt(beg, end)) {
+      for(const item of toRaw(this.view).getItemsAt(beg, end)) {
         if(item instanceof MappingObjectView) {
           select.selection.set(item, select.selectState);
         }
@@ -325,7 +327,7 @@ export default defineComponent({
       // Clear last event
       this.cursor.lastEvent = null;
       // Generate selection
-      const cmd = EditorCommands.createGroupCommand();
+      const cmd = createGroupCommand();
       for(const [item, selected] of this.paintSelect.selection) {
         if(selected){
           cmd.do(EditorCommands.selectMappingObjectView(item));
@@ -367,7 +369,7 @@ export default defineComponent({
      *  True if the multiselect was successful, false otherwise.
      */
     tryMultiselectToItem(item: MappingFileViewItem): boolean {
-      const targetedItem = this.editor.view.lastSelected;
+      const targetedItem = this.view.lastSelected;
       if(!targetedItem) {
         return false;
       }
@@ -422,7 +424,7 @@ export default defineComponent({
       move.tooltipX = x;
       move.tooltipY = y;
       // Resolve location
-      const item = [...this.editor.view.getItemsAt(y, y)][0];
+      const item = [...this.view.getItemsAt(y, y)][0];
       if(item && !item.selected) {
         move.location = item;
       } else {
@@ -444,7 +446,7 @@ export default defineComponent({
       // Generate move
       let cmd = null;
       if(move.location) {
-        const v = this.editor.view;
+        const v = this.view;
         const p = move.originPosition;
         const d = move.location as MappingFileViewItem;
         cmd = EditorCommands.moveSelectedMappingObjectViews(v, d, p);
@@ -486,7 +488,7 @@ export default defineComponent({
        */
 
       // Update requested view position
-      this.requestedViewPosition = clamp(position, 0, this.editor.view.maxPosition);
+      this.requestedViewPosition = clamp(position, 0, this.view.maxPosition);
       // If scroll frame already scheduled...
       if(this.scrollAnimationFrameId !== 0) {
         // ...bail
@@ -508,10 +510,10 @@ export default defineComponent({
      *  The scroll position.
      */
     setScrollPosition(position: number) {
-      const editor = this.editor;
-      if(position !== editor.view.viewPosition) {
-        this.cachedViewPosition = clamp(position, 0, editor.view.maxPosition);
-        this.execute(EditorCommands.setMappingFileViewPosition(editor.view, position));
+      const view = this.view;
+      if(position !== view.viewPosition) {
+        this.cachedViewPosition = clamp(position, 0, view.maxPosition);
+        this.execute(EditorCommands.setMappingFileViewPosition(view, position));
       }
     },
 
@@ -523,7 +525,7 @@ export default defineComponent({
      */
     syncScrollPosition(suggestReturn: boolean = false) {
       // const lastPosition = this.cachedViewPosition;
-      const viewPosition = this.editor.view.viewPosition;
+      const viewPosition = this.view.viewPosition;
       if(this.cachedViewPosition !== viewPosition) {
         this.cachedViewPosition = viewPosition;
         // After DOM update...
@@ -546,9 +548,9 @@ export default defineComponent({
      */
     setEditorViewHeight() {
       // Set editor view height
-      const editor = this.editor;
+      const view = this.view;
       const height = this.$el.clientHeight;
-      this.execute(EditorCommands.setMappingFileViewHeight(editor.view, height));
+      this.execute(EditorCommands.setMappingFileViewHeight(view, height));
     },
 
     /**
@@ -583,7 +585,7 @@ export default defineComponent({
       // Configure scroll function
       const scroll = () => {
         // Calculate scroll position
-        const viewPosition = Math.round(this.editor.view.viewPosition + speed);
+        const viewPosition = Math.round(this.view.viewPosition + speed);
         // Update scroll position
         this.scrollbox.moveScrollPosition(viewPosition);
         this.setScrollPosition(viewPosition);
@@ -648,7 +650,7 @@ export default defineComponent({
      */
     getItemStyle(view: MappingFileViewItem): { top: string, height: string, zIndex: string } {
       const baseIndex = view.layer * 2;
-      const isLastSelected = view.id === this.editor.view.lastSelected?.id;
+      const isLastSelected = view.id === this.view.lastSelected?.id;
       if(view instanceof BreakoutSectionView) {
         const top = clamp(
           this.cachedViewPosition + view.hangHeight,
@@ -720,7 +722,7 @@ export default defineComponent({
      *  True if the item is opaque, false otherwise.
      */
     isItemOpaque(view: MappingFileViewItem): boolean {
-      return view.level !== (this.editor.view.maxLevel - 1);
+      return view.level !== (this.view.maxLevel - 1);
     },
 
     /**

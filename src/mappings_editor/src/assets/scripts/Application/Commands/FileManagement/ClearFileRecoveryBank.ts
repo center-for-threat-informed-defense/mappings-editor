@@ -1,5 +1,5 @@
+import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import { AppCommand } from "..";
 
 export class ClearFileRecoveryBank extends AppCommand {
 

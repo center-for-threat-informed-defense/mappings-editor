@@ -1,5 +1,5 @@
-import { EditorCommand } from "..";
-import type { MappingObjectView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import type { MappingObjectView } from "@/assets/scripts/MappingFileView";
 
 export class RestoreMappingObjectViews extends EditorCommand {
 

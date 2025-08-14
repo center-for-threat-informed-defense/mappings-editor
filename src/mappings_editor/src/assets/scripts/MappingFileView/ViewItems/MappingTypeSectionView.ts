@@ -1,10 +1,10 @@
-import * as EditorCommands from "../../EditorCommands";
+import * as EditorCommands from "../../MappingFileEditor/EditorCommands";
 import { BreakoutSectionView } from ".";
-import type { EditorCommand } from "../../EditorCommands";
+import { EditorCommand } from "../../MappingFileEditor";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileView } from "..";
 
-export class CapabilityGroupSectionView extends BreakoutSectionView {
+export class MappingTypeSectionView extends BreakoutSectionView {
     
     /**
      * The section's export text.
@@ -13,7 +13,7 @@ export class CapabilityGroupSectionView extends BreakoutSectionView {
 
 
     /**
-     * Creates a new {@link CapabilityGroupSectionView}.
+     * Creates a new {@link MappingTypeSectionView}.
      * @param file
      *  The mapping file view the item belongs to.
      * @param value
@@ -22,7 +22,7 @@ export class CapabilityGroupSectionView extends BreakoutSectionView {
      *  The section's export text.
      */
     constructor(file: MappingFileView, value: string | null, exportText: string | null) {
-        super(file, exportText ?? "No Capability Group", value);
+        super(file, exportText ?? "No Mapping Type", value);
         this.exportText = exportText;
     }
 
@@ -36,10 +36,10 @@ export class CapabilityGroupSectionView extends BreakoutSectionView {
      *  The {@link EditorCommand}.
      */
     public applySectionValue(obj: MappingObject): EditorCommand {
-        if(this.value && this.exportText && !obj.capabilityGroup.options.value.has(this.value)) {
-            return EditorCommands.setListItemProperty(obj.capabilityGroup, this.value, this.exportText);
+        if(this.value && this.exportText && !obj.mappingType.options.value.has(this.value)) {
+            return EditorCommands.setListItemProperty(obj.mappingType, this.value, this.exportText);
         } else {
-            return EditorCommands.setListItemProperty(obj.capabilityGroup, this.value);
+            return EditorCommands.setListItemProperty(obj.mappingType, this.value);
         }
     }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="strict-object-framework-field">
-    <FrameworkOptionsList 
+    <FrameworkOptionsList
       ref="optionsList"
       class="options-list"
       :select="select"
@@ -20,8 +20,8 @@
           {{ property.objectText ?? textPlaceholder }}
         </div>
       </div>
-      <input 
-        type="text" 
+      <input
+        type="text"
         ref="search"
         name="search"
         class="value-search"
@@ -96,7 +96,7 @@ export default defineComponent({
     isCached(): boolean {
       return this.property.isObjectValueCached();
     },
-    
+
     /**
      * Returns the enum's options.
      * @returns
@@ -212,7 +212,7 @@ export default defineComponent({
           optionsList?.bringItemIntoFocus(this.select);
           break;
         case "ArrowDown":
-          if(!options.length) { 
+          if(!options.length) {
             return;
           }
           event.preventDefault();
@@ -255,7 +255,7 @@ export default defineComponent({
     refreshValue() {
       this.select = this.property.objectId;
     }
-    
+
   },
   watch: {
     "property"() {

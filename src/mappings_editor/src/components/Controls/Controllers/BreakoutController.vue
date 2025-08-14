@@ -15,7 +15,7 @@ import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorComman
 import { clamp } from "@/assets/scripts/Utilities";
 import { PointerTracker } from "@/assets/scripts/Utilities/PointerTracker";
 import { defineComponent, markRaw, type PropType } from "vue";
-import type { BreakoutControl } from "@/assets/scripts/MappingFileEditor";
+import type { BreakoutControl } from "@/assets/scripts/MappingFileView";
 // Components
 import MoveDots from "@/components/Icons/MoveDots.vue";
 import CheckboxBar from "./CheckboxBar.vue";
@@ -24,7 +24,7 @@ export default defineComponent({
   name: "BreakoutController",
   props: {
     control: {
-      type: Object as PropType<BreakoutControl>,
+      type: Object as PropType<BreakoutControl<string>>,
       required: true
     }
   },
@@ -43,7 +43,7 @@ export default defineComponent({
      * @param breakout
      *  The breakout's state.
      */
-    onClickBreakout(id: number, breakout: { enabled: boolean }) {
+    onClickBreakout(id: string, breakout: { enabled: boolean }) {
       let cmd;
       if(breakout.enabled) {
         cmd = EditorCommands.disableBreakout(this.control, id);
@@ -60,7 +60,7 @@ export default defineComponent({
      * @param event
      *  The pointer event.
      */
-    onStartDrag(id: number, event: PointerEvent) {
+    onStartDrag(id: string, event: PointerEvent) {
       let row = (event.target! as HTMLElement).closest("li")!;
       let breakouts = this.$refs.breakouts as HTMLElement;
       // Configure row classes
@@ -75,7 +75,7 @@ export default defineComponent({
       let rows: { el: Element, minY: number, maxY: number }[] = [];
       for(let row of breakouts.children) {
         let { height } = row.getBoundingClientRect();
-        rows.push({ 
+        rows.push({
           el: row,
           minY: (row as any).offsetTop,
           maxY: (row as any).offsetTop + height
@@ -89,10 +89,10 @@ export default defineComponent({
       // Capture pointer
       let state = { id, src, dst: src, min, max, rows };
       this.track.capture(
-        event, 
+        event,
         (_, track) => {
           this.onDrag(track, state);
-        }, 
+        },
         () => {
           this.onStopDrag(state);
         });

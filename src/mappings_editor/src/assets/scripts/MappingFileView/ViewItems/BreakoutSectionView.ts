@@ -1,7 +1,8 @@
 import { randomUUID } from "@/assets/scripts/Utilities";
+import { EditorCommand } from "../../MappingFileEditor";
 import { MappingFileViewItem } from ".";
-import type { EditorCommand, MappingFileView } from "../..";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
+import type { MappingFileView } from "..";
 
 export abstract class BreakoutSectionView extends MappingFileViewItem {
 

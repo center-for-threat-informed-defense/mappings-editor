@@ -1,5 +1,5 @@
-import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { AppCommand } from "../AppCommand";
+import { Browser } from "@/assets/scripts/Utilities/Browser";
 
 export class SaveFileToDevice extends AppCommand {
 

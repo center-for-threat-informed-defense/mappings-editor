@@ -4,8 +4,8 @@
       <ScrollBox class="control-scrollbox">
         <div class="control-container">
           <p class="control-title">BREAKOUT BY</p>
-          <BreakoutController :control="activeView.breakouts" @execute="execute" />
-          
+          <BreakoutController :control="breakouts" @execute="execute" />
+
           <template v-if="capabilityGroupFilters">
             <span class="separator"></span>
             <p class="control-title">FILTER BY GROUP</p>
@@ -41,13 +41,13 @@
     </AccordionPane>
   </AccordionBox>
 </template>
-  
+
 <script lang="ts">
 // Dependencies
 import { defineComponent } from "vue";
 import { useApplicationStore } from "@/stores/ApplicationStore";
-import { MappingObjectDiscriminator } from "@/assets/scripts/MappingFileEditor";
-import type { EditorCommand, FilterControl, MappingFileView } from "@/assets/scripts/MappingFileEditor";
+import type { EditorCommand } from "@/assets/scripts/MappingFileEditor";
+import { BreakoutControl, ValueViewFilter, type FilterControl, type MappingFileView, type MappingObjectPropertyKey } from "@/assets/scripts/MappingFileView";
 // Components
 import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
@@ -60,18 +60,32 @@ export default defineComponent({
   data() {
     return {
       application: useApplicationStore()
-    };
+    }
   },
   computed: {
 
     /**
-     * Returns the active {@link MappingFileView}.
+     * Returns the active view's breakout control.
      * @returns
-     *  The active {@link MappingFileView}.
+     *  The active view's breakout control.
      */
-    activeView(): MappingFileView {
-      // Have to cast because Pinia seems to struggle with type inference
-      return this.application.activeEditor.view as MappingFileView;
+    breakouts(): BreakoutControl<MappingObjectPropertyKey> {
+      return this.application.activeFileView.breakouts as BreakoutControl<MappingObjectPropertyKey>;
+    },
+
+    /**
+     * Returns the active view's value filters.
+     * @returns
+     *  The active view's value filters.
+     */
+    filters(): ValueViewFilter {
+      const id = "value_filters";
+      const filters = this.application.activeFileView.viewFilters.get(id);
+      if(filters instanceof ValueViewFilter) {
+        return filters;
+      } 
+      return new ValueViewFilter(this.application.activeFileView)
+      throw Error(`Value filters '${id}' are improperly registered.'`)
     },
 
     /**
@@ -80,7 +94,7 @@ export default defineComponent({
      *  The capability group filters control. `undefined` if there wasn't one.
      */
     capabilityGroupFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.CapabilityGroup);
+      return this.filters.controls.get("capabilityGroup");
     },
 
     /**
@@ -89,7 +103,7 @@ export default defineComponent({
      *  The mapping status filters control. `undefined` if there wasn't one.
      */
     mappingStatusFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingStatus);
+      return this.filters.controls.get("mappingStatus");
     },
 
     /**
@@ -98,7 +112,7 @@ export default defineComponent({
      *  The mapping type filters control. `undefined` if there wasn't one.
      */
     mappingTypeFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.MappingType);
+      return this.filters.controls.get("mappingType");
     },
 
     /**
@@ -107,7 +121,7 @@ export default defineComponent({
      *  The source object filters control. `undefined` if there wasn't one.
      */
     sourceObjectFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.SourceObject);
+      return this.filters.controls.get("sourceObject");
     },
 
     /**
@@ -116,7 +130,7 @@ export default defineComponent({
      *  The target object filters control. `undefined` if there wasn't one.
      */
     targetObjectFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.TargetObject);
+      return this.filters.controls.get("targetObject");
     },
 
     /**
@@ -125,7 +139,7 @@ export default defineComponent({
      *  The validity filters control. `undefined` if there wasn't one.
      */
     validityFilters(): FilterControl | undefined {
-      return this.activeView.filterSets.get(MappingObjectDiscriminator.IsValid);
+      return this.filters.controls.get("isValid");
     }
 
   },
@@ -149,7 +163,7 @@ export default defineComponent({
 }
 });
 </script>
-  
+
 <style scoped>
 
 /** === Main Element === */

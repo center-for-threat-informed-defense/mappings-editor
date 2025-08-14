@@ -1,6 +1,6 @@
 import { AppCommand } from "../AppCommand";
 import { executeCopy } from "./Clipboard";
-import { MappingFileView, Reactivity } from "@/assets/scripts/MappingFileEditor";
+import { MappingFileView, Reactivity } from "@/assets/scripts/MappingFileView";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";

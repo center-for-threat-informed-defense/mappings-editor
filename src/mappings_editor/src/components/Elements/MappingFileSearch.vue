@@ -30,13 +30,11 @@
 <script lang="ts">
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { unsignedMod } from "@/assets/scripts/Utilities";
-import { defineComponent, type PropType } from 'vue';
-import type {
-  EditorCommand,
-  MappingFileEditor,
-  MappingFileViewItem,
-  MappingObjectView
-} from "@/assets/scripts/MappingFileEditor";
+import { defineComponent } from 'vue';
+import { useApplicationStore } from "@/stores/ApplicationStore";
+import type { EditorCommand, MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFileView, MappingFileViewItem, MappingObjectView } from "@/assets/scripts/MappingFileView";
+
 
 export default defineComponent({
   name: 'MappingFileSearch',
@@ -46,12 +44,7 @@ export default defineComponent({
       searchTerm: "",
       searchItem: null as MappingObjectView | null,
       searchCount: [0,0],
-    }
-  },
-  props: {
-    editor: {
-      type: Object as PropType<MappingFileEditor>,
-      required: true
+      application: useApplicationStore()
     }
   },
   emits: ["execute"],
@@ -93,7 +86,8 @@ export default defineComponent({
       // Hide search navigation
       this.showNavigation = false;
       // Clear selection
-      const cmd = EditorCommands.unselectAllMappingObjectViews(this.editor.view);
+      const view = this.application.activeFileView as MappingFileView;
+      const cmd = EditorCommands.unselectAllMappingObjectViews(view);
       this.$emit("execute", cmd)
     },
 
@@ -103,11 +97,13 @@ export default defineComponent({
      *  The number of results to jump forward/backward by.
      */
     traverseSearchResults(increment: number) {
+      const view = this.application.activeFileView as MappingFileView;
+      const editor = this.application.activeEditor as MappingFileEditor;
       // Search objects
-      const unorderedResults = this.editor.searchMappingObjects(this.searchTerm);
+      const unorderedResults = editor.searchMappingObjects(this.searchTerm);
       // Order and filter results according to view
       const results = [];
-      for(let item of this.editor.view.getItems()) {
+      for(let item of view.getItems()) {
         if(unorderedResults.has(item.id)) {
           results.push(item.id);
         }
@@ -127,11 +123,11 @@ export default defineComponent({
         nearestIdx = 0;
       }
       const nextIdx = unsignedMod(nearestIdx + increment, results.length);
-      const searchItem = this.editor.view.getItem(results[nextIdx]) as MappingObjectView;
+      const searchItem = view.getItem(results[nextIdx]) as MappingObjectView;
       this.searchCount[0] = nextIdx + 1;
       // Update view
       let cmd = EditorCommands.createGroupCommand();
-      cmd.do(EditorCommands.unselectAllMappingObjectViews(this.editor.view));
+      cmd.do(EditorCommands.unselectAllMappingObjectViews(view));
       cmd.do(EditorCommands.selectMappingObjectView(searchItem));
       cmd.do(EditorCommands.moveCameraToViewItem(searchItem, 0, true));
       this.execute(cmd);
@@ -153,17 +149,18 @@ export default defineComponent({
      *  The index of the view item (in the set of view items) nearest to `id`.
      */
     getNearestItem(id: string, items: string[]): number {
+      const view = this.application.activeFileView as MappingFileView;
       const set = new Set(items);
       let item: MappingFileViewItem | null;
       // Traverse forward
-      item = this.editor.view.getItem(id);
+      item = view.getItem(id);
       for(; item !== null; item = item.next) {
         if(set.has(item.id)) {
           return items.indexOf(item.id);
         }
       }
       // Traverse backward
-      item = this.editor.view.getItem(id);
+      item = view.getItem(id);
       for(; item !== null; item = item.prev) {
         if(set.has(item.id)) {
           return items.indexOf(item.id);

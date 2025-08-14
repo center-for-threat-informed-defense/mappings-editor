@@ -1,11 +1,11 @@
-import * as EditorCommands from "../../EditorCommands";
+import * as EditorCommands from "../../MappingFileEditor/EditorCommands";
+import { EditorCommand } from "../../MappingFileEditor";
 import { BreakoutSectionView } from ".";
-import { EditorCommand } from "../../EditorCommands";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileView } from "..";
 
-export class MappingTypeSectionView extends BreakoutSectionView {
-    
+export class MappingStatusSectionView extends BreakoutSectionView {
+
     /**
      * The section's export text.
      */
@@ -13,7 +13,7 @@ export class MappingTypeSectionView extends BreakoutSectionView {
 
 
     /**
-     * Creates a new {@link MappingTypeSectionView}.
+     * Creates a new {@link MappingStatusSectionView}.
      * @param file
      *  The mapping file view the item belongs to.
      * @param value
@@ -22,7 +22,7 @@ export class MappingTypeSectionView extends BreakoutSectionView {
      *  The section's export text.
      */
     constructor(file: MappingFileView, value: string | null, exportText: string | null) {
-        super(file, exportText ?? "No Mapping Type", value);
+        super(file, exportText ?? "No Mapping Status", value);
         this.exportText = exportText;
     }
 
@@ -36,10 +36,10 @@ export class MappingTypeSectionView extends BreakoutSectionView {
      *  The {@link EditorCommand}.
      */
     public applySectionValue(obj: MappingObject): EditorCommand {
-        if(this.value && this.exportText && !obj.mappingType.options.value.has(this.value)) {
-            return EditorCommands.setListItemProperty(obj.mappingType, this.value, this.exportText);
+        if(this.value && this.exportText && !obj.mappingStatus.options.value.has(this.value)) {
+            return EditorCommands.setListItemProperty(obj.mappingStatus, this.value, this.exportText);
         } else {
-            return EditorCommands.setListItemProperty(obj.mappingType, this.value);
+            return EditorCommands.setListItemProperty(obj.mappingStatus, this.value);
         }
     }
 

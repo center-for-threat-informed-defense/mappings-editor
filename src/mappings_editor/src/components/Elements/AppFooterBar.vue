@@ -1,6 +1,6 @@
 <template>
   <div class="app-footer-bar-element">
-    <div class="right-align" v-if="!isPhantomFile">
+    <div class="left-align" v-if="!isPhantomFile">
       <div class="metric">
         {{ mappingCount }} Mappings
       </div>
@@ -21,7 +21,7 @@
         </div>
       </Transition>
     </div>
-    <div class="left-align" v-if="!isPhantomFile">
+    <div class="right-align" v-if="!isPhantomFile">
       <div class="metric source-framework">
         <span class="framework">{{ sourceFramework }}:</span>
         <span class="version">{{ sourceVersion }}</span>
@@ -86,7 +86,7 @@ export default defineComponent({
      *  The number of selected mappings in the active view.
      */
     selectCount(): number {
-      return this.application.activeEditor.view.selected.size;
+      return this.application.activeFileView.selected.size;
     },
 
     /**
@@ -245,13 +245,13 @@ export default defineComponent({
   user-select: none;
 }
 
-.right-align {
+.left-align {
   flex: 1;
   display: flex;
   justify-content: baseline;
 }
 
-.left-align {
+.right-align {
   flex: 1;
   display: flex;
   justify-content: end;
@@ -265,11 +265,11 @@ export default defineComponent({
   margin: 0px 10px;
 }
 
-.right-align .metric:first-child {
+.left-align .metric:first-child {
   margin-left: 20px;
 }
 
-.left-align .metric:last-child {
+.right-align .metric:last-child {
   margin-right: 20px;
 }
 

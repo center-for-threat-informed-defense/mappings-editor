@@ -1,5 +1,6 @@
-import { EditorCommand } from "..";
-import { MappingObjectView, MappingFileView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import { MappingObjectView } from "@/assets/scripts/MappingFileView";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class CollapseAllMappingObjectViews extends EditorCommand {
 

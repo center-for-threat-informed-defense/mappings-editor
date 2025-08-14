@@ -1,5 +1,5 @@
-import { EditorCommand } from "..";
-import type { FilterControl, MappingFileView } from "../..";
+import { EditorCommand } from "../EditorCommand";
+import type { FilterControl, MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class ShowAllItems extends EditorCommand {
 

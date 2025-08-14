@@ -1,5 +1,5 @@
 import { EditorCommand } from "../EditorCommand";
-import { MappingFileViewItem, MappingFileView } from "../..";
+import { MappingFileViewItem, MappingFileView } from "@/assets/scripts/MappingFileView";
 
 export class MoveCameraToViewItem extends EditorCommand {
 

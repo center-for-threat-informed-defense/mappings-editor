@@ -1,9 +1,9 @@
 import FlexSearch from "flexsearch";
 import { EventEmitter } from "./EventEmitter";
+import { MappingFileView } from "../MappingFileView";
 import {
     GroupCommand,
     EditorCommand,
-    MappingFileView,
     EditorDirective,
     type DirectiveIssuer,
     type DirectiveArguments,
@@ -18,6 +18,7 @@ import {
 } from "../MappingFile";
 import type { Document } from "flexsearch";
 import type { MappingObjectDocument } from "./MappingObjectDocument";
+
 
 export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
 
@@ -39,14 +40,14 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     public readonly file: MappingFile;
 
     /**
+     * The editor's view.
+     */
+    public readonly view: MappingFileView;
+
+    /**
      * The editor's file name.
      */
     public readonly name: string;
-
-    /**
-     * The editor's file view.
-     */
-    public readonly view: MappingFileView;
 
     /**
      * The editor's undo stack.
@@ -133,7 +134,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             file.targetVersion
         }`;
         this.file = file;
-        this.view = new MappingFileView(this.file, {
+        this.view = new MappingFileView(file, {
             sectionHeight: 33,
             sectionPaddingHeight: 10,
             objectHeightCollapsed: 42,

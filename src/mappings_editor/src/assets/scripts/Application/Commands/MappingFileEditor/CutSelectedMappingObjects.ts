@@ -1,7 +1,8 @@
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { AppCommand } from "../AppCommand";
 import { executeCopy } from "./Clipboard";
-import { MappingFileView, MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";

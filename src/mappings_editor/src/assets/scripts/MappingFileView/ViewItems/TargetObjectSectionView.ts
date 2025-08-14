@@ -1,6 +1,6 @@
-import * as EditorCommands from "../../EditorCommands";
+import * as EditorCommands from "../../MappingFileEditor/EditorCommands";
 import { BreakoutSectionView } from ".";
-import { EditorCommand } from "../../EditorCommands";
+import { EditorCommand } from "../../MappingFileEditor";
 import type { MappingObject } from "@/assets/scripts/MappingFile";
 import type { MappingFileView } from "..";
 

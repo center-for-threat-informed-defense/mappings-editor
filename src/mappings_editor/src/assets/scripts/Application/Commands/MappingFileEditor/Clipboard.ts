@@ -1,4 +1,5 @@
-import { MappingObjectView, type MappingFileView } from "@/assets/scripts/MappingFileEditor";
+import { MappingObjectView } from "@/assets/scripts/MappingFileView";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";
 

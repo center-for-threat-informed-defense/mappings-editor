@@ -12,13 +12,12 @@
       <div class="frame center">
         <div id="file-search">
           <MappingFileSearch
-            :editor="activeEditor"
             @execute="onExecute"
           />
         </div>
         <MappingFileViewControl
           id="file-editor"
-          :editor="activeEditor"
+          :view="activeView"
           :paintSelectKeySequence="paintSelectKeySequence"
           :multiSelectKeySequence="multiSelectKeySequence"
           @execute="onExecute"
@@ -45,8 +44,9 @@ import AppTitleBar from "./components/Elements/AppTitleBar.vue";
 import AppHotkeyBox from "./components/Elements/AppHotkeyBox.vue";
 import AppFooterBar from "./components/Elements/AppFooterBar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
-import MappingFileSearch from "./components/Controls/MappingFileSearch.vue";
+import MappingFileSearch from "./components/Elements/MappingFileSearch.vue";
 import MappingFileViewControl from "./components/Controls/MappingFileViewControl.vue";
+import type { MappingFileView } from "./assets/scripts/MappingFileView";
 
 enum Handle {
   Center = 0,
@@ -93,13 +93,13 @@ export default defineComponent({
     },
 
     /**
-     * Returns the active file editor.
+     * Returns the active file view.
      * @returns
-     *  The active file editor.
+     *  The active file view.
      */
-    activeEditor(): MappingFileEditor {
+    activeView(): MappingFileView {
       // Have to cast because Pinia seems to struggle with type inference
-      return this.application.activeEditor as MappingFileEditor;
+      return this.application.activeFileView as MappingFileView;
     },
 
     /**

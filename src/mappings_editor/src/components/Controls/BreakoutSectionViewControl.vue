@@ -32,7 +32,7 @@
 
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
 import { defineComponent, type PropType } from 'vue';
-import type { BreakoutSectionView } from "@/assets/scripts/MappingFileEditor";
+import type { BreakoutSectionView } from "@/assets/scripts/MappingFileView";
 
 export default defineComponent({
   name: 'BreakoutSectionViewControl',

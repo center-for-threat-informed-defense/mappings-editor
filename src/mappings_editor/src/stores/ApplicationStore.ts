@@ -1,9 +1,12 @@
 import Configuration from "@/assets/configuration/app.config";
 import { defineStore } from 'pinia'
 import { FileStore } from "@/assets/scripts/Utilities";
+import { MappingFileView } from "@/assets/scripts/MappingFileView";
 import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEditor'
-import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFileAuthority, type Framework } from '@/assets/scripts/MappingFileAuthority'
-import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
+import { BaseAppSettings, MappingFileSerializer } from '@/assets/scripts/Application';
+import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFileAuthority } from '@/assets/scripts/MappingFileAuthority';
+import type { Framework } from '@/assets/scripts/MappingFileAuthority';
+import type { AppCommand } from '@/assets/scripts/Application';
 
 // Build Framework Registry
 const registry = new FrameworkRegistry();
@@ -32,6 +35,14 @@ export const useApplicationStore = defineStore('applicationStore', {
     state: () => ({
         executionCycle: 0,
         activeEditor: MappingFileEditor.Phantom,
+        activeFileView: new MappingFileView(MappingFileEditor.Phantom.file, {
+            sectionHeight: 33,
+            sectionPaddingHeight: 10,
+            objectHeightCollapsed: 42,
+            objectHeightUncollapsed: 328,
+            objectPaddingHeight: 6,
+            loadMargin: 0,
+        }),
         fileAuthority: new MappingFileAuthority(registry),
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
         fileRecoveryBank: new FileStore("file_recovery_bank."),
@@ -64,7 +75,7 @@ export const useApplicationStore = defineStore('applicationStore', {
          *  True if the active editor has a selection, false otherwise.
          */
         hasSelection(state): boolean {
-            return 0 < state.activeEditor.view.selected.size;
+            return 0 < state.activeFileView.selected.size;
         }
 
     },

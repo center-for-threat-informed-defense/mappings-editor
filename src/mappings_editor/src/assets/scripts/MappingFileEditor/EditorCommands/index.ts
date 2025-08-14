@@ -1,14 +1,16 @@
-export * from "./EditorCommand";
+import { 
+    DoNothing,
+    EditorCommand,
+    GroupCommand
+} from "./index.commands";
+
+export * from "./index.commands";
+export * from "./File";
+export * from "./Property";
+export * from "./View";
 export * from "./EditorDirective";
 export * from "./DirectiveIssuer";
 export * from "./DirectiveArguments";
-export * from "./GroupCommand";
-export * from "./Property";
-export * from "./View";
-export * from "./File"
-
-import { DoNothing } from "./DoNothing";
-import { EditorCommand, GroupCommand } from ".";
 
 /**
  * Does nothing.

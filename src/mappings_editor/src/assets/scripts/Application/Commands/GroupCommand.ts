@@ -1,4 +1,4 @@
-import { AppCommand } from ".";
+import { AppCommand } from "./AppCommand";
 
 export class GroupCommand extends AppCommand {
 

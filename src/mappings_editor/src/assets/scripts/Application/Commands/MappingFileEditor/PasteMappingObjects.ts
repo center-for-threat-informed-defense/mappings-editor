@@ -1,8 +1,10 @@
-import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
+import * as EditorCommand from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { randomUUID } from "@/assets/scripts/Utilities";
 import { AppCommand } from "../AppCommand";
-import { Reactivity, type MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { Reactivity } from "@/assets/scripts/MappingFileEditor";
+import type { MappingFileView } from "@/assets/scripts/MappingFileView";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
+import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import type { MappingFileAuthority } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileSerializer } from "../..";
 
@@ -23,6 +25,11 @@ export class PasteMappingObjects extends AppCommand {
      */
     public readonly editor: MappingFileEditor;
 
+    /**
+     * The mapping file view.
+     */
+    public readonly view: MappingFileView;
+
 
     /**
      * Pastes the clipboard's contents into a {@link MappingFile}.
@@ -35,6 +42,7 @@ export class PasteMappingObjects extends AppCommand {
         super();
         this.fileAuthority = context.fileAuthority as MappingFileAuthority;
         this.fileSerializer = context.fileSerializer as MappingFileSerializer;
+        this.view = context.activeFileView as MappingFileView;
         this.editor = editor;
     }
 
@@ -45,24 +53,24 @@ export class PasteMappingObjects extends AppCommand {
     public async execute(): Promise<void> {
         try {
             const text = await navigator.clipboard.readText();
-            const view = this.editor.view;
+            const view = this.view;
             const rawFileSerializer = Reactivity.toRaw(this.fileSerializer);
             const convert = Reactivity.toRaw(this.fileAuthority.convertMappingObjectImportToParams);
             // Deserialize items
             const imports = rawFileSerializer.processPaste(text);
             // Compile mapping objects
-            const objects = new Map<string, EditorCommands.IdentifiedMappingObjectParameters>();
+            const objects = new Map<string, EditorCommand.IdentifiedMappingObjectParameters>();
             for(const obj of imports){
                 const objectId = randomUUID()
                 objects.set(objectId, { objectId, ...convert(obj) })
             }
             // Compile view command
-            const cmd = EditorCommands.createSplitPhaseViewCommand(
-                EditorCommands.importMappingObjects(this.editor.file, [...objects.values()]),
+            const cmd = EditorCommand.createSplitPhaseViewCommand(
+                EditorCommand.importMappingObjects(this.editor.file, [...objects.values()]),
                 () => [
-                    EditorCommands.rebuildViewBreakouts(view),
-                    EditorCommands.unselectAllMappingObjectViews(view),
-                    EditorCommands.selectMappingObjectViewsById(view, [...objects.keys()]),
+                    EditorCommand.rebuildViewBreakouts(view),
+                    EditorCommand.unselectAllMappingObjectViews(view),
+                    EditorCommand.selectMappingObjectViewsById(view, [...objects.keys()]),
                 ]
             )
             // Execute insert

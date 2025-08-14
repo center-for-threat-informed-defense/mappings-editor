@@ -1,11 +1,13 @@
 import { Browser } from "@/assets/scripts/Utilities";
-import { AppCommand } from "../AppCommand";
-import { LoadSettings } from "./LoadSettings";
-import { LoadFrameworkFile } from "./LoadFramework";
-import { UnloadStoredFrameworks } from "./UnloadStoredFrameworks";
+import { 
+   LoadFrameworkFile,
+   LoadSettings,
+   UnloadStoredFrameworks
+} from "./index.commands";
 import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import type { AppSettings } from "@/assets/scripts/Application";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
+
 
 /**
  * Loads the application's settings.
@@ -16,7 +18,9 @@ import type { ApplicationStore } from "@/stores/ApplicationStore";
  * @returns
  *  A command that represents the action.
  */
-export function loadSettings(context: ApplicationStore, settings: AppSettings): AppCommand {
+export function loadSettings(
+   context: ApplicationStore, settings: AppSettings
+): LoadSettings {
    return new LoadSettings(context, settings);
 }
 
@@ -29,7 +33,9 @@ export function loadSettings(context: ApplicationStore, settings: AppSettings): 
  * @returns
  *  A command that represents the action.
  */
-export async function registerExistingFramework(context: ApplicationStore, file: string): Promise<AppCommand> {
+export async function registerExistingFramework(
+   context: ApplicationStore, file: string
+): Promise<LoadFrameworkFile> {
    // Deserialize framework file
    const json = JSON.parse(file) as Framework;
    // Return command
@@ -43,7 +49,9 @@ export async function registerExistingFramework(context: ApplicationStore, file:
  * @returns
  *  A command that represents the action.
  */
-export async function registerFrameworkFromFileSystem(context: ApplicationStore): Promise<AppCommand> {
+export async function registerFrameworkFromFileSystem(
+   context: ApplicationStore
+): Promise<LoadFrameworkFile> {
    const { contents } = await Browser.openTextFileDialog(["json"], false);
    return registerExistingFramework(context, contents as string);
 }
@@ -57,7 +65,9 @@ export async function registerFrameworkFromFileSystem(context: ApplicationStore)
  * @returns
  *  A command that represents the action.
  */
-export async function registerFrameworkFromUrl(context: ApplicationStore, url: string): Promise<AppCommand> {
+export async function registerFrameworkFromUrl(
+   context: ApplicationStore, url: string
+): Promise<LoadFrameworkFile> {
    return registerExistingFramework(context, await (await fetch(url)).text());
 }
 
@@ -69,6 +79,8 @@ export async function registerFrameworkFromUrl(context: ApplicationStore, url: s
  * @returns
  *  A command that represents the action.
  */
-export async function unloadStoredFrameworks(context: ApplicationStore) {
+export async function unloadStoredFrameworks(
+   context: ApplicationStore
+): Promise<UnloadStoredFrameworks> {
    return new UnloadStoredFrameworks(context);
 }

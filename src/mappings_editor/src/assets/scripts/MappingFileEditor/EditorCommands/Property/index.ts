@@ -1,12 +1,13 @@
-import { SetStringProperty } from "./SetStringProperty";
-import { SetListItemProperty } from "./SetListItemProperty";
-import { AddItemToListProperty } from "./AddItemToListProperty";
-import { DeleteItemFromListProperty } from "./DeleteItemFromListProperty";
-import { SetFrameworkObjectPropertyId } from "./SetFrameworkObjectPropertyId";
-import { SetFrameworkObjectPropertyText } from "./SetFrameworkObjectPropertyText";
-import { EnterDynamicFrameworkObjectProperty } from "./EnterDynamicFrameworkObjectProperty";
-import { ExitDynamicFrameworkObjectProperty } from "./ExitDynamicFrameworkObjectProperty";
-import type { EditorCommand } from "..";
+import { 
+    AddItemToListProperty,
+    DeleteItemFromListProperty,
+    EnterDynamicFrameworkObjectProperty,
+    ExitDynamicFrameworkObjectProperty,
+    SetFrameworkObjectPropertyId,
+    SetFrameworkObjectPropertyText,
+    SetListItemProperty,
+    SetStringProperty
+} from "./index.commands";
 import type { 
     DynamicFrameworkObjectProperty, FrameworkObjectProperty, 
     ListItem, ListItemProperty, ListProperty, StringProperty
@@ -21,7 +22,9 @@ import type {
  * @returns
  *  A command that represents the action.
  */
-export function setStringProperty(prop: StringProperty, value: string | null): EditorCommand {
+export function setStringProperty(
+    prop: StringProperty, value: string | null
+): SetStringProperty {
     return new SetStringProperty(prop, value); 
 }
 
@@ -34,7 +37,9 @@ export function setStringProperty(prop: StringProperty, value: string | null): E
  * @returns
  *  A command that represents the action.
  */
-export function setListItemProperty(prop: ListItemProperty, value: string | null): EditorCommand;
+export function setListItemProperty(
+    prop: ListItemProperty, value: string | null
+): SetListItemProperty;
 
 /**
  * Sets the value of a {@link ListProperty}.
@@ -47,8 +52,12 @@ export function setListItemProperty(prop: ListItemProperty, value: string | null
  * @returns
  *  A command that represents the action.
  */
-export function setListItemProperty(prop: ListItemProperty, exportValue: string, exportText?: string): EditorCommand;
-export function setListItemProperty(prop: ListItemProperty, param1: string | null, param2?: string): EditorCommand {
+export function setListItemProperty(
+    prop: ListItemProperty, exportValue: string, exportText?: string
+): SetListItemProperty;
+export function setListItemProperty(
+    prop: ListItemProperty, param1: string | null, param2?: string
+): SetListItemProperty {
     if(param1 === null || param2 === undefined) {
         return new SetListItemProperty(prop, param1); 
     } else {
@@ -65,7 +74,9 @@ export function setListItemProperty(prop: ListItemProperty, param1: string | nul
  * @returns
  *  A command that represents the action.
  */
-export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null): EditorCommand;
+export function setFrameworkObjectPropertyId(
+    prop: FrameworkObjectProperty, objectId: string | null
+): SetFrameworkObjectPropertyId;
 
 /**
  * Forcibly sets the object id and text of a {@link FrameworkObjectProperty}.
@@ -78,8 +89,12 @@ export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, obje
  * @returns
  *  A command that represents the action.
  */
-export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string, objectText: string | null): EditorCommand;
-export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null, objectText?: string | null): EditorCommand {
+export function setFrameworkObjectPropertyId(
+    prop: FrameworkObjectProperty, objectId: string, objectText: string | null
+): SetFrameworkObjectPropertyId;
+export function setFrameworkObjectPropertyId(
+    prop: FrameworkObjectProperty, objectId: string | null, objectText?: string | null
+): SetFrameworkObjectPropertyId {
     if(objectId === null || objectText === undefined) {
         return new SetFrameworkObjectPropertyId(prop, objectId); 
     } else {
@@ -96,7 +111,9 @@ export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, obje
  * @returns
  *  A command that represents the action.
  */
-export function setFrameworkObjectPropertyText(prop: FrameworkObjectProperty, objectText: string | null): EditorCommand {
+export function setFrameworkObjectPropertyText(
+    prop: FrameworkObjectProperty, objectText: string | null
+): SetFrameworkObjectPropertyText {
     return new SetFrameworkObjectPropertyText(prop, objectText); 
 }
 
@@ -107,7 +124,9 @@ export function setFrameworkObjectPropertyText(prop: FrameworkObjectProperty, ob
  * @returns
  *  A command that represents the action.
  */
-export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EditorCommand {
+export function enterDynamicFrameworkObjectProperty(
+    prop: DynamicFrameworkObjectProperty
+): EnterDynamicFrameworkObjectProperty {
     return new EnterDynamicFrameworkObjectProperty(prop);
 }
 
@@ -118,7 +137,9 @@ export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObject
  * @returns
  *  A command that represents the action.
  */
-export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EditorCommand {
+export function exitDynamicFrameworkObjectProperty(
+    prop: DynamicFrameworkObjectProperty
+): ExitDynamicFrameworkObjectProperty {
     return new ExitDynamicFrameworkObjectProperty(prop);
 }
 
@@ -133,7 +154,9 @@ export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectP
  * @returns
  *  A command that represents the action.
  */
-export function addItemToListProperty(prop: ListProperty, item: ListItem, index?: number): EditorCommand {
+export function addItemToListProperty(
+    prop: ListProperty, item: ListItem, index?: number
+): AddItemToListProperty {
     return new AddItemToListProperty(prop, item, index);
 }
 
@@ -146,6 +169,8 @@ export function addItemToListProperty(prop: ListProperty, item: ListItem, index?
  * @returns
  *  A command that represents the action.
  */
-export function deleteItemFromListProperty(prop: ListProperty, item: ListItem): EditorCommand {
+export function deleteItemFromListProperty(
+    prop: ListProperty, item: ListItem
+): DeleteItemFromListProperty {
     return new DeleteItemFromListProperty(prop, item);
 }

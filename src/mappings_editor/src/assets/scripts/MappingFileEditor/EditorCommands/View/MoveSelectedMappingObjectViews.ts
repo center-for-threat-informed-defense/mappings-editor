@@ -1,7 +1,6 @@
-import { GroupCommand } from "..";
-import { MoveMappingObjectAfter } from "../File/MoveMappingObjectAfter";
-import { BreakoutSectionView, MappingObjectView, type MappingFileViewItem } from "../..";
-import { ReindexMappingObjects } from "../File/ReindexMappingObjects";
+import { BreakoutSectionView, MappingObjectView } from "@/assets/scripts/MappingFileView";
+import { GroupCommand, moveMappingObjectAfter, reindexMappingObjects } from "..";
+import type { MappingFileViewItem } from "@/assets/scripts/MappingFileView";
 
 export class MoveSelectedMappingObjectViews extends GroupCommand {
 
@@ -43,10 +42,10 @@ export class MoveSelectedMappingObjectViews extends GroupCommand {
         for(let i = 0; i < this.views.length; i++) {
             const object = this.views[i].object;
             const dest = (this.views[i - 1] ?? destinationObject)?.object
-            this.do(new MoveMappingObjectAfter(object, dest));
+            this.do(moveMappingObjectAfter(object, dest));
         }
         // Reindex items
-        this.do(new ReindexMappingObjects(views.map(o => o.id)))
+        this.do(reindexMappingObjects(views.map(o => o.id)))
     }
     
 }

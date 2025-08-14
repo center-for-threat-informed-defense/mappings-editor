@@ -63,7 +63,7 @@ import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorComman
 // Dependencies
 import { unsignedMod } from "@/assets/scripts/Utilities";
 import { defineComponent, type PropType } from "vue";
-import type { FilterControl } from "@/assets/scripts/MappingFileEditor";
+import type { FilterControl } from "@/assets/scripts/MappingFileView";
 // Components
 import CheckboxBar from "./CheckboxBar.vue";
 import OptionsList from "../Fields/OptionsList.vue";
