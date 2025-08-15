@@ -1,7 +1,7 @@
 import * as AppCommands from "@/assets/scripts/Application/Commands";
 import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands"
 import { defineStore } from 'pinia'
-import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { MappingFileEditor, MappingFileView } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { Hotkey } from "@/assets/scripts/Utilities";
 import type { CommandEmitter } from '@/assets/scripts/Application';
@@ -82,6 +82,7 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
         editHotKeys(): Hotkey<CommandEmitter>[] {
             const app = useApplicationStore();
             const edit = app.settings.hotkeys.edit;
+            const view = app.activeFileView as MappingFileView;
             const editor = app.activeEditor as MappingFileEditor;
             return [
                 {
@@ -95,30 +96,30 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     repeatable: true
                 },
                 {
-                    data: () => EditorCommands.deleteSelectedMappingObjectViews(editor.view),
+                    data: () => EditorCommands.deleteSelectedMappingObjectViews(view),
                     shortcut: edit.delete,
                     repeatable: false,
                     disabled: !app.hasSelection
                 },
                 {
-                    data: () => EditorCommands.selectAllMappingObjectViews(editor.view),
+                    data: () => EditorCommands.selectAllMappingObjectViews(view),
                     repeatable: false,
                     shortcut: edit.select_all
                 },
                 {
-                    data: () => EditorCommands.unselectAllMappingObjectViews(editor.view),
+                    data: () => EditorCommands.unselectAllMappingObjectViews(view),
                     shortcut: edit.unselect_all,
                     repeatable: false,
                     disabled: !app.hasSelection
                 },
                 {
-                    data: () => AppCommands.cutEditorCommand(app, editor, editor.view),
+                    data: () => AppCommands.cutEditorCommand(app, editor, view),
                     shortcut: edit.cut,
                     repeatable: false,
                     disabled: !app.hasSelection
                 },
                 {
-                    data: () => AppCommands.copySelectedMappingObjects(app, editor.view),
+                    data: () => AppCommands.copySelectedMappingObjects(app, view),
                     shortcut: edit.copy,
                     repeatable: false,
                     disabled: !app.hasSelection
@@ -138,22 +139,22 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
          */
         viewHotkeys(): Hotkey<CommandEmitter>[] {
             const app = useApplicationStore();
-            const editor = app.activeEditor as MappingFileEditor;
-            const view = app.settings.hotkeys.view;
-            return  [
+            const view = app.activeFileView as MappingFileView;
+            const _view = app.settings.hotkeys.view;
+          return  [
                 {
-                    data: () => EditorCommands.collapseAllMappingObjectViews(editor.view),
-                    shortcut: view.collapse_all_mappings,
+                    data: () => EditorCommands.collapseAllMappingObjectViews(view),
+                    shortcut: _view.collapse_all_mappings,
                     repeatable: false
                 },
                 {
-                    data: () => EditorCommands.uncollapseAllMappingObjectViews(editor.view),
-                    shortcut: view.uncollapse_all_mappings,
+                    data: () => EditorCommands.uncollapseAllMappingObjectViews(view),
+                    shortcut: _view.uncollapse_all_mappings,
                     repeatable: false
                 },
                 {
                     data: () => AppCommands.switchToFullscreen(),
-                    shortcut: view.fullscreen,
+                    shortcut: _view.fullscreen,
                     repeatable: false
                 }
             ];

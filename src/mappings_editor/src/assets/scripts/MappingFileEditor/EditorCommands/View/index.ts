@@ -1,6 +1,6 @@
 import { ShowAllItems } from "./ShowAllItems";
 import { MoveBreakout } from "./MoveBreakout";
-import { EditorCommand } from "..";
+import { EditorCommand, reindexMappingObjects } from "..";
 import { SetFilterState } from "./SetFilterState";
 import { CollapseViewItem } from "./CollapseViewItem";
 import { SetBreakoutState } from "./SetBreakoutState";
@@ -391,7 +391,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
                 strict: false
             }
             return [
-                new ReindexMappingObjects(view.id),
+                reindexMappingObjects(view.id),
                 new RebuildViewBreakouts(view.fileView),
                 new SelectMappingObjectViews(view, undefined, true, true),
                 new MoveCameraToViewItem(view, autoScroll ? camera : undefined, camera, camera)
@@ -415,7 +415,7 @@ export function setMappingObjectViewProperty(view: MappingObjectView, command: E
  * @returns
  *  A command that represents the action.
  */
-export function enableBreakout(control: BreakoutControl, id: number): EditorCommand {
+export function enableBreakout(control: BreakoutControl<string>, id: number): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetBreakoutState(control, id, true),
         cmd => [
@@ -433,7 +433,7 @@ export function enableBreakout(control: BreakoutControl, id: number): EditorComm
  * @returns
  *  A command that represents the action.
  */
-export function disableBreakout(control: BreakoutControl, id: number): EditorCommand {
+export function disableBreakout(control: BreakoutControl<string>, id: number): EditorCommand {
     return createSplitPhaseViewCommand(
         new SetBreakoutState(control, id, false),
         cmd => [
@@ -453,7 +453,7 @@ export function disableBreakout(control: BreakoutControl, id: number): EditorCom
  * @returns
  *  A command that represents the action.
  */
-export function moveBreakout(control: BreakoutControl, id: number, dst: number): EditorCommand {
+export function moveBreakout(control: BreakoutControl<string>, id: string, dst: number): EditorCommand {
     return createSplitPhaseViewCommand(
         new MoveBreakout(control, id, dst),
         cmd => [

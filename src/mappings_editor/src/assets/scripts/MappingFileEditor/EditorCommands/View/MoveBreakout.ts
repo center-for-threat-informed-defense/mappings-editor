@@ -11,12 +11,12 @@ export class MoveBreakout extends EditorCommand {
     /**
      * The breakout control.
      */
-    public readonly control: BreakoutControl;
+    public readonly control: BreakoutControl<string>;
 
     /**
      * The breakout id.
      */
-    public readonly id: number;
+    public readonly id: string;
 
     /**
      * The destination index.
@@ -33,8 +33,7 @@ export class MoveBreakout extends EditorCommand {
      * @param dst
      *  The destination index.
      */
-    constructor(control: BreakoutControl, id: number, dst: number) {
-        super();
+    constructor(control: BreakoutControl<string>, id: string, dst: number) {        super();
         this.fileView = control.fileView;
         this.control = control;
         this.id = id;

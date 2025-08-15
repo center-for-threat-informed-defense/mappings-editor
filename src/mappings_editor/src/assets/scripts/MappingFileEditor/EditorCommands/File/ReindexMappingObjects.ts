@@ -34,7 +34,7 @@ export class ReindexMappingObjects extends EditorCommand {
      * @param ids
      *  The mapping objects, specified by id.
      */
-    constructor(ids: string[]);
+    constructor(ids: string[] | string);
     constructor(ids: string[] | string) {
         super();
         this.ids = Array.isArray(ids) ? ids : [ids];

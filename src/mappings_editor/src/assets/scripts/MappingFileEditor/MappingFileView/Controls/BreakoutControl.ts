@@ -1,12 +1,11 @@
 import type { MappingFileView } from "..";
 
-export class BreakoutControl {
+export class BreakoutControl<K> {
 
     /**
      * The control's internal set of valid breakouts.
      */
-    private _options: Map<number, { text: string, enabled: boolean }>;
-
+    private _options: Map<K, { text: string, enabled: boolean }>;
     /**
      * The control's {@link MappingFileView}.
      */
@@ -16,7 +15,7 @@ export class BreakoutControl {
     /**
      * The control's set of valid breakouts.
      */
-    public get options(): ReadonlyMap<number, Readonly<{ text: string, enabled: boolean }>> {
+    public get options(): ReadonlyMap<K, Readonly<{ text: string, enabled: boolean }>> {
         return this._options;
     }
 
@@ -25,7 +24,7 @@ export class BreakoutControl {
      * @returns
      *  The primary breakout. `undefined` if there is no primary breakout.
      */
-    public get primaryBreakout(): number | undefined {
+    public get primaryBreakout(): K | undefined {
         for(const [id, breakout] of this._options) {
             if(breakout.enabled) return id;
         }
@@ -37,7 +36,7 @@ export class BreakoutControl {
      * @returns
      *  The active breakouts.
      */
-    public get activeBreakouts(): number[] {
+    public get activeBreakouts(): K[] {
         const breakouts = [];
         for(const [id, breakout] of this._options) {
             if(breakout.enabled) breakouts.push(id)
@@ -53,7 +52,7 @@ export class BreakoutControl {
      * @param options
      *  The control's valid set of options.
      */
-    constructor(fileView: MappingFileView, options: Map<number, { text: string, enabled: boolean }>) {
+    constructor(fileView: MappingFileView, options: Map<K, { text: string, enabled: boolean }>) {
         this.fileView = fileView;
         this._options = options;
     }
@@ -66,7 +65,7 @@ export class BreakoutControl {
      * @param value
      *  True to enable the breakout, false to disable it.
      */
-    public setBreakoutState(id: number, value: boolean) {
+    public setBreakoutState(id: K, value: boolean) {
         const breakout = this._options.get(id);
         if(breakout) {
             breakout.enabled = value;
@@ -82,7 +81,7 @@ export class BreakoutControl {
      * @param dst
      *  The destination index.
      */
-    public moveBreakout(id: number, dst: number) {
+    public moveBreakout(id: K, dst: number) {
         const breakouts = [...this._options.entries()];
         const src = breakouts.findIndex(([_id]) => _id === id);
         if(src !== -1) {

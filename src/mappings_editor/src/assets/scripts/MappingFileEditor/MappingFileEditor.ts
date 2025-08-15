@@ -133,7 +133,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             file.targetVersion
         }`;
         this.file = file;
-        this.view = new MappingFileView(this.file, {
+        this.view = new MappingFileView(file, {
             sectionHeight: 33,
             sectionPaddingHeight: 10,
             objectHeightCollapsed: 42,
