@@ -1,6 +1,4 @@
-import { MappingObjectDiscriminator } from "./MappingObjectDiscriminator";
 import {
-    MappingObject,
     Property,
     ListItemProperty,
     FrameworkObjectProperty,
@@ -8,10 +6,6 @@ import {
 } from "../../MappingFile";
 import {
     BreakoutControl,
-    FilterControl,
-    FrameworkListingFilterControl,
-    GenericFilterControl,
-    ListPropertyFilterControl
 } from "./Controls";
 import {
     MappingFileViewItem,

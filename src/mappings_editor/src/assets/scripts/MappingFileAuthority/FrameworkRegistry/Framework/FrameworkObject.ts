@@ -13,6 +13,6 @@ export type FrameworkObject = {
     /**
      * The framework object's description.
      */
-    description: string
+    description: string //TODO: decide about deleting this- mike did
 
 }

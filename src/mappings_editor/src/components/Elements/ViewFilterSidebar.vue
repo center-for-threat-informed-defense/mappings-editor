@@ -45,8 +45,9 @@
 <script lang="ts">
 // Dependencies
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@/stores/ApplicationStore";
-import type { EditorCommand, FilterControl } from "@/assets/scripts/MappingFileEditor";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
+import { BreakoutControl, ValueViewFilter, type FilterControl, type MappingFileView, } from "../../assets/scripts/MappingFileEditor/MappingFileView";
 // Components
 import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
@@ -54,14 +55,13 @@ import AccordionPane from "../Containers/AccordionPane.vue";
 import FilterController from "../Controls/Controllers/FilterController.vue";
 import BreakoutController from "../Controls/Controllers/BreakoutController.vue";
 import { MappingObjectPropertyKey } from "../../assets/scripts/MappingFileEditor/MappingFileView/MappingsObjectPropertyKey";
-import { BreakoutControl, ValueViewFilter } from "../../assets/scripts/MappingFileEditor";
 
 export default defineComponent({
   name: "ViewFilterSidebar",
   data() {
     return {
       application: useApplicationStore()
-    };
+    }
   },
   computed: {
 
@@ -73,6 +73,7 @@ export default defineComponent({
     breakouts(): BreakoutControl<MappingObjectPropertyKey> {
       return this.application.activeFileView.breakouts as BreakoutControl<MappingObjectPropertyKey>;
     },
+
     /**
      * Returns the active view's value filters.
      * @returns
@@ -85,8 +86,9 @@ export default defineComponent({
         return filters;
       }
       return new ValueViewFilter(this.application.activeFileView)
-      throw Error(`Value filters '${id}' are improperly registered.'`)
+      // throw Error(`Value filters '${id}' are improperly registered.'`)
     },
+
     /**
      * Returns the capability group filters.
      * @returns

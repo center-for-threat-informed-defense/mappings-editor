@@ -1,14 +1,16 @@
-import { SetStringProperty } from "./SetStringProperty";
-import { SetListItemProperty } from "./SetListItemProperty";
-import { AddItemToListProperty } from "./AddItemToListProperty";
-import { DeleteItemFromListProperty } from "./DeleteItemFromListProperty";
-import { SetFrameworkObjectPropertyId } from "./SetFrameworkObjectPropertyId";
-import { SetFrameworkObjectPropertyText } from "./SetFrameworkObjectPropertyText";
-import { EnterDynamicFrameworkObjectProperty } from "./EnterDynamicFrameworkObjectProperty";
-import { ExitDynamicFrameworkObjectProperty } from "./ExitDynamicFrameworkObjectProperty";
+import {
+    AddItemToListProperty,
+    DeleteItemFromListProperty,
+    EnterDynamicFrameworkObjectProperty,
+    ExitDynamicFrameworkObjectProperty,
+    SetFrameworkObjectPropertyId,
+    SetFrameworkObjectPropertyText,
+    SetListItemProperty,
+    SetStringProperty
+} from "./index.commands";
 import type { EditorCommand } from "..";
-import type { 
-    DynamicFrameworkObjectProperty, FrameworkObjectProperty, 
+import type {
+    DynamicFrameworkObjectProperty, FrameworkObjectProperty,
     ListItem, ListItemProperty, ListProperty, StringProperty
 } from "@/assets/scripts/MappingFile";
 
@@ -22,7 +24,7 @@ import type {
  *  A command that represents the action.
  */
 export function setStringProperty(prop: StringProperty, value: string | null): EditorCommand {
-    return new SetStringProperty(prop, value); 
+    return new SetStringProperty(prop, value);
 }
 
 /**
@@ -50,9 +52,9 @@ export function setListItemProperty(prop: ListItemProperty, value: string | null
 export function setListItemProperty(prop: ListItemProperty, exportValue: string, exportText?: string): EditorCommand;
 export function setListItemProperty(prop: ListItemProperty, param1: string | null, param2?: string): EditorCommand {
     if(param1 === null || param2 === undefined) {
-        return new SetListItemProperty(prop, param1); 
+        return new SetListItemProperty(prop, param1);
     } else {
-        return new SetListItemProperty(prop, param1, param2); 
+        return new SetListItemProperty(prop, param1, param2);
     }
 }
 
@@ -81,9 +83,9 @@ export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, obje
 export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string, objectText: string | null): EditorCommand;
 export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, objectId: string | null, objectText?: string | null): EditorCommand {
     if(objectId === null || objectText === undefined) {
-        return new SetFrameworkObjectPropertyId(prop, objectId); 
+        return new SetFrameworkObjectPropertyId(prop, objectId);
     } else {
-        return new SetFrameworkObjectPropertyId(prop, objectId, objectText); 
+        return new SetFrameworkObjectPropertyId(prop, objectId, objectText);
     }
 }
 
@@ -96,8 +98,8 @@ export function setFrameworkObjectPropertyId(prop: FrameworkObjectProperty, obje
  * @returns
  *  A command that represents the action.
  */
-export function setFrameworkObjectPropertyText(prop: FrameworkObjectProperty, objectText: string | null): EditorCommand {
-    return new SetFrameworkObjectPropertyText(prop, objectText); 
+export function setFrameworkObjectPropertyText(prop: FrameworkObjectProperty, objectText: string | null): SetFrameworkObjectPropertyText {
+    return new SetFrameworkObjectPropertyText(prop, objectText);
 }
 
 /**
@@ -107,7 +109,7 @@ export function setFrameworkObjectPropertyText(prop: FrameworkObjectProperty, ob
  * @returns
  *  A command that represents the action.
  */
-export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EditorCommand {
+export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EnterDynamicFrameworkObjectProperty {
     return new EnterDynamicFrameworkObjectProperty(prop);
 }
 
@@ -118,7 +120,7 @@ export function enterDynamicFrameworkObjectProperty(prop: DynamicFrameworkObject
  * @returns
  *  A command that represents the action.
  */
-export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EditorCommand {
+export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectProperty): EnterDynamicFrameworkObjectProperty {
     return new ExitDynamicFrameworkObjectProperty(prop);
 }
 
@@ -133,7 +135,7 @@ export function exitDynamicFrameworkObjectProperty(prop: DynamicFrameworkObjectP
  * @returns
  *  A command that represents the action.
  */
-export function addItemToListProperty(prop: ListProperty, item: ListItem, index?: number): EditorCommand {
+export function addItemToListProperty(prop: ListProperty, item: ListItem, index?: number): AddItemToListProperty {
     return new AddItemToListProperty(prop, item, index);
 }
 
@@ -146,6 +148,6 @@ export function addItemToListProperty(prop: ListProperty, item: ListItem, index?
  * @returns
  *  A command that represents the action.
  */
-export function deleteItemFromListProperty(prop: ListProperty, item: ListItem): EditorCommand {
+export function deleteItemFromListProperty(prop: ListProperty, item: ListItem): DeleteItemFromListProperty {
     return new DeleteItemFromListProperty(prop, item);
 }

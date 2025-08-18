@@ -274,8 +274,9 @@ export class MappingFileAuthority {
      * @returns
      *  The migrated Mapping File.
      */
-    public async migrateMappingFile(file: MappingFile): Promise<MappingFile> {
-        return file;
+    public async migrateMappingFile(src: MappingFile, trg: MappingFile): Promise<MappingFile> {
+        const rawThis = Reactivity.toRaw(this);
+        return src;
     }
 
 

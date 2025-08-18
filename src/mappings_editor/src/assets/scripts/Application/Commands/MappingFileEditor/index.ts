@@ -1,12 +1,13 @@
 import { AppCommand } from "../AppCommand";
-import { UndoEditorCommand } from "./UndoEditorCommand";
-import { RedoEditorCommand } from "./RedoEditorCommand";
-import { PasteMappingObjects } from "./PasteMappingObjects";
-import { CopySelectedMappingObjects } from "./CopySelectedMappingObjects";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileEditor, MappingFileView } from "@/assets/scripts/MappingFileEditor";
-import { CutSelectedMappingObjects } from "./CutSelectedMappingObjects";
-
+import {
+    CopySelectedMappingObjects,
+    CutSelectedMappingObjects,
+    PasteMappingObjects,
+    RedoEditorCommand,
+    UndoEditorCommand
+} from "./index.commands";
 
 /**
  * Cuts selected mapping object's to the clipboard.

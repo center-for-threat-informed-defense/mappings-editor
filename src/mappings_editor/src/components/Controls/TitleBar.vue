@@ -26,9 +26,9 @@
 
 <script lang="ts">
 // Dependencies
-import { RawFocusBox } from '@/assets/scripts/Utilities';
+import { RawFocusBox } from '../../assets/scripts/Utilities';
 import { defineComponent, markRaw, type PropType } from 'vue';
-import type { ContextMenuSubmenu } from "@/assets/scripts/Application/ContextMenuTypes";
+import type { ContextMenuSubmenu } from "../../assets/scripts/Application/ContextMenuTypes";
 // Components
 import ContextMenuListing from "./ContextMenuListing.vue";
 

@@ -5,7 +5,7 @@
         <svg width="11.314" height="7.0711" viewBox="0 0 2.9934 1.8709">
           <g transform="translate(-.49321 -1.3794)">
             <path
-              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225 
+              d="m1.9899 3.2503 1.4967-1.4967-0.37418-0.37418-1.1225
               1.1225-1.1225-1.1225-0.37418 0.37418 1.1225 1.1225z"
             />
           </g>
@@ -30,9 +30,10 @@
  * component.
  */
 
-import * as EditorCommands from "@/assets/scripts/MappingFileEditor/EditorCommands";
+import * as EditorCommands from "../../assets/scripts/MappingFileEditor/EditorCommands";
 import { defineComponent, type PropType } from 'vue';
-import type { BreakoutSectionView } from "@/assets/scripts/MappingFileEditor";
+import type { BreakoutSectionView } from "../../assets/scripts/MappingFileEditor";
+
 
 export default defineComponent({
   name: 'BreakoutSectionViewControl',
@@ -126,7 +127,7 @@ export default defineComponent({
   fill: #8c8c8c;
 }
 
-.collapse-icon.collapsed svg { 
+.collapse-icon.collapsed svg {
   transform: rotate(270deg);
 }
 

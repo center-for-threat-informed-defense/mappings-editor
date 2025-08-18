@@ -6,7 +6,7 @@
         88
     ],
     "editor.codeActionsOnSave": {
-        "source.fixAll": true
+        "source.fixAll": "explicit"
     },
     "markdown.extension.toc.levels": "2..6",
 }

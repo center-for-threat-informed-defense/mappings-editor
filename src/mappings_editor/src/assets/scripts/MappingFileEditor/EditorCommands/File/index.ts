@@ -1,13 +1,15 @@
-import { CreateMappingObject } from "./CreateMappingObject";
-import { InsertMappingObject } from "./InsertMappingObject";
-import { DeleteMappingObject } from "./DeleteMappingObject";
-import { ImportMappingObjects } from "./ImportMappingObjects";
-import { InsertMappingObjects } from "./InsertMappingObjects";
-import { DeleteMappingObjects } from "./DeleteMappingObjects";
+import {
+    CreateMappingObject,
+    DeleteMappingObject,
+    DeleteMappingObjects,
+    ImportMappingObjects,
+    InsertMappingObject,
+    InsertMappingObjects,
+    MoveMappingObjectsAfter,
+    ReindexMappingObjects
+} from "./index.commands";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
-import { MoveMappingObjectsAfter } from "./MoveMappingObjectsAfter";
-import { ReindexMappingObjects } from "./ReindexMappingObjects";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 
 /**

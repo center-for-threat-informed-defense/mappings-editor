@@ -11,7 +11,7 @@ import { SwitchToFullscreen } from "./SwitchToFullscreen";
  * @returns
  *  A command that represents the action.
  */
-export function openHyperlink(url: string): AppCommand {
+export function openHyperlink(url: string): OpenHyperlink {
     return new OpenHyperlink(url);
 }
 
@@ -20,7 +20,7 @@ export function openHyperlink(url: string): AppCommand {
  * @returns
  *  A command that represents the action.
  */
-export function switchToFullscreen(): AppCommand {
+export function switchToFullscreen(): SwitchToFullscreen {
     return new SwitchToFullscreen();
 }
 
