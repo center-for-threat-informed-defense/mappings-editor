@@ -27,6 +27,29 @@ for(const file of frameworkBank.files.values()) {
     )
 }
 
+// Define sidebar options for side view pane
+type SidebarView = {
+    id: string;
+    label: string;
+    icon: string;
+    pane: string;
+}
+
+const sidebarViewOptions: SidebarView[] = [
+    {
+        id: "filter",
+        label: "View and Organize Mappings",
+        icon: "ListMappings",
+        pane: "ViewFilterSidebar",
+    },
+    {
+        id: "issues",
+        label: "Resolve Problems",
+        icon: "AlertIcon",
+        pane: "ProblemPane",
+    }
+];
+
 // Define Application Store
 export const useApplicationStore = defineStore('applicationStore', {
     state: () => ({
@@ -44,7 +67,9 @@ export const useApplicationStore = defineStore('applicationStore', {
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
         fileRecoveryBank: new FileStore("file_recovery_bank."),
         frameworkBank: frameworkBank,
-        settings: BaseAppSettings
+        settings: BaseAppSettings,
+        sidebarViewOptions: sidebarViewOptions,
+        activeSidebar: sidebarViewOptions[0],
     }),
     getters: {
 
@@ -96,6 +121,14 @@ export const useApplicationStore = defineStore('applicationStore', {
             }
             // Temporarily hold any autosaving
             this.activeEditor.tryDelayAutosave();
+        },
+        /**
+         * Updates the active sidebar
+         * @param newActiveOption
+         *  The new active section to set in the app store.
+         */
+        setActiveSidebar(newActiveOption: SidebarView) {
+            this.activeSidebar = newActiveOption;
         }
 
     }

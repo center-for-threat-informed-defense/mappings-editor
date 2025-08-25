@@ -82,7 +82,7 @@ export default defineComponent({
     filters(): ValueViewFilter {
       const id = "value_filters";
       const filters = this.application.activeFileView.viewFilters.get(id);
-      if(filters instanceof ValueViewFilter) {
+      if (filters instanceof ValueViewFilter) {
         return filters;
       }
       return new ValueViewFilter(this.application.activeFileView)
@@ -160,13 +160,12 @@ export default defineComponent({
   components: {
     ScrollBox, AccordionPane,
     AccordionBox, FilterController,
-    BreakoutController
-}
+    BreakoutController,
+  }
 });
 </script>
 
 <style scoped>
-
 /** === Main Element === */
 
 .control-title {
@@ -198,4 +197,7 @@ export default defineComponent({
   border-bottom: solid 1px #333333;
 }
 
+.view-filter-sidebar-element {
+    width: 100%;
+}
 </style>

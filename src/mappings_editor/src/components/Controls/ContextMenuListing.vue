@@ -5,7 +5,7 @@
       <!-- Menu Section -->
       <template v-for="item of section.items" :key="item.text">
         <!-- Submenu Item -->
-        <li 
+        <li
           :class="{ disabled: item.disabled }"
           @mouseenter="submenuEnter(item)"
           @mouseleave="submenuLeave(item)"
@@ -16,7 +16,7 @@
             <span class="more-arrow"></span>
           </a>
           <div class="submenu" v-if="isActive(item)">
-            <ContextMenuListing 
+            <ContextMenuListing
               :root="false"
               :sections="item.sections"
               @_select="onChildItemSelect"
@@ -24,13 +24,13 @@
           </div>
         </li>
         <!-- Regular Item -->
-        <li 
+        <li
           :class="{ disabled: item.disabled }"
           :exit-focus-box="!item.keepMenuOpenOnSelect"
           @click="onItemClick(item)"
           v-else
         >
-          <a 
+          <a
             class="item"
             target="_blank"
           >
@@ -125,7 +125,7 @@ export default defineComponent({
   },
   emits: ["select", "_select"],
   methods: {
-    
+
     /**
      * Tests is a submenu is active.
      * @param menu
@@ -278,7 +278,7 @@ li {
 }
 li:not(.disabled):hover {
   color: #fff;
-  background: #726de2;
+  background: #637bc9;
 }
 
 a {
@@ -291,7 +291,7 @@ li.disabled a {
   cursor: unset;
 }
 
-.text, 
+.text,
 .shortcut,
 .more-arrow {
   display: flex;
