@@ -5,7 +5,7 @@
         <div class="control-container">
           <p class="control-title">BREAKOUT BY</p>
           <BreakoutController :control="activeView.breakouts" @execute="execute" />
-          
+
           <template v-if="capabilityGroupFilters">
             <span class="separator"></span>
             <p class="control-title">FILTER BY GROUP</p>
@@ -41,7 +41,7 @@
     </AccordionPane>
   </AccordionBox>
 </template>
-  
+
 <script lang="ts">
 // Dependencies
 import { defineComponent } from "vue";
@@ -149,7 +149,7 @@ export default defineComponent({
 }
 });
 </script>
-  
+
 <style scoped>
 
 /** === Main Element === */
@@ -182,5 +182,7 @@ export default defineComponent({
   height: 25px;
   border-bottom: solid 1px #333333;
 }
-
+.view-filter-sidebar-element {
+    width: 100%;
+}
 </style>
