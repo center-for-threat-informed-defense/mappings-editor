@@ -175,6 +175,7 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             capability_groups      : meta.capability_groups,
             mapping_types          : meta.mapping_types,
             mapping_statuses: {
+                "version_changed"      : "Version Change Detected",
                 "in_progress"          : "In Progress",
                 "internal_review"      : "Internal Review",
                 "participant_review"   : "Participant Review",
