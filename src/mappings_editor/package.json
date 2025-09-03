@@ -17,6 +17,7 @@
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
+    "vue-diff": "^1.2.4",
     "yaml": "^2.3.4"
   },
   "devDependencies": {

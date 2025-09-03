@@ -419,5 +419,17 @@ ul {
   display: flex;
   box-sizing: border-box;
 }
-
+.vue-diff-viewer .vue-diff-row
+ {
+    font-size: 11px ;
+ }
+ .vue-diff-viewer .lineNum {
+    width: 10px !important;
+}
+.vue-diff-viewer .vue-diff-row .code {
+  width: calc(100% - 10px) !important;
+}
+.vue-diff-viewer .vue-diff-row {
+  flex-wrap: wrap;
+}
 </style>
