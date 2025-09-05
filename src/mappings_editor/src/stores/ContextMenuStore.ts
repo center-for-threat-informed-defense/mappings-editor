@@ -158,17 +158,20 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             };
 
         },
+
         /**
          * Returns the "Upgrade ATT&CK Version" file section.
+         * @returns
+         * The 'ATT&CK Sync' menu section.
          */
-
         attackSyncMenu(): ContextMenuSection {
             const items: ContextMenu[] = [];
             const app = useApplicationStore();
             ATTACK_VERSIONS.forEach((i) => items.push({
                 text: "ATT&CK v"+ i,
-                type: MenuType.Item,
+                type: MenuType.Toggle,
                 data: () => AppCommands.upgradeAttackVersion(app, i),
+                value: app.settings.file.file_version === i
             }))
 
             // Build submenu
