@@ -2,6 +2,9 @@
  * Base App Settings
  */
 export const BaseAppSettings: AppSettings = {
+    file: {
+        file_version: "" // TODO: set version based on mappings file being loaded
+    },
     view: {
         auto_scroll: true
     },
@@ -37,6 +40,9 @@ export const BaseAppSettings: AppSettings = {
  * App Settings File
  */
 export type AppSettings = {
+    file: {
+        file_version: string,
+    },
     view: {
         auto_scroll: boolean
     },
