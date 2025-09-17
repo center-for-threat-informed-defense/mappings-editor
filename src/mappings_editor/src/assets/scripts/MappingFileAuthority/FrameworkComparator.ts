@@ -1,4 +1,3 @@
-import { FrameworkObjectProperty, ListProperty, StringProperty } from "../MappingFile/Property";
 import type { FrameworkDiff, FrameworkObject, FrameworkRegistry } from "./FrameworkRegistry";
 
 export class FrameworkComparator {
