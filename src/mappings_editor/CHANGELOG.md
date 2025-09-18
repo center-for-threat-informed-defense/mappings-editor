@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.5.0...mappings_editor-v1.6.0) (2025-09-18)
+
+
+### Features
+
+* add support for ATT&CK v17.0 and v17.1 ([61b8b01](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/61b8b01f25b9a02fc1effc2faa255063a73567ea))
+
+
+### Bug Fixes
+
+* downgrade azure cli version ([#52](https://github.com/center-for-threat-informed-defense/mappings-editor/issues/52)) ([2414b93](https://github.com/center-for-threat-informed-defense/mappings-editor/commit/2414b9319899850e7d308be632283f392d773044))
+
 ## [1.5.0](https://github.com/center-for-threat-informed-defense/mappings-editor/compare/mappings_editor-v1.4.0...mappings_editor-v1.5.0) (2025-06-25)
 
 
