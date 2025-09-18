@@ -1,4 +1,4 @@
-import type { FrameworkObject } from "./FrameworkObject";
+import type { FrameworkCategories } from "./FrameworkCategories";
 
 export type Framework = {
 
@@ -13,7 +13,8 @@ export type Framework = {
     frameworkVersion: string;
 
     /**
-     * The framework's set of framework objects.
+     * The framework's objects organized by category. 
      */
-    frameworkObjects: FrameworkObject[];
+    categories: FrameworkCategories;
+
 }

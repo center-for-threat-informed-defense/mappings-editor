@@ -15,8 +15,4 @@ export type FrameworkObject = {
      */
     description: string
 
-    /**
-     * The framework object's child framework objects.
-     */
-    [key: string]: FrameworkObject[] | string;
 }

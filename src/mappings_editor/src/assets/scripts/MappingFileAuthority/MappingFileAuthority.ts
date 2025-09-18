@@ -128,8 +128,11 @@ export class MappingFileAuthority {
             // ...create a strict framework object property
             const framework = await this.registry.getFramework(id, version);
             const listing = new EditableStrictFrameworkListing(id, version);
-            for(const object of framework.frameworkObjects){
-                listing.registerObject(object.id, object.name);
+            for(const name in framework.categories) {
+                const category = framework.categories[name];
+                for(const object of category){
+                    listing.registerObject(object.id, object.name);
+                }
             }
             return new StrictFrameworkObjectProperty("", listing);
         }
