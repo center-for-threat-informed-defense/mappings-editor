@@ -1,3 +1,4 @@
+import type { FrameworkCategories } from "./FrameworkCategories";
 import type { FrameworkObject } from "./FrameworkObject";
 
 export type Framework = {
@@ -16,4 +17,9 @@ export type Framework = {
      * The framework's set of framework objects.
      */
     frameworkObjects: FrameworkObject[];
+
+    /**
+     * The framework's objects organized by category.
+     */
+    categories: FrameworkCategories;
 }
