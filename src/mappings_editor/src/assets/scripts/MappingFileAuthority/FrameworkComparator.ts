@@ -1,110 +1,27 @@
-import type { FrameworkDiff, FrameworkObject, FrameworkRegistry } from "./FrameworkRegistry";
+import type { Framework, FrameworkDiff, FrameworkMigration, FrameworkObject } from "./FrameworkRegistry";
 
 export class FrameworkComparator {
 
     /**
-     * The framework comparator's framework registry.
+     * The differences between source and target frameworks.
      */
-    public readonly registry: FrameworkRegistry;
-
-    /**
-     * The list of framework object additions.
-     */
-    public readonly added_framework_objects: FrameworkObject[];
-
-    /**
-     * The list of framework object removals.
-     */
-    public readonly removed_framework_objects: FrameworkObject[];
-
-    /**
-     * The internal map of changed framework object names.
-     */
-    private _changed_names: Map<string, [string, string]>;
-
-    /**
-     * The internal map of changed framework object descriptions.
-     */
-    private _changed_descriptions: Map<string, [string, string]>;
-
-    /**
-     * The internal map of added mitigations to framework objects.
-     */
-    private _added_mitigations: Map<string, FrameworkObject[]>;
-
-    /**
-     * The internal map of removed mitigations from framework objects.
-     */
-    private _removed_mitigations: Map<string, FrameworkObject[]>;
-
-    /**
-     * The internal map of added detections to framework objects.
-     */
-    private _added_detections: Map<string, FrameworkObject[]>;
-
-    /**
-     * The internal map of removed detections from framework objects.
-     */
-    private _removed_detections: Map<string, FrameworkObject[]>;
-
-    /**
-     * The changed framework object names.
-     */
-    public get changedNames(): ReadonlyMap<string, [string, string]> {
-        return this._changed_names;
-    }
-
-    /**
-     * The changed framework object descriptions.
-     */
-    public get changedDescriptions(): ReadonlyMap<string, [string, string]> {
-        return this._changed_descriptions;
-    }
-
-    /**
-     * The changed framework object descriptions.
-     */
-    public get addedMitigations(): ReadonlyMap<string, FrameworkObject[]> {
-        return this._added_mitigations;
-    }
-
-    /**
-     * The changed framework object descriptions.
-     */
-    public get removedMitigations(): ReadonlyMap<string, FrameworkObject[]> {
-        return this._removed_mitigations;
-    }
-
-    /**
-     * The changed framework object descriptions.
-     */
-    public get addedDetections(): ReadonlyMap<string, FrameworkObject[]> {
-        return this._added_detections;
-    }
-
-    /**
-     * The changed framework object descriptions.
-     */
-    public get removedDetections(): ReadonlyMap<string, FrameworkObject[]> {
-        return this._removed_detections;
-    }
+    public readonly diff: FrameworkMigration;
 
 
     /**
      * Creates a new {@link FrameworkComparator}.
-     * @param registry
-     *  The framework comparator's framework registry.
      */
-    constructor(registry: FrameworkRegistry) {
-        this.registry = registry;
-        this.added_framework_objects = [];
-        this.removed_framework_objects = [];
-        this._changed_names = new Map<string, [string, string]>();
-        this._changed_descriptions = new Map<string, [string, string]>();
-        this._added_mitigations = new Map<string, FrameworkObject[]>();
-        this._removed_mitigations = new Map<string, FrameworkObject[]>();
-        this._added_detections = new Map<string, FrameworkObject[]>();
-        this._removed_detections = new Map<string, FrameworkObject[]>();
+    constructor() {
+        this.diff = {
+            added_framework_objects: [],
+            removed_framework_objects: [],
+            changed_names:  new Map<string, [string, string]>(),
+            changed_descriptions: new Map<string, [string, string]>(),
+            added_mitigations: new Map<string, FrameworkObject[]>(),
+            removed_mitigations: new Map<string, FrameworkObject[]>(),
+            added_detections: new Map<string, FrameworkObject[]>(),
+            removed_detections: new Map<string, FrameworkObject[]>(),
+        }
     }
 
 
@@ -115,33 +32,20 @@ export class FrameworkComparator {
 
     /**
      * Compare changes to FrameworkObjects between source Framework and target Framework
-     * @param sourceID
-     *  The source framework's identifier.
-     * @param sourceVersion
-     *  The source framework's version.
-     * @param targetID
-     *  The target framework's identifier.
-     * @param targetVersion
-     *  The target framework's version.
+     * @param sourceFramework
+     *  The source framework.
+     * @param targetFramework
+     *  The target framework.
      */
-    public async compareFrameworks(sourceID: string, sourceVersion: string, targetID: string, targetVersion: string) {
-
-        // Can only compare frameworks with the same identifier
-        if(sourceID !== targetID) {
-            throw new Error(`Cannot compare frameworks with identifiers '${ sourceID }' and '${ targetID }'.`);
-        }
-
-        // Pull frameworks from registry
-        const sourceFramework = await this.registry.getFramework(sourceID, sourceVersion);
-        const targetFramework = await this.registry.getFramework(targetID, targetVersion);
+    public compareFrameworks(sourceFramework: Framework, targetFramework: Framework) {
 
         const diff = this.compareFrameworkObjectArrays(sourceFramework.frameworkObjects, targetFramework.frameworkObjects, "id");
 
         for (const object of diff.added) {
-            this.added_framework_objects.push(object);
+            this.diff.added_framework_objects.push(object);
         }
         for (const object of diff.removed) {
-            this.removed_framework_objects.push(object);
+            this.diff.removed_framework_objects.push(object);
         }
     }
 
@@ -194,36 +98,36 @@ export class FrameworkComparator {
                     const array_changes = this.compareFrameworkObjectArrays(sourceValue, targetValue, "id");
                     if (key === "mitigations") {
                         for (const mitigation of array_changes.added) {
-                            let addedMitigations = this.addedMitigations.get(id);
+                            let addedMitigations = this.diff.added_mitigations.get(id);
                             if (!addedMitigations) {
                                 addedMitigations = [];
-                                this._added_mitigations.set(id, addedMitigations);
+                                this.diff.added_mitigations.set(id, addedMitigations);
                             }
                             addedMitigations.push(mitigation);
                         }
                         for (const mitigation of array_changes.removed) {
-                            let removedMitigations = this.removedMitigations.get(id);
+                            let removedMitigations = this.diff.removed_mitigations.get(id);
                             if (!removedMitigations) {
                                 removedMitigations = [];
-                                this._removed_mitigations.set(id, removedMitigations);
+                                this.diff.removed_mitigations.set(id, removedMitigations);
                             }
                             removedMitigations.push(mitigation);
                         }
                     }
                     if (key === "detections") {
                         for (const detection of array_changes.added) {
-                            let addedDetections = this.addedDetections.get(id);
+                            let addedDetections = this.diff.added_detections.get(id);
                             if (!addedDetections) {
                                 addedDetections = [];
-                                this._added_detections.set(id, addedDetections);
+                                this.diff.added_detections.set(id, addedDetections);
                             }
                             addedDetections.push(detection);
                         }
                         for (const detection of array_changes.removed) {
-                            let removedDetections = this.removedDetections.get(id);
+                            let removedDetections = this.diff.removed_detections.get(id);
                             if (!removedDetections) {
                                 removedDetections = [];
-                                this._removed_detections.set(id, removedDetections);
+                                this.diff.removed_detections.set(id, removedDetections);
                             }
                             removedDetections.push(detection);
                         }
@@ -235,10 +139,10 @@ export class FrameworkComparator {
             else if (typeof sourceValue === 'string' && typeof targetValue === 'string') {
                 if (sourceValue !== targetValue) {
                     if (key === "name") {
-                        this._changed_names.set(id, [sourceValue, targetValue]);
+                        this.diff.changed_names.set(id, [sourceValue, targetValue]);
                     }
                     if (key === "description") {
-                        this._changed_descriptions.set(id, [sourceValue, targetValue]);
+                        this.diff.changed_descriptions.set(id, [sourceValue, targetValue]);
                     }
                 }
             }
