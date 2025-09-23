@@ -1,5 +1,9 @@
+import { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
+import type { Framework, FrameworkRegistry } from "@/assets/scripts/MappingFileAuthority";
+import { toRaw } from "vue";
+import type { MappingFile } from "@/assets/scripts/MappingFile";
 
 
 export class UpgradeAttackVersion extends AppCommand {
@@ -31,6 +35,48 @@ export class UpgradeAttackVersion extends AppCommand {
      * Executes the command.
      */
     public async execute(): Promise<void> {
-        console.log("Upgrading to version ", this.newVersion)
+
+        // Build migration context from currently loaded mapping file
+        const fileAuthority = toRaw(this.context.fileAuthority);
+        const migrationContext: MigrationContext = new MigrationContext();
+        const frameworkId = this.context.activeEditor.file.targetFramework;
+        const targetFramework = await fileAuthority.registry.getFramework(frameworkId, this.newVersion);
+        const sourceFrameworks = await this.getSourceFrameworks();
+        migrationContext.buildContext(this.context.activeEditor.file.id, targetFramework, sourceFrameworks);
+
+        // Audit mapping objects against migration context
+
+
+        //
+
+    }
+
+    /**
+     * Get unique set of source frameworks from all mappings in the mapping file
+     * @param file
+     * The mapping file to migrate
+     */
+    private async getSourceFrameworks(): Promise<Framework[]> {
+
+        const frameworks: Framework[] = [];
+
+        // get all framework ids and framework versions in mapping objects
+        const frameworkValueMap: Map<string, string> = new Map<string, string>();
+        for (const mappingObject of this.context.activeEditor.file.mappingObjects.values()) {
+            frameworkValueMap.set(mappingObject.targetObject.objectFramework, mappingObject.targetObject.objectVersion);
+        }
+
+        // fetch unique frameworks in mapping objects
+        const fileAuthority = toRaw(this.context.fileAuthority);
+        const registry = fileAuthority.registry;
+        for (const [id, version] of frameworkValueMap.entries()) {
+            try {
+                const framework = await registry.getFramework(id, version);
+                frameworks.push(framework);
+            } catch {
+                continue;
+            }
+        }
+        return frameworks;
     }
 }

@@ -5,16 +5,6 @@ import type { Framework, FrameworkDiff, FrameworkObject, FrameworkRegistry, Fram
 export class MigrationContext {
 
     /**
-     * Framework registry.
-     */
-    public readonly registry: FrameworkRegistry;
-
-    /**
-     * List of source frameworks.
-     */
-    public sourceFrameworks: Framework[];
-
-    /**
      * A map of framework migrations by mapping file key.
      */
     public readonly migrationContext: Map<string, FrameworkMigration>;
@@ -22,12 +12,8 @@ export class MigrationContext {
 
     /**
      * Creates a new {@link MigrationContext}.
-     * @param registry
-     *  The framework comparator's framework registry.
      */
-    constructor(registry: FrameworkRegistry) {
-        this.registry = registry;
-        this.sourceFrameworks = [];
+    constructor() {
         this.migrationContext = new Map<string, FrameworkMigration>();
     }
 
@@ -44,10 +30,7 @@ export class MigrationContext {
      * @param targetFramework
      *  The framework to migrate the mapping file to.
      */
-    public async buildContext(file: MappingFile, targetFramework: Framework): Promise<void> {
-
-        // get all source frameworks from target objects in mapping file
-        const sourceFrameworks = await this.getSourceFrameworks(file);
+    public async buildContext(fileID: string, targetFramework: Framework, sourceFrameworks: Framework[]): Promise<void> {
 
         // create a new migration context for this mapping file
         const migration: FrameworkMigration = {
@@ -74,35 +57,6 @@ export class MigrationContext {
             migration.added_detections = new Map<string, FrameworkObject[]>([...migration.added_detections.entries(), ...fc.diff.added_detections.entries()]);
             migration.removed_detections = new Map<string, FrameworkObject[]>([...migration.removed_detections.entries(), ...fc.diff.removed_detections.entries()]);
         });
-        this.migrationContext.set(file.id, migration);
+        this.migrationContext.set(fileID, migration);
     }
-
-    /**
-     * Get unique set of source frameworks from all mappings in the mapping file
-     * @param file
-     * The mapping file to migrate
-     */
-    private async getSourceFrameworks(file: MappingFile): Promise<Framework[]> {
-
-        const frameworks: Framework[] = [];
-
-        // get all framework ids and framework versions in mapping objects
-        const frameworkValueMap: Map<string, string> = new Map<string, string>();
-        for (const mappingObject of file.mappingObjects.values()) {
-            frameworkValueMap.set(mappingObject.targetObject.objectFramework, mappingObject.targetObject.objectVersion);
-        }
-
-        // fetch unique frameworks in mapping objects
-        for (const [id, version] of frameworkValueMap.entries()) {
-            try {
-                const framework = await this.registry.getFramework(id, version);
-                frameworks.push(framework);
-            } catch {
-                continue;
-            }
-        }
-        return frameworks;
-    }
-
-
 }
