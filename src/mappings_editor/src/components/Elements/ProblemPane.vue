@@ -11,12 +11,12 @@
                                 <p>Notice</p>
                             </div>
                             <!-- todo: add old version somewhere so we can say "between version 1 and version 2"? -->
-                            <p v-if="change.problemType === 'technique_name'" class="problem-description">{{ change.newVersion.id }}'s <span>Technique Name</span> has changed between versions</p>
-                            <p v-if="change.problemType === 'technique_description'" class="problem-description">{{ change.newVersion.id }}'s <span>Technique Description</span> has changed between versions</p>
-                            <p v-if="change.problemType === 'mitigation_new'" class="problem-description">This mapping's technnique has a <span>New Mitigation</span> added between versions</p>
-                            <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">This mapping's technique had a <span>Mitigation Removed</span> between versions</p>
-                            <p v-if="change.problemType === 'detection_new'" class="problem-description">This mapping's technnique has a <span>New Detection</span> added between versions</p>
-                            <p v-if="change.problemType === 'detection_deleted'" class="problem-description">This mapping's technique had a <span>Detection Removed</span> between versions</p>
+                            <p v-if="change.problemType === 'technique_name'" class="problem-description">{{ getMappingId(change) }} <span>Technique Name</span> has changed between versions</p>
+                            <p v-if="change.problemType === 'technique_description'" class="problem-description">{{ getMappingId(change) }} <span>Technique Description</span> has changed between versions</p>
+                            <p v-if="change.problemType === 'mitigation_new'" class="problem-description">{{ getMappingId(change) }} technique had a <span>New Mitigation</span> added between versions</p>
+                            <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">{{ getMappingId(change) }} technique had a <span>Mitigation Removed</span> between versions</p>
+                            <p v-if="change.problemType === 'detection_new'" class="problem-description">{{ getMappingId(change) }} technique has a <span>New Detection</span> added between versions</p>
+                            <p v-if="change.problemType === 'detection_deleted'" class="problem-description">{{ getMappingId(change) }} technique had a <span>Detection Removed</span> between versions</p>
                         </div>
                         <VueDiff mode="split" language="plaintext" theme="dark"
                             :prev="getPrev(change)"
@@ -39,7 +39,7 @@ import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
 import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
-import { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
+import type { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
 
 export default defineComponent({
     name: "ProblemPane",
@@ -59,27 +59,40 @@ export default defineComponent({
         execute(cmd: EditorCommand) {
             this.$emit("execute", cmd);
         },
-        getPrev(problem: MappingObjectProblem): string {
-            if (problem.problemType === "technique_description") {
-                return problem.oldVersion.description;
-            } else if (problem.problemType === "technique_name") {
-                return problem.oldVersion.name;
-            } else if (problem.problemType === "mitigation_deleted") {
-                return problem.oldVersion.description;
-            }else if (problem.problemType === "detection_deleted") {
-                return problem.oldVersion.description;
+        getMappingId(problem: MappingObjectProblem): string {
+            if (problem.newVersion) {
+                return problem.newVersion.id + "'s"
+            } else if (problem.oldVersion) {
+                return problem.oldVersion.id + "'s"
             }
+            return "This mapping's"
+        },
+        getPrev(problem: MappingObjectProblem): string {
+            if ( problem.oldVersion) {
+                if (problem.problemType === "technique_description") {
+                    return problem.oldVersion.description;
+                } else if (problem.problemType === "technique_name") {
+                    return problem.oldVersion?.name;
+                } else if (problem.problemType === "mitigation_deleted") {
+                    return problem.oldVersion?.description;
+                }else if (problem.problemType === "detection_deleted") {
+                    return problem.oldVersion?.description;
+                }
+            }
+
             return ""
         },
         getCurrent(problem: MappingObjectProblem): string {
-            if (problem.problemType === "technique_description") {
-                return problem.newVersion.description;
-            } else if (problem.problemType === "technique_name") {
-                return problem.newVersion.name;
-            } else if (problem.problemType === "mitigation_new") {
-                return problem.newVersion.description;
-            } else if (problem.problemType === "detection_new") {
-                return problem.newVersion.description;
+            if ( problem.newVersion) {
+                if (problem.problemType === "technique_description") {
+                    return problem.newVersion?.description;
+                } else if (problem.problemType === "technique_name") {
+                    return problem.newVersion?.name;
+                } else if (problem.problemType === "mitigation_new") {
+                    return problem.newVersion?.description;
+                } else if (problem.problemType === "detection_new") {
+                    return problem.newVersion?.description;
+                }
             }
             return ""
         }
@@ -92,7 +105,7 @@ export default defineComponent({
             const mappingsList = this.application.activeEditor.file.mappingObjects;
             selected.forEach(mappingId =>{
                 const mappingObject = mappingsList.get(mappingId);
-                if (mappingObject.problems.length > 0) {
+                if (mappingObject && mappingObject.problems.length > 0) {
                     problems.push(...mappingObject.problems)
                 }
             })

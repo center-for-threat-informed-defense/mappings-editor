@@ -1,6 +1,6 @@
 <template>
     <div class="button-pane">
-        <button v-for="option in options" :key="option.id" @click="this.application.setActiveSidebar(option)"
+        <button v-for="option in options" :key="option.id" @click="application.setActiveSidebar(option)"
             :class="['menu-button', { active: option === activeSection }]">
             <component :is="option.icon" :view="option.icon" color="#FFFFFF"/>
             <p class="tooltip-text">{{ option.label }}</p>
