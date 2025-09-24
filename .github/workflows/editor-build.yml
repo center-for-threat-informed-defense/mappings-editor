@@ -91,7 +91,7 @@ jobs:
       - name: Copy encrypted HTML files
         run: rsync -Ir -v --include='*.html' --exclude='*.*' encrypted/mappings_editor .
       - name: Set the branch name
-        run: mv mappings_editor "$BRANCH_NAME"
+        run: mv mappings_editor $BRANCH_NAME
       - name: Install Azure CLI
         run: pip install azure-cli==2.76.0
       - name: Delete old blobs
