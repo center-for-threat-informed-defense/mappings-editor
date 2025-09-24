@@ -10,13 +10,20 @@
                                 <AlertIcon color="#89a0ec"/>
                                 <p>Notice</p>
                             </div>
-                            <p v-if="change.problemType === 'technique_description'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
-                            <p v-if="change.problemType === 'mitigation_new'" class="problem-description">This mapping's technnique has a <span>New Mitigation</span> added between versions 12.1 and 14.1</p>
-                            <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
+                            <!-- todo: add old version somewhere so we can say "between version 1 and version 2"? -->
+                            <p v-if="change.problemType === 'technique_name'" class="problem-description">{{ change.newVersion.id }}'s <span>Technique Name</span> has changed between versions</p>
+                            <p v-if="change.problemType === 'technique_description'" class="problem-description">{{ change.newVersion.id }}'s <span>Technique Description</span> has changed between versions</p>
+                            <p v-if="change.problemType === 'mitigation_new'" class="problem-description">This mapping's technnique has a <span>New Mitigation</span> added between versions</p>
+                            <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">This mapping's technique had a <span>Mitigation Removed</span> between versions</p>
+                            <p v-if="change.problemType === 'detection_new'" class="problem-description">This mapping's technnique has a <span>New Detection</span> added between versions</p>
+                            <p v-if="change.problemType === 'detection_deleted'" class="problem-description">This mapping's technique had a <span>Detection Removed</span> between versions</p>
                         </div>
                         <VueDiff mode="split" language="plaintext" theme="dark"
-                            :prev="change.oldVersion"
-                            :current="change.newVersion" />
+                            :prev="getPrev(change)"
+                            :current="getCurrent(change)" />
+                    </div>
+                    <div v-if="changes.length < 1">
+                        <p class="no-changes">No version changes detected for this mapping</p>
                     </div>
                 </div>
             </ScrollBox>
@@ -32,21 +39,13 @@ import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
 import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
+import { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
 
 export default defineComponent({
     name: "ProblemPane",
     data() {
         return {
             application: useApplicationStore(),
-            changes: [{
-                problemType: "technique_description",
-                oldVersion: "this is the previous sentence to see the difference. Deleted.",
-                newVersion: "this is the new sentence to see the difference. This part wasn't there",
-            },{
-                problemType: "mitigation_new",
-                oldVersion: "",
-                newVersion: "this is the new sentence to see the difference. This part wasn't there",
-            }]
         }
     },
     emits: ["execute"],
@@ -55,10 +54,49 @@ export default defineComponent({
          * Executes an {@link EditorCommand}.
          * @param cmd
          *  The command to execute.
+         * todo: can this be deleted?
          */
         execute(cmd: EditorCommand) {
-            console.log("fire execute from problempane", cmd);
             this.$emit("execute", cmd);
+        },
+        getPrev(problem: MappingObjectProblem): string {
+            if (problem.problemType === "technique_description") {
+                return problem.oldVersion.description;
+            } else if (problem.problemType === "technique_name") {
+                return problem.oldVersion.name;
+            } else if (problem.problemType === "mitigation_deleted") {
+                return problem.oldVersion.description;
+            }else if (problem.problemType === "detection_deleted") {
+                return problem.oldVersion.description;
+            }
+            return ""
+        },
+        getCurrent(problem: MappingObjectProblem): string {
+            if (problem.problemType === "technique_description") {
+                return problem.newVersion.description;
+            } else if (problem.problemType === "technique_name") {
+                return problem.newVersion.name;
+            } else if (problem.problemType === "mitigation_new") {
+                return problem.newVersion.description;
+            } else if (problem.problemType === "detection_new") {
+                return problem.newVersion.description;
+            }
+            return ""
+        }
+    },
+    computed: {
+        changes() {
+            // Build list of problems to display out of current mapping selection
+            const problems: MappingObjectProblem[] = [];
+            const selected = Array.from(this.application.activeEditor.view.selected);
+            const mappingsList = this.application.activeEditor.file.mappingObjects;
+            selected.forEach(mappingId =>{
+                const mappingObject = mappingsList.get(mappingId);
+                if (mappingObject.problems.length > 0) {
+                    problems.push(...mappingObject.problems)
+                }
+            })
+            return problems;
         }
     },
     components: {
@@ -139,5 +177,10 @@ export default defineComponent({
 
 .vue-diff-theme-dark {
     background-color: #242424;
+}
+.no-changes {
+    color: #b8b8b8;
+    font-size: 10pt;
+    font-weight: 500;
 }
 </style>

@@ -51,6 +51,8 @@ export class UpgradeAttackVersion extends AppCommand {
                 fileAuthority.auditMappingObject(mappingObject, frameworkMigration)
             )
         }
+        // set file version to new version
+        this.context.activeEditor.file.targetVersion = this.newVersion;
     }
 
     /**

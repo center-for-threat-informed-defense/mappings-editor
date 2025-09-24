@@ -1,5 +1,5 @@
 import { randomUUID } from "../Utilities";
-import { 
+import {
     FrameworkListing,
     FrameworkObjectProperty,
     ListProperty,
@@ -49,7 +49,7 @@ export class MappingFile {
     /**
      * The file's target framework version.
      */
-    public readonly targetVersion: string;
+    public targetVersion: string; // todo: set this without removing readonly?
 
     /**
      * The file's author.
@@ -244,7 +244,7 @@ export class MappingFile {
     //  2. Query Mapping Objects  /////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-    
+
     /**
      * Returns the mapping object placed before the provided object.
      * @param id
@@ -380,7 +380,7 @@ export class MappingFile {
         const items = [...this._mappingObjects];
         const index = id === undefined ? -1 : items.findIndex(([_id]) => _id === id);
         items.splice(index + 1, 0, ...newEntries);
-        this._mappingObjects = new Map(items);   
+        this._mappingObjects = new Map(items);
     }
 
 

@@ -14,7 +14,7 @@ import {
 } from "../MappingFile";
 import type { FrameworkMigration, FrameworkRegistry } from "./FrameworkRegistry";
 import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
-]import type { MappingObjectProblem } from "../MappingFile/MappingObjectProblem";
+import type { MappingObjectProblem } from "../MappingFile/MappingObjectProblem";
 
 export class MappingFileAuthority {
 
@@ -349,6 +349,10 @@ export class MappingFileAuthority {
             )
         }
         object.problems = problems;
+        // update object status to version_changed if there's problems from migration context
+        if (problems.length > 0) {
+            object.mappingStatus.setValue("version_changed", "Version Change Detected");
+        }
     }
 
 
