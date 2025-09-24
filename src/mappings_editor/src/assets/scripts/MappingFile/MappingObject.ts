@@ -3,6 +3,7 @@ import { StringProperty, ListItemProperty, ListProperty, ListItem, ComputedPrope
 import type { MappingFile } from "./MappingFile";
 import type { FrameworkObjectProperty } from "./Property/FrameworkObjectProperty/FrameworkObjectProperty";
 import type { MappingObjectConfiguration } from "./MappingFileConfiguration";
+import type { MappingObjectProblem } from "./MappingObjectProblem";
 
 export class MappingObject {
 
@@ -77,6 +78,11 @@ export class MappingObject {
     public readonly isValid: ComputedProperty<boolean>;
 
     /**
+     * The problems (if any) associated with a mappings object
+     */
+    public readonly problems: MappingObjectProblem[]
+
+    /**
      * The mapping file the mapping object belongs to.
      */
     public file: MappingFile | null;
@@ -92,7 +98,7 @@ export class MappingObject {
         this.sourceObject = config.sourceObject;
         this.targetObject = config.targetObject;
         this.capabilityGroup = config.capabilityGroup ?? new ListItemProperty(
-            "Capability Group", "id", "name", 
+            "Capability Group", "id", "name",
             new ListProperty(
                 "Capability Groups",
                 new ListItem(new Map([
@@ -102,7 +108,7 @@ export class MappingObject {
             )
         );
         this.mappingType = config.mappingType ?? new ListItemProperty(
-            "Mapping Type", "id", "name", 
+            "Mapping Type", "id", "name",
             new ListProperty(
                 "Mapping Types",
                 new ListItem(new Map([
@@ -113,7 +119,7 @@ export class MappingObject {
             )
         );
         this.mappingStatus = config.mappingStatus ?? new ListItemProperty(
-            "Mapping Status", "id", "name", 
+            "Mapping Status", "id", "name",
             new ListProperty(
                 "Mapping Statuses",
                 new ListItem(new Map([
@@ -133,7 +139,7 @@ export class MappingObject {
         )
         this.comments = config.comments ?? new StringProperty("Comments");
         this.scoreCategory = config.scoreCategory ?? new ListItemProperty(
-            "Score Category", "id", "name", 
+            "Score Category", "id", "name",
             new ListProperty(
                 "Score Categories",
                 new ListItem(new Map([
@@ -143,7 +149,7 @@ export class MappingObject {
             )
         ),
         this.scoreValue = config.scoreValue ?? new ListItemProperty(
-            "Score Value", "id", "name", 
+            "Score Value", "id", "name",
             new ListProperty(
                 "Score Values",
                 new ListItem(new Map([
@@ -173,6 +179,7 @@ export class MappingObject {
                     && !this.scoreValue.isValueCached();
             }
         )
+        this.problems = []
         this.file = null;
     }
 

@@ -15,8 +15,8 @@ export class FrameworkComparator {
         this.diff = {
             added_framework_objects: [],
             removed_framework_objects: [],
-            changed_names:  new Map<string, [string, string]>(),
-            changed_descriptions: new Map<string, [string, string]>(),
+            changed_names:  new Map<string, FrameworkObject[]>(),
+            changed_descriptions: new Map<string, FrameworkObject[]>(),
             added_mitigations: new Map<string, FrameworkObject[]>(),
             removed_mitigations: new Map<string, FrameworkObject[]>(),
             added_detections: new Map<string, FrameworkObject[]>(),
@@ -139,10 +139,10 @@ export class FrameworkComparator {
             else if (typeof sourceValue === 'string' && typeof targetValue === 'string') {
                 if (sourceValue !== targetValue) {
                     if (key === "name") {
-                        this.diff.changed_names.set(id, [sourceValue, targetValue]);
+                        this.diff.changed_names.set(id, [sourceObject, targetObject]);
                     }
                     if (key === "description") {
-                        this.diff.changed_descriptions.set(id, [sourceValue, targetValue]);
+                        this.diff.changed_descriptions.set(id, [sourceObject, targetObject]);
                     }
                 }
             }

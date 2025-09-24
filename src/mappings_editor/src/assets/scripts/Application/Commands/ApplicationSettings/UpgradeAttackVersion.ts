@@ -43,9 +43,7 @@ export class UpgradeAttackVersion extends AppCommand {
         const targetFramework = await fileAuthority.registry.getFramework(frameworkId, this.newVersion);
         const sourceFrameworks = await this.getSourceFrameworks();
         migrationContext.buildContext(this.context.activeEditor.file.id, targetFramework, sourceFrameworks);
-
         // Audit mapping objects against migration context
-
 
         //
 

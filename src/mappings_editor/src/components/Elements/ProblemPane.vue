@@ -4,19 +4,19 @@
             <ScrollBox class="problem-scrollbox">
                 <div class="problem-container">
                     <p class="problem-title">VERSION CONTROL</p>
-                    <div v-for="change in changes" :key="change.changeType" class="problem-item">
+                    <div v-for="change in changes" :key="change.problemType" class="problem-item">
                         <div class="problem-header">
                             <div class="row">
                                 <AlertIcon color="#89a0ec"/>
                                 <p>Notice</p>
                             </div>
-                            <p v-if="change.changeType === 'technique_description'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
-                            <p v-if="change.changeType === 'mitigation_new'" class="problem-description">This mapping's technnique has a <span>New Mitigation</span> added between versions 12.1 and 14.1</p>
-                            <p v-if="change.changeType === 'mitigation_deleted'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
+                            <p v-if="change.problemType === 'technique_description'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
+                            <p v-if="change.problemType === 'mitigation_new'" class="problem-description">This mapping's technnique has a <span>New Mitigation</span> added between versions 12.1 and 14.1</p>
+                            <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">This mapping's <span>Technique Description</span> has changed between versions 12.1 and 14.1</p>
                         </div>
                         <VueDiff mode="split" language="plaintext" theme="dark"
-                            :prev="change.prevVersion"
-                            :current="change.currentVersion" />
+                            :prev="change.oldVersion"
+                            :current="change.newVersion" />
                     </div>
                 </div>
             </ScrollBox>
@@ -39,13 +39,13 @@ export default defineComponent({
         return {
             application: useApplicationStore(),
             changes: [{
-                changeType: "technique_description",
-                prevVersion: "this is the previous sentence to see the difference. Deleted.",
-                currentVersion: "this is the new sentence to see the difference. This part wasn't there",
+                problemType: "technique_description",
+                oldVersion: "this is the previous sentence to see the difference. Deleted.",
+                newVersion: "this is the new sentence to see the difference. This part wasn't there",
             },{
-                changeType: "mitigation_new",
-                prevVersion: "",
-                currentVersion: "this is the new sentence to see the difference. This part wasn't there",
+                problemType: "mitigation_new",
+                oldVersion: "",
+                newVersion: "this is the new sentence to see the difference. This part wasn't there",
             }]
         }
     },

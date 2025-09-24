@@ -36,8 +36,8 @@ export class MigrationContext {
         const migration: FrameworkMigration = {
             added_framework_objects: [],
             removed_framework_objects: [],
-            changed_names: new Map<string, [string, string]>(),
-            changed_descriptions: new Map<string, [string, string]>(),
+            changed_names: new Map<string, FrameworkObject[]>(),
+            changed_descriptions: new Map<string, FrameworkObject[]>(),
             added_mitigations: new Map<string, FrameworkObject[]>(),
             removed_mitigations: new Map<string, FrameworkObject[]>(),
             added_detections: new Map<string, FrameworkObject[]>(),
@@ -46,12 +46,12 @@ export class MigrationContext {
 
         // iterate through each source framework and compile differences
         sourceFrameworks.forEach((sourceFramework) => {
-            let fc: FrameworkComparator = new FrameworkComparator();
+            const fc: FrameworkComparator = new FrameworkComparator();
             fc.compareFrameworks(sourceFramework, targetFramework);
             migration.added_framework_objects = [...migration.added_framework_objects, ...fc.diff.added_framework_objects];
             migration.removed_framework_objects = [...migration.removed_framework_objects, ...fc.diff.removed_framework_objects];
-            migration.changed_names = new Map<string, [string, string]>([...migration.changed_names.entries(), ...fc.diff.changed_names.entries()]);
-            migration.changed_descriptions = new Map<string, [string, string]>([...migration.changed_descriptions.entries(), ...fc.diff.changed_descriptions.entries()]);
+            migration.changed_names = new Map<string, FrameworkObject[]>([...migration.changed_names.entries(), ...fc.diff.changed_names.entries()]);
+            migration.changed_descriptions = new Map<string, FrameworkObject[]>([...migration.changed_descriptions.entries(), ...fc.diff.changed_descriptions.entries()]);
             migration.added_mitigations = new Map<string, FrameworkObject[]>([...migration.added_mitigations.entries(), ...fc.diff.added_mitigations.entries()]);
             migration.removed_mitigations = new Map<string, FrameworkObject[]>([...migration.removed_mitigations.entries(), ...fc.diff.removed_mitigations.entries()]);
             migration.added_detections = new Map<string, FrameworkObject[]>([...migration.added_detections.entries(), ...fc.diff.added_detections.entries()]);
