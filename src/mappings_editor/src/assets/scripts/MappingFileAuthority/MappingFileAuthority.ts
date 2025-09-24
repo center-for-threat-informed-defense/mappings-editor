@@ -12,8 +12,9 @@ import {
     StringProperty,
     type MappingObjectParameters,
 } from "../MappingFile";
-import type { FrameworkRegistry } from "./FrameworkRegistry";
+import type { FrameworkMigration, FrameworkRegistry } from "./FrameworkRegistry";
 import type { MappingFileExport, MappingObjectExport } from "./MappingFileExport";
+]import type { MappingObjectProblem } from "../MappingFile/MappingObjectProblem";
 
 export class MappingFileAuthority {
 
@@ -65,7 +66,8 @@ export class MappingFileAuthority {
             targetObject       : await this.createFrameworkObjectProp(tf, tv),
             author             : new StringProperty("Author", file.author || null),
             authorContact      : new StringProperty("Author E-mail", file.author_contact || null),
-            authorOrganization : new StringProperty("Author Organization", file.author_organization || null)
+            authorOrganization : new StringProperty("Author Organization", file.author_organization || null),
+            problems           : []
         });
 
         // Create mapping file
@@ -281,10 +283,72 @@ export class MappingFileAuthority {
     ///////////////////////////////////////////////////////////////////////////
 
 
-    public auditMappingObject(object: MappingObject) {
+    public auditMappingObject(object: MappingObject, frameworkMigration: FrameworkMigration) {
         if(object.file === null) {
             throw new Error(`Mapping '${ object.id }' must be belong to a Mapping File to be audited.`)
         }
+        // see if id is in the migration context, if it is then add a problem associated with the migration change
+        const problems: MappingObjectProblem[] = [];
+        const id = object.targetObject.objectId;
+        if (id) {
+            const descriptionChange = frameworkMigration.changed_descriptions.get(id);
+            if (descriptionChange) {
+                problems.push({
+                    problemType: "technique_description",
+                    oldVersion: descriptionChange[0],
+                    newVersion: descriptionChange[1]
+                })
+            }
+            const nameChange = frameworkMigration.changed_names.get(id);
+            if (nameChange) {
+                problems.push({
+                    problemType: "technique_name",
+                    oldVersion: nameChange[0],
+                    newVersion: nameChange[1]
+                })
+            }
+            const techniqueRemoved = frameworkMigration.removed_framework_objects.find(i => i.id === id);
+            if (techniqueRemoved) {
+                problems.push({
+                    problemType: "technique_removed",
+                    oldVersion: techniqueRemoved,
+                    newVersion: undefined
+                })
+            }
+            const newMitigations = frameworkMigration.added_mitigations.get(id);
+            newMitigations?.forEach(i =>
+                problems.push({
+                    problemType: "mitigation_new",
+                    oldVersion: undefined,
+                    newVersion: i
+                })
+            )
+            const deletedMitigations = frameworkMigration.removed_mitigations.get(id);
+            deletedMitigations?.forEach(i =>
+                problems.push({
+                    problemType: "mitigation_deleted",
+                    oldVersion: i,
+                    newVersion: undefined
+                })
+            )
+            const newDetections = frameworkMigration.added_detections.get(id);
+            newDetections?.forEach(i =>
+                problems.push({
+                    problemType: "detection_new",
+                    oldVersion: undefined,
+                    newVersion: i
+                })
+            )
+            const deletedDetections = frameworkMigration.removed_detections.get(id);
+            deletedDetections?.forEach(i =>
+                problems.push({
+                    problemType: "detection_deleted",
+                    oldVersion: i,
+                    newVersion: undefined
+                })
+            )
+        }
+        object.problems = problems;
     }
 
 

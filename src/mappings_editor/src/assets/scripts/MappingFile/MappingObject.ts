@@ -80,12 +80,12 @@ export class MappingObject {
     /**
      * The problems (if any) associated with a mappings object
      */
-    public readonly problems: MappingObjectProblem[]
+    public problems: MappingObjectProblem[]
 
     /**
      * The mapping file the mapping object belongs to.
      */
-    public file: MappingFile | null;
+    public file: MappingFile | null; // todo: look into if this should be readonly or not
 
 
     /**
@@ -137,6 +137,7 @@ export class MappingObject {
                 ["url", new StringProperty("URL")]
             ]))
         )
+        this.problems = config.problems;
         this.comments = config.comments ?? new StringProperty("Comments");
         this.scoreCategory = config.scoreCategory ?? new ListItemProperty(
             "Score Category", "id", "name",
@@ -176,10 +177,11 @@ export class MappingObject {
                     && !this.mappingType.isValueCached()
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
-                    && !this.scoreValue.isValueCached();
+                    && !this.scoreValue.isValueCached()
+                // check if there are any problems
+                    && (!this.problems || this.problems.length === 0);
             }
         )
-        this.problems = []
         this.file = null;
     }
 
@@ -213,7 +215,8 @@ export class MappingObject {
             mappingType        : this.mappingType.duplicate(),
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
-            scoreValue         : this.scoreValue.duplicate()
+            scoreValue         : this.scoreValue.duplicate(),
+            problems           : this.problems // todo: either replicate duplicate functionality or look into this being ListTypeProperty
         });
     }
 
