@@ -1,7 +1,7 @@
 <script lang="ts">
 // Dependencies
 import { PointerTracker } from "@/assets/scripts/Utilities/PointerTracker";
-import { defineComponent, h, markRaw } from "vue"; 
+import { defineComponent, h, markRaw } from "vue";
 // Components
 import CollapseArrow from "@/components/Icons/CollapseArrow.vue";
 
@@ -36,7 +36,7 @@ export default defineComponent({
     }
 
   },
-  
+
   methods: {
 
     /**
@@ -67,9 +67,9 @@ export default defineComponent({
 
       // Calculate next height
       let currentHeight = p.reduce((a,o) => a + o.cachedHeight, 0);
-      let elementHeight = this.getAvailableHeight(); 
+      let elementHeight = this.getAvailableHeight();
       let nextHeight = currentHeight - p[i].cachedHeight;
-      
+
       // Collapse window
       p[i].collapsed = true;
       p[i].activeHeight = 0;
@@ -101,7 +101,7 @@ export default defineComponent({
     uncollapsePane(i: number) {
       let p = this.panes;
       let neededHeight = p[i].uncollapsedHeight;
-      
+
       // Cache heights
       this.cacheHeights();
 
@@ -165,10 +165,10 @@ export default defineComponent({
       // Ignore no movement
       if(track.movementY === 0)
         return;
-      
+
       // Reset panes
       p.forEach(o => o.activeHeight = o.cachedHeight);
-      
+
       // Drag above origin
       if(track.deltaY < 0) {
         // Select grow pane
@@ -194,7 +194,7 @@ export default defineComponent({
           remainingDelta -= availableDelta;
         }
         let growAmount = Math.abs(track.deltaY) - remainingDelta;
-        p[growPane].activeHeight = p[growPane].cachedHeight + growAmount; 
+        p[growPane].activeHeight = p[growPane].cachedHeight + growAmount;
       }
 
       // Drag below origin
@@ -224,7 +224,7 @@ export default defineComponent({
         let growAmount = track.deltaY - remainingDelta;
         p[growPane].activeHeight = p[growPane].cachedHeight + growAmount;
       }
-      
+
     },
 
     /**
@@ -242,7 +242,7 @@ export default defineComponent({
       let p = this.panes;
       let currentHeight = p.reduce((a,o) => a + o.cachedHeight, 0);
       let elementHeight = this.getAvailableHeight();
-      
+
       // If no height, bail
       if(currentHeight === 0) {
         return;
@@ -374,7 +374,7 @@ export default defineComponent({
           [
             h(
               CollapseArrow,
-              { 
+              {
                 class: "collapse-arrow",
                 collapsed: this.panes[i]?.collapsed
               }
@@ -387,7 +387,7 @@ export default defineComponent({
         // Generate box
         let box = h(
           "div",
-          { 
+          {
             class: [
               "accordion-box",
               { collapsed: this.panes[i]?.collapsed }
@@ -402,7 +402,7 @@ export default defineComponent({
     // Return accordion box container
     return h(
       "div",
-      { 
+      {
         class: "accordion-box-container",
         style: this.boxStyle,
       },
@@ -461,7 +461,7 @@ type AccordionPaneHeight = {
   top: -2px;
   width: 100%;
   height: 4px;
-  background: #726de2;
+  background: #637bc9;
   cursor: n-resize;
   transition: 0.15s opacity;
   opacity: 0;

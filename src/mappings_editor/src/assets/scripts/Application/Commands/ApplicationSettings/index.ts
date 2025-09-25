@@ -6,6 +6,7 @@ import { UnloadStoredFrameworks } from "./UnloadStoredFrameworks";
 import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import type { AppSettings } from "@/assets/scripts/Application";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
+import { UpgradeAttackVersion } from "./UpgradeAttackVersion";
 
 /**
  * Loads the application's settings.
@@ -71,4 +72,16 @@ export async function registerFrameworkFromUrl(context: ApplicationStore, url: s
  */
 export async function unloadStoredFrameworks(context: ApplicationStore) {
    return new UnloadStoredFrameworks(context);
+}
+/**
+ * Kicks off mappings upgrade from one ATT&CK version to another (ATT&CK Sync).
+ * @param context
+ * The application context.
+ * @param version
+ * The new version to upgrade to.
+ * @returns
+ * A command that represents the action.
+ */
+export async function upgradeAttackVersion(context: ApplicationStore, version: string) {
+      return new UpgradeAttackVersion(context, version);
 }

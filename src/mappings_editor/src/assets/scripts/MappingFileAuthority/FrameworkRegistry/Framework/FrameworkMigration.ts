@@ -15,12 +15,11 @@ export type FrameworkMigration = {
     /**
      * The internal map of changed framework object names.
      */
-    changed_names: Map<string, [string, string]>;
-
+    changed_names: Map<string, FrameworkObject[]>,
     /**
      * The internal map of changed framework object descriptions.
      */
-    changed_descriptions: Map<string, [string, string]>;
+    changed_descriptions: Map<string, FrameworkObject[]>;
 
     /**
      * The internal map of added mitigations to framework objects.
