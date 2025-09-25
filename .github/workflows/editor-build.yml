@@ -66,12 +66,12 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       STATICRYPT_PASS: ${{ secrets.STATICRYPT_PASS }}
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: "19"
       - run: npm install -g staticrypt
       - name: Download Web Site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: mappings_editor
           path: mappings_editor
@@ -91,20 +91,13 @@ jobs:
       - name: Copy encrypted HTML files
         run: rsync -Ir -v --include='*.html' --exclude='*.*' encrypted/mappings_editor .
       - name: Set the branch name
-        run: mv mappings_editor $BRANCH_NAME
+        run: mv mappings_editor "$BRANCH_NAME"
       - name: Install Azure CLI
         run: pip install azure-cli==2.76.0
       - name: Delete old blobs
-        run: |
-          az storage blob delete-batch \
-            --source '$web' \
-            --pattern  "$BRANCH_NAME/*"
+        run: az storage blob delete-batch -s '$web' --pattern "$BRANCH_NAME/*"
       - name: Upload to blob storage
-        run: |
-          az storage blob upload-batch \
-            --source . \
-            --pattern "$BRANCH_NAME/*" \
-            -d '$web'
+        run: az storage blob upload-batch -s . --pattern "$BRANCH_NAME/*" -d '$web'
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         with:
@@ -115,6 +108,7 @@ jobs:
               repo: context.repo.repo,
               body: `This PR has been published to https://mappingseditor.z13.web.core.windows.net/${process.env['BRANCH_NAME']}/`,
             })
+
 
   github_pages:
     # This job only runs when committing or merging to main branch.
