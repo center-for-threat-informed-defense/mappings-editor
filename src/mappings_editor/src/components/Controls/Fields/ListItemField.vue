@@ -1,6 +1,6 @@
 <template>
   <div class="list-item-field">
-    <OptionsList 
+    <OptionsList
       ref="optionsList"
       class="options-list"
       :select="select"
@@ -14,8 +14,8 @@
       <div :class="['value-text', { 'is-null': isNull }]">
         {{ property.exportText ?? placeholder }}
       </div>
-      <input 
-        type="text" 
+      <input
+        type="text"
         ref="search"
         name="search"
         class="value-search"
@@ -86,7 +86,7 @@ export default defineComponent({
     isCached(): boolean {
       return this.property.isValueCached();
     },
-    
+
     /**
      * Returns the list item's options.
      * @returns
@@ -186,7 +186,7 @@ export default defineComponent({
           optionsList?.bringItemIntoFocus(this.select);
           break;
         case "ArrowDown":
-          if(!options.length) { 
+          if(!options.length) {
             return;
           }
           event.preventDefault();
@@ -214,10 +214,15 @@ export default defineComponent({
      *  The property's new value.
      */
     updateProperty(value: string | null) {
+      const old_value = this.property.exportValue;
       if(this.property.value !== value) {
         // Execute update command
         let cmd = EditorCommands.setListItemProperty(this.property, value);
         this.$emit("execute", cmd);
+      }
+      // if the mapping status got moved out of version changed, patch the mapping object
+      if (this.property.name === "Mapping Status" && old_value === "version_changed" && this.property.exportValue !== "version_changed") {
+        console.log("version change approved- call the PatchMappingObject");
       }
     },
 
@@ -227,7 +232,7 @@ export default defineComponent({
     refreshValue() {
       this.select = this.property.value
     }
-    
+
   },
   watch: {
     "property"() {
