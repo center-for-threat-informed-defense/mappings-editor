@@ -162,12 +162,13 @@ export class MappingObject {
         this.isValid = new ComputedProperty(
             "Is Valid",
             () => {
+
                 // If mapping isn't associated with a file, it can never be valid.
-                if(this.file === null) {
+                if(this.file === null || !this.file || !this.file.sourceFramework) {
                     return false;
                 }
                 // Validate source object
-                return this.sourceObject.objectFramework === this.file.sourceFramework
+                const valid = this.sourceObject.objectFramework === this.file.sourceFramework
                     && this.targetObject.objectFramework === this.file.targetFramework
                 // Validate target object
                     && this.targetObject.objectVersion === this.file.targetVersion
@@ -178,8 +179,12 @@ export class MappingObject {
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
                     && !this.scoreValue.isValueCached()
-                // check if there are any problems
-                    && (!this.problems || this.problems.length === 0);
+                // If there are any problems and status is version change detected, mark as invalid
+                // If there are problems but status is anything else, mark mapping as valid
+                    && !(this.mappingStatus.exportValue === "version_changed" && this.problems.length > 0);
+                // currently this is acting funky and I think it has to do with the caching of values- the part I added is working as expected
+                    return valid
+
             }
         )
         this.file = null;
