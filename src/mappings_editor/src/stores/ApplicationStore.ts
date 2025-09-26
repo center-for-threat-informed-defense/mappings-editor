@@ -4,6 +4,7 @@ import { FileStore } from "@/assets/scripts/Utilities";
 import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEditor'
 import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFileAuthority, type Framework } from '@/assets/scripts/MappingFileAuthority'
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
+import { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
 
 // Build Framework Registry
 const registry = new FrameworkRegistry();
@@ -60,6 +61,7 @@ export const useApplicationStore = defineStore('applicationStore', {
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
         fileRecoveryBank: new FileStore("file_recovery_bank."),
         frameworkBank: frameworkBank,
+        migrationContext: new MigrationContext(),
         settings: BaseAppSettings,
         sidebarViewOptions: sidebarViewOptions,
         activeSidebar: sidebarViewOptions[0],

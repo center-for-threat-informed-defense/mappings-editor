@@ -4,12 +4,15 @@ import { LoadFile } from "./LoadFile";
 import { ImportFile } from './ImportFile';
 import { ExportType } from "..";
 import { AppCommand } from "../AppCommand";
+import { GroupCommand } from "../GroupCommand";
 import { ClearFileRecoveryBank } from "./ClearFileRecoveryBank";
 import { SaveMappingFileToDevice } from "./SaveMappingFileToDevice";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileImport } from "@/assets/scripts/MappingFileAuthority";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { SaveFileToDevice } from "./SaveFileToDevice";
+import { AutoMigrateFile } from "./AutoMigrateFile";
+import { UpgradeFileVersion } from "./UpgradeFileVersion";
 export { ExportType } from './ExportType';
 
 
@@ -53,7 +56,10 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
     // Construct file
     const mappingFile = await context.fileAuthority.loadMappingFile(json, id);
     // Return command
-    return new LoadFile(context, mappingFile, name);
+    const grp = new GroupCommand();
+    grp.add(new LoadFile(context, mappingFile, name));
+    grp.add(new AutoMigrateFile(context));
+    return grp;
 }
 
 /**
@@ -67,7 +73,10 @@ export async function importExistingFile(context: ApplicationStore, file: string
     // Deserialize file
     const json = context.fileSerializer.deserialize(file);
     // Return command
-    return new ImportFile(context, json);
+    const grp = new GroupCommand();
+    grp.add(new ImportFile(context, json));
+    grp.add(new AutoMigrateFile(context));
+    return grp;
 }
 
 /**
@@ -99,7 +108,10 @@ export async function importFileFromFileSystem(context: ApplicationStore): Promi
     // Merge files
     const file = context.fileAuthority.mergeMappingFileImports(json);
     // Return command
-    return new ImportFile(context, file);
+    const grp = new GroupCommand();
+    grp.add(new ImportFile(context, file));
+    grp.add(new AutoMigrateFile(context));
+    return grp;
 }
 
 /**
@@ -201,4 +213,25 @@ export async function exportActiveFileToDevice(context: ApplicationStore, type: 
  */
 export function clearFileRecoveryBank(context: ApplicationStore): AppCommand {
     return new ClearFileRecoveryBank(context)
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  4. ATT&CK Sync  ///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Kicks off mappings upgrade from one ATT&CK version to another (ATT&CK Sync).
+ * @param context
+ * The application context.
+ * @param version
+ * The new version to upgrade to.
+ * @returns
+ * A command that represents the action.
+ */
+export async function upgradeFileVersion(context: ApplicationStore, version: string) {
+    const grp = new GroupCommand();
+    grp.add(new UpgradeFileVersion(context, version));
+    grp.add(new AutoMigrateFile(context));
+    return grp;
 }
