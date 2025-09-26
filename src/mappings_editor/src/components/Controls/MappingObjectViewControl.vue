@@ -176,7 +176,14 @@ export default defineComponent({
      *  The command that alter's a property.
      */
     alterProperty(command: EditorCommand) {
+      const oldValue = command.prop._cachedExportValue
       this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, this.app.settings.view.auto_scroll));
+      const newValue = command.prop._cachedExportValue
+      // if the mapping status was moved from version changed (meaning the change was "approved" by the user), patch the mapping object
+      if (command.prop.name === "Mapping Status" && oldValue === "version_changed" && newValue !== "version_changed" ) {
+          let patchCommand = EditorCommands.patchMappingObject(this.view.object)
+          this.$emit("execute", patchCommand);
+      }
     },
 
     /**
