@@ -32,7 +32,9 @@ export default defineComponent({
             return this.application.sidebarViewOptions;
         },
         /**
-         * TODO: add documentation
+         * Returns the pane actively being displayed in the sidebar
+         * @returns
+         * The currently active sidebar element
          */
         activeSection() {
             return this.application.activeSidebar;

@@ -8,15 +8,12 @@ import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { ContextMenu, ContextMenuSection, ContextMenuSubmenu } from '@/assets/scripts/Application';
 
-// TODO: move the list of versions into some kind of directory or something?
-const ATTACK_VERSIONS = [
-    "17.1", "17.0", "16.1", "16.0",
-    "15.1", "15.0", "14.1", "14.0",
-    "13.1", "13.0", "12.1", "12.0",
-    "11.2", "11.1", "11.0", "10.1",
-    "10.0", "9.0",  "8.2",  "8.1",
-    "8.0"
-]
+// Pull valid ATT&CK Versions from framework registry
+const manifest = Configuration.native_frameworks_manifest;
+const ATTACK_VERSIONS = new Set<string>();
+for(const file of manifest.files) {
+    ATTACK_VERSIONS.add(file.frameworkVersion);
+}
 
 export const useContextMenuStore = defineStore('contextMenuStore', {
     getters: {
@@ -167,6 +164,8 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
         attackSyncMenu(): ContextMenuSection {
             const items: ContextMenu[] = [];
             const app = useApplicationStore();
+            // set the file_version value based on the current file's target version
+            app.settings.file.file_version = app.activeEditor.view.file.targetVersion;
             ATTACK_VERSIONS.forEach((i) => items.push({
                 text: "ATT&CK v"+ i,
                 type: MenuType.Toggle,

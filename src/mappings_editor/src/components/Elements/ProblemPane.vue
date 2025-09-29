@@ -50,15 +50,6 @@ export default defineComponent({
     },
     emits: ["execute"],
     methods: {
-        /**
-         * Executes an {@link EditorCommand}.
-         * @param cmd
-         *  The command to execute.
-         * todo: can this be deleted?
-         */
-        execute(cmd: EditorCommand) {
-            this.$emit("execute", cmd);
-        },
         getMappingId(problem: MappingObjectProblem): string {
             if (problem.newVersion) {
                 return problem.newVersion.id + "'s"
