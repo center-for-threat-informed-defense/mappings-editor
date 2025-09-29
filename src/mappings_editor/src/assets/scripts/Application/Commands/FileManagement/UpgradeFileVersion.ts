@@ -23,7 +23,7 @@ export class UpgradeFileVersion extends AppCommand {
      * Executes the command.
      */
     public async execute(): Promise<void> {
-        this.context.settings.file.file_version = this.value
+        this.context.activeEditor.file.targetVersion = this.value;
     }
 
 }

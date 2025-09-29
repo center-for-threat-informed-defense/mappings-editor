@@ -1,16 +1,12 @@
-import { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
-import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
-import type { Framework, FrameworkRegistry } from "@/assets/scripts/MappingFileAuthority";
+import { AppCommand } from "../AppCommand";
+import { GroupCommand } from "@/assets/scripts/MappingFileEditor";
+import { PatchMappingObject } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/PatchMappingObject";
+import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import { toRaw } from "vue";
-import type { MappingFile } from "@/assets/scripts/MappingFile";
+import type { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
 
-
-export class UpgradeAttackVersion extends AppCommand {
-    /**
-     * The framework's source.
-     */
-    public readonly newVersion: string;
+export class AutoMigrateFile extends AppCommand {
 
     /**
      * The application context.
@@ -19,40 +15,46 @@ export class UpgradeAttackVersion extends AppCommand {
 
 
     /**
-     * Registers a Framework with the application.
+     * Auto-migrates the active editor.
      * @param context
-     *  The application context.
-     * @param framework
-     *  The framework's source.
+     * The application context.
      */
-    constructor(context: ApplicationStore, newVersion: string) {
+    constructor(context: ApplicationStore) {
         super();
         this.context = context;
-        this.newVersion = newVersion;
     }
+
 
     /**
      * Executes the command.
      */
     public async execute(): Promise<void> {
 
-        // Build migration context from currently loaded mapping file
+        // Get migration context for currently loaded mapping file if it's been computed
         const fileAuthority = toRaw(this.context.fileAuthority);
-        const migrationContext: MigrationContext = new MigrationContext();
-        const frameworkId = this.context.activeEditor.file.targetFramework;
-        const targetFramework = await fileAuthority.registry.getFramework(frameworkId, this.newVersion);
+        const migrationContext = toRaw(this.context.migrationContext);
+        const activeFile = this.context.activeEditor.file;
+
+        const targetFramework = await fileAuthority.registry.getFramework(activeFile.targetFramework, activeFile.targetVersion);
         const sourceFrameworks = await this.getSourceFrameworks();
-        migrationContext.buildContext(this.context.activeEditor.file.id, targetFramework, sourceFrameworks);
+        await migrationContext.buildContext(activeFile.id, targetFramework, sourceFrameworks);
+        const frameworkMigration = migrationContext.migrationContext.get(activeFile.id);
+
         // Audit mapping objects against migration context
-        const frameworkMigration = migrationContext.migrationContext.get(this.context.activeEditor.file.id);
+        const grp = new GroupCommand();
         if (frameworkMigration) {
-            this.context.activeEditor.file.mappingObjects.forEach((mappingObject) =>
+            activeFile.mappingObjects.forEach((mappingObject) => {
                 // update mapping object with any problems
-                fileAuthority.auditMappingObject(mappingObject, frameworkMigration)
-            )
+                fileAuthority.auditMappingObject(mappingObject, frameworkMigration);
+                // if no problems, update mapping object with new version
+                if (mappingObject.problems.length === 0) {
+                    grp.do(new PatchMappingObject(mappingObject));
+                }
+            });
         }
-        // set file version to new version
-        this.context.activeEditor.file.targetVersion = this.newVersion;
+
+        // Update version on mapping objects with no problems
+        await this.context.activeEditor.execute(grp);
     }
 
     /**

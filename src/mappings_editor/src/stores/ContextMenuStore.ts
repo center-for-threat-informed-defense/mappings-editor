@@ -170,7 +170,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             ATTACK_VERSIONS.forEach((i) => items.push({
                 text: "ATT&CK v"+ i,
                 type: MenuType.Toggle,
-                data: () => AppCommands.upgradeAttackVersion(app, i),
+                data: () => AppCommands.upgradeFileVersion(app, i),
                 value: app.settings.file.file_version === i
             }))
 
