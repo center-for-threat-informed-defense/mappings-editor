@@ -8,6 +8,16 @@ import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { ContextMenu, ContextMenuSection, ContextMenuSubmenu } from '@/assets/scripts/Application';
 
+// TODO: move the list of versions into some kind of directory or something?
+const ATTACK_VERSIONS = [
+    "17.1", "17.0", "16.1", "16.0",
+    "15.1", "15.0", "14.1", "14.0",
+    "13.1", "13.0", "12.1", "12.0",
+    "11.2", "11.1", "11.0", "10.1",
+    "10.0", "9.0",  "8.2",  "8.1",
+    "8.0"
+]
+
 export const useContextMenuStore = defineStore('contextMenuStore', {
     getters: {
 
@@ -27,6 +37,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             const sections: ContextMenuSection[] = [
                 this.openFileMenu,
                 this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
+                this.attackSyncMenu,
                 this.registerFrameworkMenu,
                 this.exportFileMenu,
                 this.saveFileMenu
@@ -146,6 +157,40 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 } ]
             };
 
+        },
+
+        /**
+         * Returns the "Upgrade ATT&CK Version" file section.
+         * @returns
+         * The 'ATT&CK Sync' menu section.
+         */
+        attackSyncMenu(): ContextMenuSection {
+            const items: ContextMenu[] = [];
+            const app = useApplicationStore();
+            ATTACK_VERSIONS.forEach((i) => items.push({
+                text: "ATT&CK v"+ i,
+                type: MenuType.Toggle,
+                data: () => AppCommands.upgradeFileVersion(app, i),
+                value: app.settings.file.file_version === i
+            }))
+
+            // Build submenu
+            const submenu: ContextMenu = {
+                text: "Upgrade ATT&CK Version",
+                type: MenuType.Submenu,
+                sections: [
+                    {
+                        id: "attack_versions",
+                        items
+                    }
+                ]
+            }
+
+            // Return menu
+            return {
+                id: "attack_sync_menu",
+                items: [ submenu ]
+            };
         },
 
         /**

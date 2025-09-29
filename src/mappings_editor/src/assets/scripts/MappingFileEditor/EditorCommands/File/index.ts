@@ -7,6 +7,7 @@ import { DeleteMappingObjects } from "./DeleteMappingObjects";
 import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
+import { PatchMappingObject } from "./PatchMappingObject";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 
 /**
@@ -21,7 +22,7 @@ export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
  *  A command that represents the action.
  */
 export function createMappingObject(file: MappingFile): EditorCommand {
-    return new CreateMappingObject(file); 
+    return new CreateMappingObject(file);
 }
 
 /**
@@ -29,12 +30,12 @@ export function createMappingObject(file: MappingFile): EditorCommand {
  * @remarks
  *  Note the difference between `Create` and `Import`. `Create` initializes the
  *  Mapping Object upon creation of the command and `Import` initializes the
- *  Mapping Object upon execution of the command. 
+ *  Mapping Object upon execution of the command.
  * @param file
  *  The mapping file to operate on.
  * @param objects
  *  The mapping objects' parameters.
- * @returns 
+ * @returns
  *  A command that represents the action.
  */
 export function importMappingObjects(file: MappingFile, objects: IdentifiedMappingObjectParameters[]): EditorCommand {
@@ -77,7 +78,7 @@ export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): 
  *  A command that represents the action.
  */
 export function deleteMappingObject(object: MappingObject): EditorCommand {
-    return new DeleteMappingObject(object); 
+    return new DeleteMappingObject(object);
 }
 
 /**
@@ -89,4 +90,13 @@ export function deleteMappingObject(object: MappingObject): EditorCommand {
  */
 export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
     return new DeleteMappingObjects(objects);
+}
+
+/**
+ * Patches {@link MappingObject}
+ * @param object
+ * @returns
+ */
+export function patchMappingObject(object: MappingObject): EditorCommand {
+    return new PatchMappingObject(object);
 }

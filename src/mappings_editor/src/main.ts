@@ -5,6 +5,8 @@ import * as MappingFileEditor from '@/assets/scripts/MappingFileEditor'
 import * as MappingFileAuthority from './assets/scripts/MappingFileAuthority'
 import { createPinia } from 'pinia'
 import { createApp, toRaw } from 'vue'
+import VueDiff from 'vue-diff'
+import 'vue-diff/dist/index.css'
 import "@/assets/fonts/inter.css"
 import "@/assets/fonts/dm_mono.css"
 
@@ -16,7 +18,7 @@ MappingFileAuthority.Reactivity.toRaw = toRaw;
 const app = createApp(App)
 
 // Configure store and mount application
-app.use(createPinia()).mount('#app')
+app.use(VueDiff, {componentName: 'VueDiff'}).use(createPinia()).mount('#app')
 
 // Enable Vue performance timings
 if(process.env.NODE_ENV === "development") {
