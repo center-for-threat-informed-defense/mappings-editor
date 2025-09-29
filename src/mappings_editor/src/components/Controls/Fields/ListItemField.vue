@@ -214,15 +214,10 @@ export default defineComponent({
      *  The property's new value.
      */
     updateProperty(value: string | null) {
-      const old_value = this.property.exportValue;
       if(this.property.value !== value) {
         // Execute update command
         let cmd = EditorCommands.setListItemProperty(this.property, value);
         this.$emit("execute", cmd);
-      }
-      // if the mapping status got moved out of version changed, patch the mapping object
-      if (this.property.name === "Mapping Status" && old_value === "version_changed" && this.property.exportValue !== "version_changed") {
-        console.log("version change approved- call the PatchMappingObject");
       }
     },
 

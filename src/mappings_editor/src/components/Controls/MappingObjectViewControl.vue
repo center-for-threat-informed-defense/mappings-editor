@@ -105,6 +105,7 @@ import TextAreaField from "./Fields/TextAreaField.vue";
 import StrictFrameworkObjectField from "./Fields/StrictFrameworkObjectField.vue";
 import DynamicFrameworkObjectField from "./Fields/DynamicFrameworkObjectField.vue";
 import { useApplicationStore } from "../../stores/ApplicationStore";
+import {SetListItemProperty} from "@/assets/scripts/MappingFileEditor/EditorCommands/Property/SetListItemProperty"
 
 export default defineComponent({
   name: 'MappingObjectViewControl',
@@ -176,14 +177,20 @@ export default defineComponent({
      *  The command that alter's a property.
      */
     alterProperty(command: EditorCommand) {
-      const oldValue = command.prop._cachedExportValue
-      this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, this.app.settings.view.auto_scroll));
-      const newValue = command.prop._cachedExportValue
-      // if the mapping status was moved from version changed (meaning the change was "approved" by the user), patch the mapping object
-      if (command.prop.name === "Mapping Status" && oldValue === "version_changed" && newValue !== "version_changed" ) {
+      // handle SetListItemProperty differently than other EditorCommands
+      if (command instanceof SetListItemProperty) {
+        const oldValue = command.prop.exportValue
+        this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, this.app.settings.view.auto_scroll));
+        const newValue = command.prop.exportValue
+        // if the mapping status was moved from version changed (meaning the change was "approved" by the user), patch the mapping object
+        if (command.prop.name === "Mapping Status" && oldValue === "version_changed" && newValue !== "version_changed" ) {
           let patchCommand = EditorCommands.patchMappingObject(this.view.object)
-          this.$emit("execute", patchCommand);
+            this.$emit("execute", patchCommand);
+        }
+      } else {
+        this.execute(EditorCommands.setMappingObjectViewProperty(this.view, command, this.app.settings.view.auto_scroll));
       }
+
     },
 
     /**
