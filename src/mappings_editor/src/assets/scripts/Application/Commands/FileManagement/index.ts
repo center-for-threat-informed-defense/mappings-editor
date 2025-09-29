@@ -13,6 +13,7 @@ import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { SaveFileToDevice } from "./SaveFileToDevice";
 import { AutoMigrateFile } from "./AutoMigrateFile";
 import { UpgradeFileVersion } from "./UpgradeFileVersion";
+import { RebuildViewBreakouts } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/RebuildViewBreakouts";
 export { ExportType } from './ExportType';
 
 
@@ -233,5 +234,7 @@ export async function upgradeFileVersion(context: ApplicationStore, version: str
     const grp = new GroupCommand();
     grp.add(new UpgradeFileVersion(context, version));
     grp.add(new AutoMigrateFile(context));
+    const editor = context.activeEditor as MappingFileEditor;
+    grp.add(new RebuildViewBreakouts(editor.view ))
     return grp;
 }
