@@ -35,13 +35,12 @@ export class AutoMigrateFile extends AppCommand {
         const migrationContext = toRaw(this.context.migrationContext);
         const activeFile = this.context.activeEditor.file;
         const hasFrameworkMigration = migrationContext.migrationContext.has(activeFile.id);
-        console.log('are we getting here')
 
         // If migration hasn't been computed yet, compute it
         if (!hasFrameworkMigration) {
             const targetFramework = await fileAuthority.registry.getFramework(activeFile.targetFramework, activeFile.targetVersion);
             const sourceFrameworks = await this.getSourceFrameworks();
-            migrationContext.buildContext(activeFile.id, targetFramework, sourceFrameworks);
+            await migrationContext.buildContext(activeFile.id, targetFramework, sourceFrameworks);
         }
         const frameworkMigration = migrationContext.migrationContext.get(activeFile.id);
 
