@@ -1,4 +1,5 @@
-import type { Framework, FrameworkDiff, FrameworkMigration, FrameworkObject } from "./FrameworkRegistry";
+import type { Framework, FrameworkMigration, FrameworkObject } from "./FrameworkRegistry";
+import type { FrameworkDiff } from "./FrameworkRegistry/Framework/FrameworkDiff";
 
 export class FrameworkComparator {
 

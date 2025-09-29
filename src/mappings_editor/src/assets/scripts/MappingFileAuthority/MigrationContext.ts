@@ -1,6 +1,5 @@
-import type { MappingFile, MappingObject } from "../MappingFile";
 import { FrameworkComparator } from "./FrameworkComparator";
-import type { Framework, FrameworkDiff, FrameworkObject, FrameworkRegistry, FrameworkMigration} from "./FrameworkRegistry";
+import type { Framework, FrameworkObject, FrameworkMigration} from "./FrameworkRegistry";
 
 export class MigrationContext {
 
