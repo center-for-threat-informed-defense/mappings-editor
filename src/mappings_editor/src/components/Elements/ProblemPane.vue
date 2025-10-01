@@ -10,7 +10,6 @@
                                 <AlertIcon color="#89a0ec"/>
                                 <p>Notice</p>
                             </div>
-                            <!-- todo: add old version somewhere so we can say "between version 1 and version 2"? -->
                             <p v-if="change.problemType === 'technique_name'" class="problem-description">{{ getMappingId(change) }} <span>Technique Name</span> has changed between versions</p>
                             <p v-if="change.problemType === 'technique_description'" class="problem-description">{{ getMappingId(change) }} <span>Technique Description</span> has changed between versions</p>
                             <p v-if="change.problemType === 'mitigation_new'" class="problem-description">{{ getMappingId(change) }} technique had a <span>New Mitigation</span> added between versions</p>

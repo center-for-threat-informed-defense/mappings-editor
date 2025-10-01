@@ -49,7 +49,7 @@ export class MappingFile {
     /**
      * The file's target framework version.
      */
-    public targetVersion: string; // todo: set this without removing readonly?
+    public targetVersion: string;
 
     /**
      * The file's author.
