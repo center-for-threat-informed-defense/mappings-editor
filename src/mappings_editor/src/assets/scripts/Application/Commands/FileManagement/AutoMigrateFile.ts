@@ -3,7 +3,7 @@ import { AppCommand } from "../AppCommand";
 import { GroupCommand } from "@/assets/scripts/MappingFileEditor";
 import { PatchMappingObject } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/PatchMappingObject";
 import type { Framework } from "@/assets/scripts/MappingFileAuthority";
-import { toRaw } from "vue";@/assets/scripts/MappingFileAuthority/MigrationContext";
+import { toRaw } from "vue";
 
 export class AutoMigrateFile extends AppCommand {
 
