@@ -4,7 +4,6 @@ import { GroupCommand } from "@/assets/scripts/MappingFileEditor";
 import { PatchMappingObject } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/PatchMappingObject";
 import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import { toRaw } from "vue";
-import type { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
 
 export class AutoMigrateFile extends AppCommand {
 
