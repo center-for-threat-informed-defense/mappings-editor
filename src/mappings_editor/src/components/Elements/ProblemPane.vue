@@ -34,7 +34,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useApplicationStore } from "../../stores/ApplicationStore";
-import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
 import ScrollBox from "../Containers/ScrollBox.vue";
 import AccordionBox from "../Containers/AccordionBox.vue";
 import AccordionPane from "../Containers/AccordionPane.vue";
