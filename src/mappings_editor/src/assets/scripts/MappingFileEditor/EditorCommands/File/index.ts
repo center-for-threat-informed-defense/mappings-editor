@@ -93,9 +93,12 @@ export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
 }
 
 /**
- * Patches {@link MappingObject}
+ * Patches a {@link MappingObject}'s source and target framework
+ * so that it aligns with the current file.
  * @param object
+ * The mapping object to patch.
  * @returns
+ * A command that represents the action.
  */
 export function patchMappingObject(object: MappingObject): EditorCommand {
     return new PatchMappingObject(object);

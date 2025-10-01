@@ -85,7 +85,7 @@ export class MappingObject {
     /**
      * The mapping file the mapping object belongs to.
      */
-    public file: MappingFile | null; // todo: look into if this should be readonly or not
+    public file: MappingFile | null;
 
 
     /**
@@ -164,7 +164,7 @@ export class MappingObject {
             () => {
 
                 // If mapping isn't associated with a file, it can never be valid.
-                if(this.file === null || !this.file || !this.file.sourceFramework) {
+                if(this.file === null) {
                     return false;
                 }
                 // Validate source object
@@ -221,7 +221,7 @@ export class MappingObject {
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
             scoreValue         : this.scoreValue.duplicate(),
-            problems           : this.problems // todo: either replicate duplicate functionality or look into this being ListTypeProperty
+            problems           : this.problems
         });
     }
 
