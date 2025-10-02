@@ -6,6 +6,8 @@ import { CopySelectedMappingObjects } from "./CopySelectedMappingObjects";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileEditor, MappingFileView } from "@/assets/scripts/MappingFileEditor";
 import { CutSelectedMappingObjects } from "./CutSelectedMappingObjects";
+import { GroupCommand } from "../GroupCommand";
+import { AutoMigrateFile } from "../FileManagement/AutoMigrateFile";
 
 
 /**
@@ -40,7 +42,10 @@ export function copySelectedMappingObjects(context: ApplicationStore, fileView: 
  *  The mapping file editor to operate on.
  */
 export function pasteMappingObjects(context: ApplicationStore, editor: MappingFileEditor) {
-    return new PasteMappingObjects(context, editor);
+    const grp = new GroupCommand();
+    grp.add(new PasteMappingObjects(context, editor));
+    grp.add(new AutoMigrateFile(context));
+    return grp;
 }
 
 /**

@@ -1,6 +1,6 @@
 <template>
   <div class="list-item-field">
-    <OptionsList 
+    <OptionsList
       ref="optionsList"
       class="options-list"
       :select="select"
@@ -14,8 +14,8 @@
       <div :class="['value-text', { 'is-null': isNull }]">
         {{ property.exportText ?? placeholder }}
       </div>
-      <input 
-        type="text" 
+      <input
+        type="text"
         ref="search"
         name="search"
         class="value-search"
@@ -86,7 +86,7 @@ export default defineComponent({
     isCached(): boolean {
       return this.property.isValueCached();
     },
-    
+
     /**
      * Returns the list item's options.
      * @returns
@@ -186,7 +186,7 @@ export default defineComponent({
           optionsList?.bringItemIntoFocus(this.select);
           break;
         case "ArrowDown":
-          if(!options.length) { 
+          if(!options.length) {
             return;
           }
           event.preventDefault();
@@ -227,7 +227,7 @@ export default defineComponent({
     refreshValue() {
       this.select = this.property.value
     }
-    
+
   },
   watch: {
     "property"() {

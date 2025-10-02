@@ -4,10 +4,10 @@
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
         <div class="resize-handle" @pointerdown="startResize($event, Handle.Left)"></div>
-        <ViewFilterSidebar
-          id="view-filter-sidebar"
-          @execute="onExecute"
-        />
+        <div class="sidebar-container" id="view-sidebar">
+          <ActiveViewSidebar/>
+          <component :is="application.activeSidebar.pane" :view="application.activeSidebar.pane" @execute="onExecute"/>
+        </div>
       </div>
       <div class="frame center">
         <div id="file-search">
@@ -44,9 +44,12 @@ import type { MappingFileEditor } from "./assets/scripts/MappingFileEditor";
 import AppTitleBar from "./components/Elements/AppTitleBar.vue";
 import AppHotkeyBox from "./components/Elements/AppHotkeyBox.vue";
 import AppFooterBar from "./components/Elements/AppFooterBar.vue";
-import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import MappingFileSearch from "./components/Controls/MappingFileSearch.vue";
 import MappingFileViewControl from "./components/Controls/MappingFileViewControl.vue";
+import ActiveViewSidebar from "./components/Elements/ActiveViewSidebar.vue";
+import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
+import ProblemPane from "./components/Elements/ProblemPane.vue";
+
 
 enum Handle {
   Center = 0,
@@ -247,8 +250,10 @@ export default defineComponent({
   },
   components: {
     AppTitleBar, AppHotkeyBox,
-    AppFooterBar, ViewFilterSidebar,
+    AppFooterBar,
     MappingFileSearch, MappingFileViewControl,
+    ActiveViewSidebar,
+    ViewFilterSidebar, ProblemPane
   }
 });
 
@@ -319,11 +324,12 @@ ul {
   z-index: 0;
 }
 
-#view-filter-sidebar {
+#view-sidebar {
   width: 100%;
   height: 100%;
   background: #1c1c1c;
   border-right: solid 1px #333333;
+  box-sizing: border-box;
 }
 
 #file-search {
@@ -385,7 +391,7 @@ ul {
 .resize-handle {
   position: absolute;
   display: block;
-  background: #726de2;
+  background: #637bc9;
   transition: 0.15s opacity;
   opacity: 0;
   z-index: 1;
@@ -408,5 +414,22 @@ ul {
 .frame.right .resize-handle {
   left: -2px;
 }
-
+.sidebar-container {
+    width: 100%;
+  display: flex;
+  box-sizing: border-box;
+}
+.vue-diff-viewer .vue-diff-row
+ {
+    font-size: 11px ;
+ }
+ .vue-diff-viewer .lineNum {
+    width: 10px !important;
+}
+.vue-diff-viewer .vue-diff-row .code {
+  width: calc(100% - 10px) !important;
+}
+.vue-diff-viewer .vue-diff-row {
+  flex-wrap: wrap;
+}
 </style>

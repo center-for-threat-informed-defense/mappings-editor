@@ -13,7 +13,7 @@ export class FrameworksSourceUrl extends FrameworkSource {
      */
     private _file: Framework | undefined;
 
-    
+
     /**
      * Creates a {@link FrameworksSourceUrl}.
      * @param id
@@ -38,6 +38,7 @@ export class FrameworksSourceUrl extends FrameworkSource {
         if(this._file === undefined) {
             try {
                 this._file = await (await fetch(this._url)).json() as Framework;
+                this._file.frameworkObjects = this.getFrameworkObjects(this._file.categories);
             } catch(err) {
                 throw new Error(`Failed to download framework '${ this._url }'.`);
             }

@@ -1,3 +1,4 @@
+import type { MappingObjectProblem } from "../MappingObjectProblem";
 import type { FrameworkObjectProperty, ListItemProperty, ListProperty, StringProperty } from "../Property";
 
 export type MappingObjectConfiguration = {
@@ -11,7 +12,7 @@ export type MappingObjectConfiguration = {
      * The mapping object's source.
      */
     sourceObject: FrameworkObjectProperty;
-    
+
     /**
      * The mapping object's target.
      */
@@ -31,7 +32,7 @@ export type MappingObjectConfiguration = {
      * The author's organization.
      */
     authorOrganization: StringProperty;
-    
+
     /**
      * The mapping object's references.
      */
@@ -66,5 +67,10 @@ export type MappingObjectConfiguration = {
      * The mapping object's score value
      */
     scoreValue?: ListItemProperty
+
+    /**
+     * Any problems associated with the mapping object
+     */
+    problems: MappingObjectProblem[];
 
 }

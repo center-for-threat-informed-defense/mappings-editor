@@ -8,7 +8,7 @@ export class FrameworkSourceFile extends FrameworkSource {
      */
     private _file: Framework;
 
-    
+
     /**
      * Creates a {@link FrameworkSourceFile}.
      * @param file
@@ -26,6 +26,7 @@ export class FrameworkSourceFile extends FrameworkSource {
      *  A Promise that resolves with the framework.
      */
     override getFramework(): Promise<Framework> {
+        this._file.frameworkObjects = this.getFrameworkObjects(this._file.categories);
         return Promise.resolve<Framework>(this._file);
     }
 
