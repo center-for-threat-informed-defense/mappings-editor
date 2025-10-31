@@ -48,6 +48,12 @@ export class FrameworkComparator {
         for (const object of diff.removed) {
             this.diff.removed_framework_objects.push(object);
         }
+
+        // All detections were deprecated for ATT&CK v18.0
+        // Ignore removed_detections here for convenience
+        if (Number(sourceFramework.frameworkVersion) < 18 && Number(targetFramework.frameworkVersion) >= 18) {
+            this.diff.removed_detections.clear();
+        }
     }
 
     private compareFrameworkObjectArrays(sourceObjects: Array<FrameworkObject>, targetObjects: Array<FrameworkObject>, key: keyof FrameworkObject): FrameworkDiff {
