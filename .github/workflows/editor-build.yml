@@ -46,9 +46,14 @@ jobs:
     - name: Type Check
       working-directory: ./src/mappings_editor/
       run: npm run type-check
-    - name: Build
+    - name: Build production
       working-directory: ./src/mappings_editor/
       run: npm run build-only -- --base /mappings-editor/
+      if: github.ref_name == 'main'
+    - name: Build branch
+      working-directory: ./src/mappings_editor/
+      run: npm run build-only -- --base /${{env.BRANCH_NAME}}/
+      if: github.ref_name != 'main'
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
