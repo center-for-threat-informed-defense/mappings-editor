@@ -14,6 +14,7 @@ import { SaveFileToDevice } from "./SaveFileToDevice";
 import { AutoMigrateFile } from "./AutoMigrateFile";
 import { UpgradeFileVersion } from "./UpgradeFileVersion";
 import { RebuildViewBreakouts } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/RebuildViewBreakouts";
+import { SetFilterState } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/SetFilterState";
 export { ExportType } from './ExportType';
 
 
@@ -235,6 +236,18 @@ export async function upgradeFileVersion(context: ApplicationStore, version: str
     grp.add(new UpgradeFileVersion(context, version));
     grp.add(new AutoMigrateFile(context));
     const editor = context.activeEditor as MappingFileEditor;
+    // automatically select Version Change Detected from Status filter
+    // that'll show the mappings that need to be edited
+    const statusFilter = editor.view.filterSets.get(2)
+    let id = null;
+    statusFilter?.options.forEach((filterOption, i) =>{
+        if (filterOption == 'Version Change Detected') {
+            id = i
+        }
+    })
+    if (statusFilter && id) {
+        grp.add(new SetFilterState(statusFilter, id, true))
+    }
     grp.add(new RebuildViewBreakouts(editor.view ))
     return grp;
 }

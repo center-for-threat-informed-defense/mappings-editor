@@ -4,6 +4,7 @@ import { GroupCommand } from "@/assets/scripts/MappingFileEditor";
 import { PatchMappingObject } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/PatchMappingObject";
 import type { Framework } from "@/assets/scripts/MappingFileAuthority";
 import { toRaw } from "vue";
+import { ReindexMappingObjects } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/ReindexMappingObjects";
 
 export class AutoMigrateFile extends AppCommand {
 
@@ -48,6 +49,10 @@ export class AutoMigrateFile extends AppCommand {
                 // if no problems, update mapping object with new version
                 if (mappingObject.problems.length === 0) {
                     grp.do(new PatchMappingObject(mappingObject));
+                }
+                else {
+                    // add mappings with problems to the reindexing list (without patching them)
+                    grp.do(new ReindexMappingObjects(mappingObject.id))
                 }
             });
         }
