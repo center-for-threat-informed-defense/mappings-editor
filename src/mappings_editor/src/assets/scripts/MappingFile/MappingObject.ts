@@ -3,6 +3,7 @@ import { StringProperty, ListItemProperty, ListProperty, ListItem, ComputedPrope
 import type { MappingFile } from "./MappingFile";
 import type { FrameworkObjectProperty } from "./Property/FrameworkObjectProperty/FrameworkObjectProperty";
 import type { MappingObjectConfiguration } from "./MappingFileConfiguration";
+import type { MappingObjectProblem } from "./MappingObjectProblem";
 
 export class MappingObject {
 
@@ -77,6 +78,11 @@ export class MappingObject {
     public readonly isValid: ComputedProperty<boolean>;
 
     /**
+     * The problems (if any) associated with a mappings object
+     */
+    public problems: MappingObjectProblem[]
+
+    /**
      * The mapping file the mapping object belongs to.
      */
     public file: MappingFile | null;
@@ -92,7 +98,7 @@ export class MappingObject {
         this.sourceObject = config.sourceObject;
         this.targetObject = config.targetObject;
         this.capabilityGroup = config.capabilityGroup ?? new ListItemProperty(
-            "Capability Group", "id", "name", 
+            "Capability Group", "id", "name",
             new ListProperty(
                 "Capability Groups",
                 new ListItem(new Map([
@@ -102,7 +108,7 @@ export class MappingObject {
             )
         );
         this.mappingType = config.mappingType ?? new ListItemProperty(
-            "Mapping Type", "id", "name", 
+            "Mapping Type", "id", "name",
             new ListProperty(
                 "Mapping Types",
                 new ListItem(new Map([
@@ -113,7 +119,7 @@ export class MappingObject {
             )
         );
         this.mappingStatus = config.mappingStatus ?? new ListItemProperty(
-            "Mapping Status", "id", "name", 
+            "Mapping Status", "id", "name",
             new ListProperty(
                 "Mapping Statuses",
                 new ListItem(new Map([
@@ -131,9 +137,10 @@ export class MappingObject {
                 ["url", new StringProperty("URL")]
             ]))
         )
+        this.problems = config.problems;
         this.comments = config.comments ?? new StringProperty("Comments");
         this.scoreCategory = config.scoreCategory ?? new ListItemProperty(
-            "Score Category", "id", "name", 
+            "Score Category", "id", "name",
             new ListProperty(
                 "Score Categories",
                 new ListItem(new Map([
@@ -143,7 +150,7 @@ export class MappingObject {
             )
         ),
         this.scoreValue = config.scoreValue ?? new ListItemProperty(
-            "Score Value", "id", "name", 
+            "Score Value", "id", "name",
             new ListProperty(
                 "Score Values",
                 new ListItem(new Map([
@@ -155,12 +162,13 @@ export class MappingObject {
         this.isValid = new ComputedProperty(
             "Is Valid",
             () => {
+
                 // If mapping isn't associated with a file, it can never be valid.
                 if(this.file === null) {
                     return false;
                 }
                 // Validate source object
-                return this.sourceObject.objectFramework === this.file.sourceFramework
+                const valid = this.sourceObject.objectFramework === this.file.sourceFramework
                     && this.targetObject.objectFramework === this.file.targetFramework
                 // Validate target object
                     && this.targetObject.objectVersion === this.file.targetVersion
@@ -170,7 +178,13 @@ export class MappingObject {
                     && !this.mappingType.isValueCached()
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
-                    && !this.scoreValue.isValueCached();
+                    && !this.scoreValue.isValueCached()
+                // If there are any problems and status is version change detected, mark as invalid
+                // If there are problems but status is anything else, mark mapping as valid
+                    && !(this.mappingStatus.exportValue === "version_changed" && this.problems.length > 0);
+                // currently this is acting funky and I think it has to do with the caching of values- the part I added is working as expected
+                    return valid
+
             }
         )
         this.file = null;
@@ -206,7 +220,8 @@ export class MappingObject {
             mappingType        : this.mappingType.duplicate(),
             mappingStatus      : this.mappingStatus.duplicate(),
             scoreCategory      : this.scoreCategory.duplicate(),
-            scoreValue         : this.scoreValue.duplicate()
+            scoreValue         : this.scoreValue.duplicate(),
+            problems           : this.problems
         });
     }
 

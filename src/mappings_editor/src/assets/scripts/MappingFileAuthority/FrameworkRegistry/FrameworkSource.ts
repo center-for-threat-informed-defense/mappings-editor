@@ -1,4 +1,6 @@
 import type { Framework } from "./Framework/Framework";
+import type { FrameworkCategories } from "./Framework/FrameworkCategories";
+import type { FrameworkObject } from "./Framework/FrameworkObject";
 
 export abstract class FrameworkSource {
 
@@ -12,7 +14,7 @@ export abstract class FrameworkSource {
      */
     public readonly version: string;
 
-    
+
     /**
      * Creates a new {@link FrameworkSource}.
      * @param id
@@ -31,6 +33,20 @@ export abstract class FrameworkSource {
      * @returns
      *  A Promise that resolves with the framework.
      */
-    abstract getFramework(): Promise<Framework>  
+    abstract getFramework(): Promise<Framework>
+
+
+    /**
+     * Moves objects in FrameworkCategores to FrameworkObjects
+     */
+  public getFrameworkObjects(categories: FrameworkCategories): FrameworkObject[] {
+        let objects: FrameworkObject[] = [];
+        for (const category in categories) {
+            objects = [...objects, ...categories[category]]
+        }
+        const uniqueFrameworkObjects = new Set(objects);
+        objects = [...uniqueFrameworkObjects];
+        return objects;
+    }
 
 }

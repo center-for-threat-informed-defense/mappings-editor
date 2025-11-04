@@ -23,15 +23,23 @@ const https = require("https");
  * A map that relates STIX types to ATT&CK types.
  */
 const STIX_TO_ATTACK = {
-    "campaign"            : "campaign",
-    "course-of-action"    : "mitigation",
-    "intrusion-set"       : "group",
-    "malware"             : "software",
-    "tool"                : "software",
-    "x-mitre-data-source" : "data_source",
-    "x-mitre-tactic"      : "tactic",
-    "attack-pattern"      : "technique"
+    "campaign"              : "campaign",
+    "course-of-action"      : "mitigation",
+    "intrusion-set"         : "group",
+    "malware"               : "software",
+    "tool"                  : "software",
+    "x-mitre-data-source"   : "data_source",
+    "x-mitre-tactic"        : "tactic",
+    "attack-pattern"        : "technique",
 }
+
+/**
+ * Relationships to process.
+ */
+const RELATIONSHIPS = new Set([
+    "detects",
+    "mitigates"
+])
 
 /**
  * MITRE's source identifiers.
@@ -82,25 +90,61 @@ function parseStixToAttackObject(obj) {
 
     // Parse STIX id, name, and type directly
     let parse = {
-        stixId      : obj.id,
-        name        : obj.name,
-        type        : STIX_TO_ATTACK[obj.type],
-        description : obj.description
-    }
+        stixId: obj.id,
+        name: obj.name,
+        type: STIX_TO_ATTACK[obj.type],
+        description: obj.description,
+    };
 
     // Parse MITRE reference information
-    let mitreRef = obj.external_references.find(
-        o => MITRE_SOURCES.has(o.source_name)
+    let mitreRef = obj.external_references.find((o) =>
+        MITRE_SOURCES.has(o.source_name)
     );
-    if(!mitreRef) {
-        throw new Error("Missing MITRE reference information.")
+    if (!mitreRef) {
+        throw new Error("Missing MITRE reference information.");
     }
-    parse.id  = mitreRef.external_id;
+    parse.id = mitreRef.external_id;
     parse.url = mitreRef.url;
 
     // Parse deprecation status
     parse.deprecated = (obj.x_mitre_deprecated || obj.revoked) ?? false;
-    
+
+    // Return
+    return parse;
+}
+
+function parseStixToRelationshipObject(obj) {
+
+    // Parse STIX id, type, source ref, target ref, and description
+    let parse = {
+        stixId          : obj.id,
+        type            : obj.relationship_type,
+        sourceRef       : obj.source_ref,
+        targetRef       : obj.target_ref,
+        description     : obj.description
+    }
+
+    // Parse deprecation status
+    parse.deprecated = (obj.x_mitre_deprecated || obj.revoked) ?? false;
+
+    // Return
+    return parse;
+}
+
+function parseStixToDataComponentObject(obj) {
+
+    // Parse STIX id, description, and data source ref
+    let parse = {
+        stixId          : obj.id,
+        type            : 'data_component',
+        name            : obj.name,
+        description     : obj.description,
+        dataSourceRef   : obj.x_mitre_data_source_ref
+    }
+
+    // Parse deprecation status
+    parse.deprecated = (obj.x_mitre_deprecated || obj.revoked) ?? false;
+
     // Return
     return parse;
 }
@@ -115,7 +159,13 @@ function parseStixToAttackObject(obj) {
 function parseAttackObjectsFromManifest(data) {
     // Parse objects
     let objs = []
-    for(let obj of data.objects) {
+    for (let obj of data.objects) {
+        if (obj.type === "relationship" && RELATIONSHIPS.has(obj.relationship_type)) {
+            objs.push(parseStixToRelationshipObject(obj));
+        }
+        if (obj.type === "x-mitre-data-component") {
+            objs.push(parseStixToDataComponentObject(obj));
+        }
         if(!(obj.type in STIX_TO_ATTACK)) {
             continue;
         }
@@ -133,21 +183,25 @@ function parseAttackObjectsFromManifest(data) {
  */
 async function fetchAttackData(...urls) {
     console.log("→ Downloading ATT&CK Data...");
-    
+
     // Parse objects
     let catalog = new Map();
     for(let url of urls) {
-        console.log(` → ${ url.length > 70 ? '...' : '' }${ url.substr(url.length - 70) }`);  
+        console.log(` → ${ url.length > 70 ? '...' : '' }${ url.substr(url.length - 70) }`);
         let objs = parseAttackObjectsFromManifest(await fetchJson(url));
         for(let obj of objs) {
             catalog.set(obj.stixId, obj);
         }
     }
-    
+
     // Categorize catalog
     let types = new Map(
         Object.values(STIX_TO_ATTACK).map(v => [v, []])
     );
+    for (const relationship of RELATIONSHIPS) {
+        types.set(relationship, []);
+    }
+    types.set('data_component', []);
     for(let obj of catalog.values()) {
         types.get(obj.type).push(obj);
     }

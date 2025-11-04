@@ -10,7 +10,7 @@ export class FrameworkRegistry {
 
 
     /**
-     * Creates a new {@link MappingFrameworkRegistry}.
+     * Creates a new {@link FrameworkRegistry}.
      */
     constructor() {
         this._registry = new Map();

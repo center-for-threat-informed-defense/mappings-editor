@@ -477,6 +477,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
                 authorContact: new StringProperty("Phantom"),
                 authorOrganization: new StringProperty("Phantom"),
                 comments: new StringProperty("Phantom"),
+                problems: [] // todo: look into whether this should be a list property
             }),
         });
     }

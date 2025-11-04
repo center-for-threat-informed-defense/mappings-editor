@@ -8,6 +8,13 @@ import { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { useApplicationStore } from './ApplicationStore';
 import type { ContextMenu, ContextMenuSection, ContextMenuSubmenu } from '@/assets/scripts/Application';
 
+// Pull valid ATT&CK Versions from framework registry
+const manifest = Configuration.native_frameworks_manifest;
+const ATTACK_VERSIONS = new Set<string>();
+for(const file of manifest.files) {
+    ATTACK_VERSIONS.add(file.frameworkVersion);
+}
+
 export const useContextMenuStore = defineStore('contextMenuStore', {
     getters: {
 
@@ -27,6 +34,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             const sections: ContextMenuSection[] = [
                 this.openFileMenu,
                 this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
+                this.attackSyncMenu,
                 this.registerFrameworkMenu,
                 this.exportFileMenu,
                 this.saveFileMenu
@@ -146,6 +154,42 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 } ]
             };
 
+        },
+
+        /**
+         * Returns the "Upgrade ATT&CK Version" file section.
+         * @returns
+         * The 'ATT&CK Sync' menu section.
+         */
+        attackSyncMenu(): ContextMenuSection {
+            const items: ContextMenu[] = [];
+            const app = useApplicationStore();
+            // set the file_version value based on the current file's target version
+            app.settings.file.file_version = app.activeEditor.view.file.targetVersion;
+            ATTACK_VERSIONS.forEach((i) => items.push({
+                text: "ATT&CK v"+ i,
+                type: MenuType.Toggle,
+                data: () => AppCommands.upgradeFileVersion(app, i),
+                value: app.settings.file.file_version === i
+            }))
+
+            // Build submenu
+            const submenu: ContextMenu = {
+                text: "Upgrade ATT&CK Version",
+                type: MenuType.Submenu,
+                sections: [
+                    {
+                        id: "attack_versions",
+                        items
+                    }
+                ]
+            }
+
+            // Return menu
+            return {
+                id: "attack_sync_menu",
+                items: [ submenu ]
+            };
         },
 
         /**
