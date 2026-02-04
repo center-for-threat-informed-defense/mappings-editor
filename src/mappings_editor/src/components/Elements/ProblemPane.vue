@@ -16,10 +16,14 @@
                             <p v-if="change.problemType === 'mitigation_deleted'" class="problem-description">{{ getMappingId(change) }} technique had a <span>Mitigation Removed</span> between versions</p>
                             <p v-if="change.problemType === 'detection_new'" class="problem-description">{{ getMappingId(change) }} technique has a <span>New Detection</span> added between versions</p>
                             <p v-if="change.problemType === 'detection_deleted'" class="problem-description">{{ getMappingId(change) }} technique had a <span>Detection Removed</span> between versions</p>
+                            <p v-if="change.problemType === 'duplicate'" class="problem-description">A potential <span>duplicate mapping</span> has been detected</p>
                         </div>
                         <VueDiff mode="split" language="plaintext" theme="dark"
                             :prev="getPrev(change)"
                             :current="getCurrent(change)" />
+                        <div v-if="change.problemType === 'duplicate'">
+                            Duplicate mapping
+                        </div>
                     </div>
                     <div v-if="changes.length < 1">
                         <p class="no-changes">No version changes detected for this mapping</p>

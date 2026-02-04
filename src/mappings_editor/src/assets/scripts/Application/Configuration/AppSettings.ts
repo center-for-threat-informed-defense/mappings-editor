@@ -3,7 +3,8 @@
  */
 export const BaseAppSettings: AppSettings = {
     file: {
-        file_version: ""
+        file_version: "",
+        detect_duplicates: "",
     },
     view: {
         auto_scroll: true
@@ -42,6 +43,7 @@ export const BaseAppSettings: AppSettings = {
 export type AppSettings = {
     file: {
         file_version: string,
+        detect_duplicates: string,
     },
     view: {
         auto_scroll: boolean

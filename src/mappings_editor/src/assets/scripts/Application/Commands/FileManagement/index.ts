@@ -15,6 +15,7 @@ import { AutoMigrateFile } from "./AutoMigrateFile";
 import { UpgradeFileVersion } from "./UpgradeFileVersion";
 import { RebuildViewBreakouts } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/RebuildViewBreakouts";
 import { SetFilterState } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/SetFilterState";
+import { CheckForDuplicates } from "./CheckForDuplicates";
 export { ExportType } from './ExportType';
 
 
@@ -249,5 +250,31 @@ export async function upgradeFileVersion(context: ApplicationStore, version: str
         grp.add(new SetFilterState(statusFilter, id, true))
     }
     grp.add(new RebuildViewBreakouts(editor.view ))
+    return grp;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  5. Duplicate Detections  //////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Kicks off mappings upgrade from one ATT&CK version to another (ATT&CK Sync).
+ * @param context
+ * The application context.
+ * @param version
+ * The new version to upgrade to.
+ * @returns
+ * A command that represents the action.
+ */
+export function automatedDuplicateDetection(context: ApplicationStore) {
+    console.log("inside detect duplicates")
+    const grp = new GroupCommand();
+    grp.add(new CheckForDuplicates(context));
+
+    const editor = context.activeEditor as MappingFileEditor;
+    grp.add(new RebuildViewBreakouts(editor.view ));
+    console.log(
+        "end of detect dup method"
+    )
     return grp;
 }

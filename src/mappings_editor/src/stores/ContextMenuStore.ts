@@ -35,6 +35,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 this.openFileMenu,
                 this.isRecoverFileMenuShown ? this.recoverFileMenu : null,
                 this.attackSyncMenu,
+                this.duplicateMenu,
                 this.registerFrameworkMenu,
                 this.exportFileMenu,
                 this.saveFileMenu
@@ -190,6 +191,25 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                 id: "attack_sync_menu",
                 items: [ submenu ]
             };
+        },
+
+        /**
+         * Returns the duplicate detection menu section.
+         * @returns
+         *  The duplicate detection menu section.
+         */
+        duplicateMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            return {
+                id: "detect_duplicates",
+                items: [
+                    {
+                        text: "Detect Duplicates",
+                        type: MenuType.Item,
+                        data: () => AppCommands.automatedDuplicateDetection(app),
+                    },
+                ],
+            }
         },
 
         /**

@@ -178,12 +178,18 @@ export class MappingObject {
                     && !this.mappingType.isValueCached()
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
-                    && !this.scoreValue.isValueCached()
+                    && !this.scoreValue.isValueCached();
                 // If there are any problems and status is version change detected, mark as invalid
-                // If there are problems but status is anything else, mark mapping as valid
-                    && !(this.mappingStatus.exportValue === "version_changed" && this.problems.length > 0);
-                // currently this is acting funky and I think it has to do with the caching of values- the part I added is working as expected
-                    return valid
+                // If there are problems but status is anything else, that means the user resolved the conflict
+                if (this.mappingStatus.exportValue === "version_changed" && this.problems.length > 0) {
+                    return false;
+                }
+                // if there are any duplicates, flag the mapping as being invalid
+                const duplicates = this.problems.filter(p => p.problemType === "duplicate")
+                if (duplicates.length > 0) {
+                    return false;
+                }
+                return valid
 
             }
         )
