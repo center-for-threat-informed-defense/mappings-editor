@@ -19,11 +19,13 @@
                             <p v-if="change.problemType === 'duplicate'" class="problem-description">A potential <span>duplicate mapping</span> has been detected</p>
                         </div>
                         <VueDiff mode="split" language="plaintext" theme="dark"
+                            :prev="getOld"
+                            current="" v-if="change.problemType === 'duplicate'" />
+
+                        <VueDiff mode="split" language="plaintext" theme="dark"
                             :prev="getPrev(change)"
-                            :current="getCurrent(change)" />
-                        <div v-if="change.problemType === 'duplicate'">
-                            Duplicate mapping
-                        </div>
+                            :current="getCurrent(change)" v-if="change.problemType !== 'duplicate'" />
+
                     </div>
                     <div v-if="changes.length < 1">
                         <p class="no-changes">No version changes detected for this mapping</p>
@@ -59,6 +61,14 @@ export default defineComponent({
                 return problem.oldVersion.id + "'s"
             }
             return "This mapping's"
+        },
+        getOld(): string {
+            console.log("getting old ", this.currentMapping)
+            return "test"
+        },
+        getNew(): string {
+            return ""
+
         },
         getPrev(problem: MappingObjectProblem): string {
             if ( problem.oldVersion) {
@@ -103,6 +113,16 @@ export default defineComponent({
                 }
             })
             return problems;
+        },
+        currentMapping() {
+            console.log(
+                "curetn mappinvfa", this.application.activeEditor.view.selected
+            )
+            const mappingId = Array.from(this.application.activeEditor.view.selected)[0];
+            const mappingsList = this.application.activeEditor.file.mappingObjects;
+            const mappingObject = mappingsList.get(mappingId);
+
+            return mappingObject;
         }
     },
     components: {
