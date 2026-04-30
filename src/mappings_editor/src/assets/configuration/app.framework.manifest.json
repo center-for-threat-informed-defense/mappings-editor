@@ -3,6 +3,11 @@
     "files": [
         {
             "frameworkId": "mitre_attack_enterprise",
+            "frameworkVersion": "19.0",
+            "filename": "mitre_attack_enterprise_19.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_enterprise",
             "frameworkVersion": "18.1",
             "filename": "mitre_attack_enterprise_18.1.json"
         },
@@ -115,6 +120,11 @@
             "frameworkId": "mitre_attack_enterprise",
             "frameworkVersion": "8.0",
             "filename": "mitre_attack_enterprise_8.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_ics",
+            "frameworkVersion": "19.0",
+            "filename": "mitre_attack_ics_19.0.json"
         },
         {
             "frameworkId": "mitre_attack_ics",
@@ -235,6 +245,11 @@
             "frameworkId": "mitre_attack_ics",
             "frameworkVersion": "8.0",
             "filename": "mitre_attack_ics_8.0.json"
+        },
+        {
+            "frameworkId": "mitre_attack_mobile",
+            "frameworkVersion": "19.0",
+            "filename": "mitre_attack_mobile_19.0.json"
         },
         {
             "frameworkId": "mitre_attack_mobile",
