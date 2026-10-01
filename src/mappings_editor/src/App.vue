@@ -1,5 +1,6 @@
 <template>
   <AppHotkeyBox id="main" @execute="onExecute">
+    <SplashScreen v-if="showSplash" @close="showSplash = false"></SplashScreen>
     <AppTitleBar id="app-title-bar" @execute="onExecute"/>
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
@@ -49,6 +50,7 @@ import MappingFileViewControl from "./components/Controls/MappingFileViewControl
 import ActiveViewSidebar from "./components/Elements/ActiveViewSidebar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import ProblemPane from "./components/Elements/ProblemPane.vue";
+import SplashScreen from "./components/Elements/SplashScreen.vue";
 
 
 enum Handle {
@@ -60,7 +62,12 @@ enum Handle {
 export default defineComponent({
   name: 'App',
   setup() {
-    return { body: ref<HTMLElement | null>(null) };
+    const showSplash = ref(true);
+
+    return {
+        body: ref<HTMLElement | null>(null),
+        showSplash,
+    };
   },
   data: () => ({
     Handle,
@@ -253,7 +260,8 @@ export default defineComponent({
     AppFooterBar,
     MappingFileSearch, MappingFileViewControl,
     ActiveViewSidebar,
-    ViewFilterSidebar, ProblemPane
+    ViewFilterSidebar, ProblemPane,
+    SplashScreen
   }
 });
 
