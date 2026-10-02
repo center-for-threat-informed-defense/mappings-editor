@@ -1,6 +1,7 @@
 import Configuration from "@/assets/configuration/app.config";
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
+import { OpenFile } from "./OpenFile";
 import { ImportFile } from './ImportFile';
 import { ExportType } from "..";
 import { AppCommand } from "../AppCommand";
@@ -58,10 +59,7 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
     // Construct file
     const mappingFile = await context.fileAuthority.loadMappingFile(json, id);
     // Return command
-    const grp = new GroupCommand();
-    grp.add(new LoadFile(context, mappingFile, name));
-    grp.add(new AutoMigrateFile(context));
-    return grp;
+    return new OpenFile(context, mappingFile, name);
 }
 
 /**

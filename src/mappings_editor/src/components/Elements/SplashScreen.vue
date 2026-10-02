@@ -34,13 +34,12 @@ function closeSplash() {
 <style scoped>
 .splash-background {
     position: fixed;
-    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    
+    backdrop-filter: blur(5px);
 }
 .splash-container {
     background-color: rgb(23, 23, 23);

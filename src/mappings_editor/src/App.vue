@@ -1,6 +1,5 @@
 <template>
-  <AppHotkeyBox id="main" @execute="onExecute">
-    <SplashScreen v-if="showSplash" @close="showSplash = false"></SplashScreen>
+  <AppHotkeyBox id="main" @execute="onExecute($event, true)">
     <AppTitleBar id="app-title-bar" @execute="onExecute"/>
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
@@ -29,11 +28,13 @@
         <AppFooterBar id="app-footer-bar"/>
       </div>
     </div>
+    <SplashScreen v-if="showSplash" id="app-splash-screen" @close="showSplash = false"></SplashScreen>
   </AppHotkeyBox>
 </template>
 
 <script lang="ts">
 import * as AppCommands from "./assets/scripts/Application/Commands";
+import { OpenFile } from "./assets/scripts/Application/Commands/FileManagement/OpenFile";
 // Dependencies
 import { PointerTracker } from "./assets/scripts/Utilities";
 import { useApplicationStore } from "./stores/ApplicationStore";
@@ -58,6 +59,8 @@ enum Handle {
   Left   = 1,
   Right  = 2,
 }
+
+const allowedSplashHotkeyCommands = [OpenFile];
 
 export default defineComponent({
   name: 'App',
@@ -138,13 +141,14 @@ export default defineComponent({
      * @param emitter
      *  The command.
      */
-    async onExecute(cmd: Command) {
+    async onExecute(cmd: Command | Promise<Command>, fromHotkey = false) {
       try {
-        if(cmd instanceof Promise) {
-          await this.application.execute(await cmd);
-        } else {
-          await this.application.execute(cmd);
+        const command = await cmd;
+        if (fromHotkey && this.showSplash &&
+            !allowedSplashHotkeyCommands.some(type => command instanceof type)) {
+          return;
         }
+        await this.application.execute(command);
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`)
         console.error(ex);
@@ -321,6 +325,10 @@ ul {
   background: #262626;
   border-bottom: solid 1px #333333;
   z-index: 1;
+}
+
+#app-splash-screen {
+    z-index: 2;
 }
 
 #app-body {
