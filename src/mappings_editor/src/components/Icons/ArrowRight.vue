@@ -1,0 +1,22 @@
+<template>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 512 512"
+        :fill="color"
+        :width="width"
+        :height="height"
+    >
+        <!-- Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc. -->
+        <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+</template>
+<script setup lang="ts">
+withDefaults(defineProps<{
+    color?: string;
+    width?: number | string;
+    height?: number | string;
+}>(), {
+    color: 'currentColor',
+    width: 16,
+    height: 16,
+});
+</script>

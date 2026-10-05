@@ -289,6 +289,19 @@ export default defineComponent({
 
 <style>
 
+:root {
+    --me-background-color-1: #262626;
+    --me-background-color-2: #1c1c1c;
+    --me-background-color-3: #242424;
+    --me-background-color-emphasis: #637bc9;
+
+    --me-border-color-1: #333333;
+    --me-border-color-2: #3b3b3b;
+
+    --me-text-color-1: #BFBFBF;
+    --me-text-color-emphasis: #89a0ec;
+}
+
 /** === Global === */
 
 html,
@@ -337,8 +350,8 @@ ul {
   flex-shrink: 0;
   height: 31px;
   color: #bfbfbf;
-  background: #262626;
-  border-bottom: solid 1px #333333;
+  background: var(--me-background-color-1);
+  border-bottom: solid 1px var(--me-border-color-1);
   z-index: 1;
 }
 
@@ -358,8 +371,8 @@ ul {
 #view-sidebar {
   width: 100%;
   height: 100%;
-  background: #1c1c1c;
-  border-right: solid 1px #333333;
+  background: var(--me-background-color-2);
+  border-right: solid 1px var(--me-border-color-1);
   box-sizing: border-box;
 }
 
@@ -383,7 +396,7 @@ ul {
   width: 100%;
   height: 100%;
   color: #bfbfbf;
-  border-top: solid 1px #333333;
+  border-top: solid 1px var(--me-border-color-1);
   box-sizing: border-box;
 }
 
@@ -422,7 +435,7 @@ ul {
 .resize-handle {
   position: absolute;
   display: block;
-  background: #637bc9;
+  background: var(--me-background-color-emphasis);
   transition: 0.15s opacity;
   opacity: 0;
   z-index: 1;
