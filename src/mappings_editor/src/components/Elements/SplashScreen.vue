@@ -10,22 +10,38 @@
                 <img src="@/assets/images/ctid_logo.png" alt="MITRE CTID" height="27"/>
             </div>
             <div class="splash-body">
+                <h2>Recover File</h2>
+                <ScrollBox>
+                    <div class="recover-files-container">
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                        <div>Hello</div>
+                    </div>
+                </ScrollBox>
+                <h2>Open File</h2>
                 <div class="button-row">
                     <button class="splash-button" @click="closeSplash">
                         <span class="splash-button-title">Create New File</span>
                         <span class="splash-button-description">Description goes here</span>
                     </button>
-                    <button class="splash-button" @click="closeSplash">
+                    <button class="splash-button" @click="emit('open-file')">
                         <span class="splash-button-title">Open File</span>
                         <span class="splash-button-description">Description goes here</span>
                     </button>
                 </div>
+                <h2>Resources</h2>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
-const emit = defineEmits(['close']);
+import ScrollBox from '../Containers/ScrollBox.vue';
+const emit = defineEmits(['close', 'open-file']);
 
 function closeSplash() {
     emit('close');
@@ -48,6 +64,7 @@ function closeSplash() {
     border: 1px solid rgb(56, 56, 56);
     border-radius: 10px;
     overflow: hidden;
+    color: white;
 }
 
 .splash-header {
@@ -57,7 +74,6 @@ function closeSplash() {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: white;
 }
 
 .splash-header h1 {
@@ -67,6 +83,12 @@ function closeSplash() {
 
 .splash-body {
     padding: 30px;
+}
+
+.splash-body h2 {
+    font-size: small;
+    font-weight: normal;
+    text-transform: uppercase;
 }
 
 .button-row {
@@ -96,5 +118,9 @@ function closeSplash() {
 
 .splash-button-description {
     display: block;
+}
+
+.recover-files-container {
+    max-height: 100px;
 }
 </style>

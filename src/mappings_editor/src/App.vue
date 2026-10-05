@@ -28,7 +28,12 @@
         <AppFooterBar id="app-footer-bar"/>
       </div>
     </div>
-    <SplashScreen v-if="showSplash" id="app-splash-screen" @close="showSplash = false"></SplashScreen>
+    <SplashScreen
+        v-if="showSplash"
+        id="app-splash-screen"
+        @close="showSplash = false"
+        @open-file="onSplashOpenFile"
+    ></SplashScreen>
   </AppHotkeyBox>
 </template>
 
@@ -201,6 +206,16 @@ export default defineComponent({
       const min = this.minFrameSize[Handle.Right];
       const max = Math.max(min, this.bodyWidth - minLeft - minCenter);
       this.activeFrameSize[Handle.Right] = clamp(size, min, max);
+    },
+    async onSplashOpenFile() {
+      try {
+        const command = await AppCommands.loadFileFromFileSystem(this.application);
+        await this.application.execute(command);
+        this.showSplash = false;
+      } catch(ex: any) {
+        alert(`Error: ${ ex.message }`);
+        console.error(ex);
+      }
     }
 
   },
