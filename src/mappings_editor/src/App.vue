@@ -33,7 +33,13 @@
         id="app-splash-screen"
         @close="showSplash = false"
         @open-file="onSplashOpenFile"
+        @create-file="onSplashCreateFile"
     ></SplashScreen>
+    <FileCreationScreen
+        v-if="showFileCreation"
+        @close="showFileCreation = false;"
+        @create="onFileCreate"
+    ></FileCreationScreen>
   </AppHotkeyBox>
 </template>
 
@@ -47,6 +53,7 @@ import { defineComponent, markRaw, ref } from "vue";
 import { Browser, OperatingSystem, clamp } from "./assets/scripts/Utilities";
 import type { Command } from "./assets/scripts/Application";
 import type { MappingFileEditor } from "./assets/scripts/MappingFileEditor";
+import type { FileCreationSettings } from "./assets/scripts/MappingFileAuthority";
 // Components
 import AppTitleBar from "./components/Elements/AppTitleBar.vue";
 import AppHotkeyBox from "./components/Elements/AppHotkeyBox.vue";
@@ -57,6 +64,7 @@ import ActiveViewSidebar from "./components/Elements/ActiveViewSidebar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import ProblemPane from "./components/Elements/ProblemPane.vue";
 import SplashScreen from "./components/Elements/SplashScreen.vue";
+import FileCreationScreen from "./components/Elements/FileCreationScreen.vue";
 
 
 enum Handle {
@@ -71,10 +79,12 @@ export default defineComponent({
   name: 'App',
   setup() {
     const showSplash = ref(true);
+    const showFileCreation = ref(false);
 
     return {
         body: ref<HTMLElement | null>(null),
         showSplash,
+        showFileCreation
     };
   },
   data: () => ({
@@ -216,6 +226,44 @@ export default defineComponent({
         alert(`Error: ${ ex.message }`);
         console.error(ex);
       }
+    },
+
+    onSplashCreateFile() {
+        this.showSplash = false;
+        this.showFileCreation = true;
+    },
+
+    async onFileCreate(settings: FileCreationSettings) {
+      try {
+        const domain = settings.target_framework.replace(/^mitre_attack_/, '');
+        const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
+        const sourceVersion = settings.source_version.trim();
+        const fileSettings = this.application.fileSerializer.deserialize(JSON.stringify({
+          metadata: {
+            mapping_version: '1.0.0',
+            attack_version: settings.target_version,
+            technology_domain: domain,
+            mapping_framework: sourceFramework,
+            mapping_framework_version: sourceVersion,
+            author: settings.author,
+            contact: settings.author_contact,
+            organization: settings.author_organization,
+            mapping_types: settings.mapping_types,
+            capability_groups: settings.capability_groups,
+          },
+          mapping_objects: [],
+        }));
+        // Preserve metadata verbatim; replace filename separators only in the name.
+        const name = `${sourceFramework}_v${sourceVersion}_v${settings.target_version}_${domain}_mappings`
+          .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_');
+        const command = await AppCommands.loadNewFile(this.application, fileSettings, name);
+        await this.application.execute(command);
+        this.showFileCreation = false;
+        this.showSplash = false;
+      } catch(ex: any) {
+        alert(`Error: ${ ex.message }`);
+        console.error(ex);
+      }
     }
 
   },
@@ -280,7 +328,7 @@ export default defineComponent({
     MappingFileSearch, MappingFileViewControl,
     ActiveViewSidebar,
     ViewFilterSidebar, ProblemPane,
-    SplashScreen
+    SplashScreen, FileCreationScreen
   }
 });
 
@@ -290,6 +338,7 @@ export default defineComponent({
 <style>
 
 :root {
+
     --me-background-color-1: #262626;
     --me-background-color-2: #1c1c1c;
     --me-background-color-3: #242424;
@@ -300,6 +349,9 @@ export default defineComponent({
 
     --me-text-color-1: #BFBFBF;
     --me-text-color-emphasis: #89a0ec;
+    --me-text-color-valid: #2bd463;
+    --me-text-color-warning: #e6d846;
+    --me-text-color-error: #ff4d4d;
 }
 
 /** === Global === */

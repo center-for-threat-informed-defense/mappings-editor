@@ -30,14 +30,16 @@ export { ExportType } from './ExportType';
  *  The application's context.
  * @param settings
  *  The mapping file's settings.
+ * @param name
+ *  The mapping file's name, without the extension.
  * @returns
  *  A command that represents the action.
  */
-export async function loadNewFile(context: ApplicationStore, settings: MappingFileImport): Promise<AppCommand> {
+export async function loadNewFile(context: ApplicationStore, settings: MappingFileImport, name?: string): Promise<AppCommand> {
     // Create file
     const mappingFile = await context.fileAuthority.createEmptyMappingFile(settings);
     // Return command
-    return new LoadFile(context, mappingFile);
+    return new LoadFile(context, mappingFile, name);
 }
 
 /**
