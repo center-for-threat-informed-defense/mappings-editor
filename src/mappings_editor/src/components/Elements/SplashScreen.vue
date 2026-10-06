@@ -28,13 +28,17 @@
                 </ScrollBox>
                 <h2>Open File</h2>
                 <div class="button-row">
-                    <button class="splash-button">
-                        <span class="splash-button-title">Create New File</span>
-                        <span class="splash-button-description">Description goes here</span>
+                    <button class="splash-button" @click="emit('create-file')">
+                        <span class="splash-button-title">
+                            <FileIcon/> Create New File
+                        </span>
+                        <span class="splash-button-description">Create new mappings file</span>
                     </button>
                     <button class="splash-button" @click="emit('open-file')">
-                        <span class="splash-button-title">Open File</span>
-                        <span class="splash-button-description">Description goes here</span>
+                        <span class="splash-button-title">
+                            <FolderOpen /> Open File
+                        </span>
+                        <span class="splash-button-description">Open existing mappings file</span>
                     </button>
                 </div>
                 <h2>Resources</h2>
@@ -45,7 +49,9 @@
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <span class="splash-button-title">User Guide</span>
+                        <span class="splash-button-title">
+                            <ReadmeIcon /> User Guide
+                        </span>
                         <span class="splash-button-description">Quick-start guide and examples</span>
                     </a>
                     <a
@@ -54,7 +60,9 @@
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <span class="splash-button-title">Change Log</span>
+                        <span class="splash-button-title">
+                            <ListIcon /> Change Log
+                        </span>
                         <span class="splash-button-description">Latest features and fixes</span>
                     </a>
                 </div>
@@ -83,7 +91,11 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import ScrollBox from '../Containers/ScrollBox.vue';
 import ArrowRight from '../Icons/ArrowRight.vue';
-const emit = defineEmits(['close', 'open-file']);
+import FileIcon from '../Icons/FileIcon.vue';
+import FolderOpen from '../Icons/FolderOpen.vue';
+import ReadmeIcon from '../Icons/ReadmeIcon.vue';
+import ListIcon from '../Icons/ListIcon.vue';
+const emit = defineEmits(['close', 'open-file', 'create-file']);
 const dialog = ref<HTMLDialogElement | null>(null);
 
 onMounted(() => {
