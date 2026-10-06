@@ -22,7 +22,9 @@
                                 <span>File Name</span>
                                 <span>Timestamp</span>
                             </button>
-                            <button class="file-recovery-delete">Delete X</button>
+                            <button class="file-recovery-delete">
+                                Delete <XMark width="10" height="10"/>
+                            </button>
                         </div>
                     </div>
                 </ScrollBox>
@@ -95,6 +97,7 @@ import FileIcon from '../Icons/FileIcon.vue';
 import FolderOpen from '../Icons/FolderOpen.vue';
 import ReadmeIcon from '../Icons/ReadmeIcon.vue';
 import ListIcon from '../Icons/ListIcon.vue';
+import XMark from '../Icons/XMark.vue';
 const emit = defineEmits(['close', 'open-file', 'create-file']);
 const dialog = ref<HTMLDialogElement | null>(null);
 
@@ -215,5 +218,8 @@ function closeSplash() {
     color: var(--me-text-color-emphasis);
     border: 1px solid var(--me-border-color-1);
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 </style>
