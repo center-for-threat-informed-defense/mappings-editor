@@ -467,7 +467,7 @@ export default defineComponent({
                 const sourceKey = this.getMergeChoice(problem, field.key);
                 return {
                     fieldKey: field.key as keyof MappingObject,
-                    sourceKey: sourceKey as keyof MappingObject,
+                    sourceKey: field.key as keyof MappingObject,
                     duplicateMappingId: sourceKey.startsWith("duplicate:")
                         ? sourceKey.replace("duplicate:", "")
                         : undefined

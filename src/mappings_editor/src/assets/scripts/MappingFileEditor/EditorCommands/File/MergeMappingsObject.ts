@@ -3,12 +3,9 @@ import {
   StringProperty,
   ListItemProperty,
 } from "@/assets/scripts/MappingFile";
-import { EditorCommand, type DirectiveIssuer } from "../..";
-import type {
-  MappingFileView,
-  MappingFileViewItem,
-} from "../../MappingFileView";
+import { EditorCommand, EditorDirective, type DirectiveIssuer } from "../..";
 import * as EditorCommands from "../../EditorCommands";
+import { checkDuplicateMappings } from "@/assets/scripts/MappingFile/CheckDuplicateMappings";
 
 export type MergeFieldSelection = {
   fieldKey: keyof MappingObject;
@@ -42,8 +39,10 @@ export class MergeMappingsObject extends EditorCommand {
 
   /**
    * Executes the editor command.
+   * @param issueDirective
+   *  A function that can issue one or more editor directives.
    */
-  public async execute(): Promise<void> {
+  public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
     // 1. For each field, copy the selected source value into the current mapping
     // 2. Delete the other duplicates
     // 3. Persist changes and hook into undo/redo
@@ -76,7 +75,7 @@ export class MergeMappingsObject extends EditorCommand {
             await EditorCommands.setStringProperty(
               currentProp,
               duplicateProp.value,
-            ).execute();
+            ).execute(issueDirective);
           } else if (
             currentProp instanceof ListItemProperty &&
             duplicateProp instanceof ListItemProperty
@@ -86,7 +85,7 @@ export class MergeMappingsObject extends EditorCommand {
               await EditorCommands.setListItemProperty(
                 currentProp,
                 null,
-              ).execute();
+              ).execute(issueDirective);
             } else {
               // Use the 3-parameter overload for non-null exportValue
               const exportText = duplicateProp.exportText ?? undefined;
@@ -94,7 +93,7 @@ export class MergeMappingsObject extends EditorCommand {
                 currentProp,
                 duplicateProp.exportValue,
                 exportText,
-              ).execute();
+              ).execute(issueDirective);
             }
           } else {
             // Fallback to the original behavior? Or log an error?
@@ -108,19 +107,30 @@ export class MergeMappingsObject extends EditorCommand {
     // Delete the duplicate mappings after merging their selected values
     for (const duplicateMapping of this.duplicateMappings) {
       console.log("Deleting duplicate mapping:", duplicateMapping.id);
-      await EditorCommands.deleteMappingObject(duplicateMapping).execute();
+      await EditorCommands.deleteMappingObject(duplicateMapping).execute(issueDirective);
     }
+    const file = this.currentMapping.file;
+    if (file !== null) {
+      checkDuplicateMappings(file);
+      for (const mapping of file.mappingObjects.values()) {
+        issueDirective(EditorDirective.Reindex, mapping.id);
+      }
+    }
+    issueDirective(EditorDirective.RefreshView);
     console.log("MergeMappingsObject command executed successfully.");
-    // Todo: reindex mappings file to display changes
   }
   /**
    * Undoes the editor command.
+   * @param issueDirective
+   *  A function that can issue one or more editor directives.
    */
-  public async undo(): Promise<void> {
+  public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
     // add back deleted duplicates and restore their original values
     for (const duplicateMapping of this.duplicateMappings) {
       console.log("Restoring duplicate mapping:", duplicateMapping.id);
-      await EditorCommands.createMappingObject(duplicateMapping).execute();
+      if (duplicateMapping.file !== null) {
+        await EditorCommands.createMappingObject( duplicateMapping.file).execute(issueDirective);
+      }
     }
   }
 }
