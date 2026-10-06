@@ -171,7 +171,7 @@ type DuplicateFieldDiff = {
     values: Record<string, string>;
 };
 
-const DUPLICATE_MERGE_FIELDS: Array<{ key: keyof MappingObject | string; label: string }> = [
+const DUPLICATE_MERGE_FIELDS: Array<{ key: keyof MappingObject; label: string }> = [
     { key: "sourceObject", label: "Source Object" },
     { key: "targetObject", label: "Target Object" },
     { key: "capabilityGroup", label: "Capability Group" },
@@ -350,12 +350,12 @@ export default defineComponent({
             return String(value);
         },
 
-        getMappingFieldText(mapping: MappingObject | undefined, fieldKey: string): string {
+        getMappingFieldText(mapping: MappingObject | undefined, fieldKey: keyof MappingObject): string {
             if (!mapping) {
                 return "";
             }
 
-            const value = (mapping as Record<string, unknown>)[fieldKey];
+            const value = mapping[fieldKey];
             return this.getReadableValue(value);
         },
 
