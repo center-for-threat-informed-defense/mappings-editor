@@ -1,6 +1,11 @@
 <template>
-    <dialog ref="dialog" class="file-creation-screen" aria-labelledby="file-creation-title"
-        @close="emit('close')" @keydown.stop @keyup.stop>
+    <dialog
+        ref="dialog"
+        class="file-creation-screen"
+        aria-labelledby="file-creation-title"
+        @keydown.stop
+        @keyup.stop
+    >
         <header>
             <h1 id="file-creation-title">Create New File</h1>
             <p>Choose your ATT&CK framework and describe what you’re mapping.</p>
@@ -91,7 +96,7 @@
                 </details>
                 <p v-if="error" role="alert" class="validation-error">{{ error }}</p>
                 <footer>
-                    <button type="button" @click="emit('cancel'); dialog?.close();">Cancel</button>
+                    <button type="button" @click="emit('cancel');">Cancel</button>
                     <button type="submit" class="primary">Create File</button>
                 </footer>
             </form>

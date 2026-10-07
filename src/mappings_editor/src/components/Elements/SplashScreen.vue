@@ -3,7 +3,6 @@
         ref="dialog"
         class="splash-container"
         aria-labelledby="splash-title"
-        @close="emit('close')"
     >
             <div class="splash-header">
                 <div>
@@ -108,10 +107,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
     dialog.value?.close();
 });
-
-function closeSplash() {
-    dialog.value?.close();
-}
 </script>
 <style scoped>
 .splash-container::backdrop {
