@@ -36,8 +36,8 @@
         @create-file="onSplashCreateFile"
     ></SplashScreen>
     <FileCreationScreen
-        v-if="showFileCreation"
-        @close="showFileCreation = false; justOpenedFileCreationFromSplash = false;"
+        v-if="application.showFileCreation"
+        @close="application.showFileCreation = false; justOpenedFileCreationFromSplash = false;"
         @create="onFileCreate"
         @cancel="onFileCreateCancel"
     ></FileCreationScreen>
@@ -80,12 +80,10 @@ export default defineComponent({
   name: 'App',
   setup() {
     const showSplash = ref(true);
-    const showFileCreation = ref(false);
 
     return {
         body: ref<HTMLElement | null>(null),
-        showSplash,
-        showFileCreation
+        showSplash
     };
   },
   data: () => ({
@@ -232,8 +230,8 @@ export default defineComponent({
 
     onSplashCreateFile() {
         this.showSplash = false;
-        this.showFileCreation = true;
         this.justOpenedFileCreationFromSplash = true;
+        this.onExecute(AppCommands.showFileCreationScreen(this.application));
     },
 
     async onFileCreate(settings: FileCreationSettings) {
@@ -261,7 +259,7 @@ export default defineComponent({
           .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_');
         const command = await AppCommands.loadNewFile(this.application, fileSettings, name);
         await this.application.execute(command);
-        this.showFileCreation = false;
+        this.application.showFileCreation = false;
         this.showSplash = false;
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`);
@@ -270,7 +268,7 @@ export default defineComponent({
     },
 
     onFileCreateCancel() {
-        this.showFileCreation = false;
+        this.application.showFileCreation = false;
 
         // Return to splash if user just came from there.
         if (this.justOpenedFileCreationFromSplash) {

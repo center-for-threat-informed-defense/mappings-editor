@@ -50,6 +50,11 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
             const editor = app.activeEditor;
             return [
                 {
+                    data: () => AppCommands.showFileCreationScreen(app),
+                    shortcut: file.new_file,
+                    repeatable: false
+                },
+                {
                     data: () => AppCommands.loadFileFromFileSystem(app),
                     shortcut: file.open_file,
                     repeatable: false

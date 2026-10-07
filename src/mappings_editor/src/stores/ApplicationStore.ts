@@ -56,6 +56,7 @@ const sidebarViewOptions: SidebarView[] = [
 export const useApplicationStore = defineStore('applicationStore', {
     state: () => ({
         executionCycle: 0,
+        showFileCreation: false,
         activeEditor: MappingFileEditor.Phantom,
         fileAuthority: new MappingFileAuthority(registry),
         fileSerializer: new (Configuration.serializer ?? MappingFileSerializer),
