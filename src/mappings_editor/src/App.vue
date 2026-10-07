@@ -31,14 +31,15 @@
     <SplashScreen
         v-if="showSplash"
         id="app-splash-screen"
-        @close="showSplash = false"
+        @close="showSplash = false;"
         @open-file="onSplashOpenFile"
         @create-file="onSplashCreateFile"
     ></SplashScreen>
     <FileCreationScreen
         v-if="showFileCreation"
-        @close="showFileCreation = false;"
+        @close="showFileCreation = false; justOpenedFileCreationFromSplash = false;"
         @create="onFileCreate"
+        @cancel="onFileCreateCancel"
     ></FileCreationScreen>
   </AppHotkeyBox>
 </template>
@@ -103,7 +104,8 @@ export default defineComponent({
     },
     track: markRaw(new PointerTracker()),
     onResizeObserver: null as ResizeObserver | null,
-    application: useApplicationStore()
+    application: useApplicationStore(),
+    justOpenedFileCreationFromSplash: false
   }),
   computed: {
 
@@ -231,6 +233,7 @@ export default defineComponent({
     onSplashCreateFile() {
         this.showSplash = false;
         this.showFileCreation = true;
+        this.justOpenedFileCreationFromSplash = true;
     },
 
     async onFileCreate(settings: FileCreationSettings) {
@@ -264,9 +267,18 @@ export default defineComponent({
         alert(`Error: ${ ex.message }`);
         console.error(ex);
       }
-    }
+    },
 
+    onFileCreateCancel() {
+        this.showFileCreation = false;
+
+        // Return to splash if user just came from there.
+        if (this.justOpenedFileCreationFromSplash) {
+            this.showSplash = true;
+        }
+    }
   },
+
   async created() {
     // Import settings
     let settings;

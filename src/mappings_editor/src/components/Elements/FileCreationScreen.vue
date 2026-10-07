@@ -91,7 +91,7 @@
                 </details>
                 <p v-if="error" role="alert" class="validation-error">{{ error }}</p>
                 <footer>
-                    <button type="button" @click="dialog?.close()">Cancel</button>
+                    <button type="button" @click="emit('cancel'); dialog?.close();">Cancel</button>
                     <button type="submit" class="primary">Create File</button>
                 </footer>
             </form>
@@ -108,6 +108,7 @@ import ScrollBox from '../Containers/ScrollBox.vue';
 const emit = defineEmits<{
     (event: 'create', settings: FileCreationSettings): void;
     (event: 'close'): void;
+    (event: 'cancel'): void;
 }>();
 const dialog = ref<HTMLDialogElement | null>(null);
 const mappingTypesDetails = ref<HTMLDetailsElement | null>(null);
