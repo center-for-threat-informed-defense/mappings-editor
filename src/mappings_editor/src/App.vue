@@ -348,16 +348,15 @@ export default defineComponent({
 <style>
 
 :root {
+    --me-bg-color-main: #242424;
+    --me-bg-color-recessed: #1c1c1c;
+    --me-bg-color-groupings: #262626;
+    --me-bg-color-emphasis: #637bc9;
 
-    --me-background-color-1: #262626;
-    --me-background-color-2: #1c1c1c;
-    --me-background-color-3: #242424;
-    --me-background-color-emphasis: #637bc9;
+    --me-border-color-subtle: #333333;
+    --me-border-color-strong: #3b3b3b;
 
-    --me-border-color-1: #333333;
-    --me-border-color-2: #3b3b3b;
-
-    --me-text-color-1: #BFBFBF;
+    --me-text-color: #bfbfbf;
     --me-text-color-emphasis: #89a0ec;
     --me-text-color-valid: #2bd463;
     --me-text-color-warning: #e6d846;
@@ -412,8 +411,8 @@ ul {
   flex-shrink: 0;
   height: 31px;
   color: #bfbfbf;
-  background: var(--me-background-color-1);
-  border-bottom: solid 1px var(--me-border-color-1);
+  background: var(--me-bg-color-groupings);
+  border-bottom: solid 1px var(--me-border-color-subtle);
   z-index: 1;
 }
 
@@ -433,8 +432,8 @@ ul {
 #view-sidebar {
   width: 100%;
   height: 100%;
-  background: var(--me-background-color-2);
-  border-right: solid 1px var(--me-border-color-1);
+  background: var(--me-bg-color-recessed);
+  border-right: solid 1px var(--me-border-color-subtle);
   box-sizing: border-box;
 }
 
@@ -458,7 +457,7 @@ ul {
   width: 100%;
   height: 100%;
   color: #bfbfbf;
-  border-top: solid 1px var(--me-border-color-1);
+  border-top: solid 1px var(--me-border-color-subtle);
   box-sizing: border-box;
 }
 
@@ -497,7 +496,7 @@ ul {
 .resize-handle {
   position: absolute;
   display: block;
-  background: var(--me-background-color-emphasis);
+  background: var(--me-bg-color-emphasis);
   transition: 0.15s opacity;
   opacity: 0;
   z-index: 1;

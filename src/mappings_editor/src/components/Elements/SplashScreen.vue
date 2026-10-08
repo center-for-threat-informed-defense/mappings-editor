@@ -168,18 +168,18 @@ dialog:focus-visible {
     backdrop-filter: blur(5px);
 }
 .splash-container {
-    background-color: var(--me-background-color-2);
+    background-color: var(--me-bg-color-recessed);
     width: 740px;
     padding: 0;
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     border-radius: 10px;
     overflow: hidden;
-    color: var(--me-text-color-1);
+    color: var(--me-text-color);
 }
 
 .splash-header {
-    background-color: var(--me-background-color-2);
-    border-bottom: 1px solid var(--me-border-color-1);
+    background-color: var(--me-bg-color-recessed);
+    border-bottom: 1px solid var(--me-border-color-subtle);
     padding: 18px 30px;
     display: flex;
     justify-content: space-between;
@@ -215,7 +215,7 @@ dialog:focus-visible {
     padding: 24px;
     text-align: left;
     flex: 1;
-    color: var(--me-text-color-1);
+    color: var(--me-text-color);
 }
 
 .splash-button:hover,
@@ -246,7 +246,7 @@ dialog:focus-visible {
 
 .splash-scroll-box :deep(.scroll-bar) {
     border-radius: 5px;
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     margin-left: 5px;
 }
 
@@ -260,10 +260,10 @@ dialog:focus-visible {
     display: flex;
     justify-content: space-between;
     border-radius: 5px;
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     padding: 7px 10px;
     background: none;
-    color: var(--me-text-color-1);
+    color: var(--me-text-color);
 }
 
 .file-recovery-file .file-name {
@@ -276,7 +276,7 @@ dialog:focus-visible {
 .file-recovery-delete {
     background: none;
     color: var(--me-text-color-emphasis);
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     border-radius: 5px;
     display: flex;
     align-items: center;

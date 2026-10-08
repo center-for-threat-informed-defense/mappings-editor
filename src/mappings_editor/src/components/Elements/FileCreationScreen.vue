@@ -242,10 +242,10 @@ function submit() {
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     border-radius: 10px;
-    background: var(--me-background-color-2);
-    color: var(--me-text-color-1);
+    background: var(--me-bg-color-recessed);
+    color: var(--me-text-color);
     color-scheme: dark;
 }
 .file-creation-screen[open] {
@@ -258,12 +258,12 @@ function submit() {
 }
 .creation-scroll-box :deep(.scroll-bar) {
     margin: 8px 6px 8px 0;
-    border: 1px solid var(--me-border-color-1);
+    border: 1px solid var(--me-border-color-subtle);
     border-radius: 5px;
 }
 .creation-scroll-box :deep(.scroll-handle) {
-    background: var(--me-background-color-3);
-    border-color: var(--me-border-color-2);
+    background: var(--me-bg-color-recessed);
+    border-color: var(--me-border-color-strong);
 }
 .file-creation-screen::backdrop {
     background: rgb(0 0 0 / 30%);
@@ -272,7 +272,7 @@ function submit() {
 header {
     flex-shrink: 0;
     padding: 24px 30px;
-    border-bottom: 1px solid var(--me-border-color-1);
+    border-bottom: 1px solid var(--me-border-color-subtle);
 }
 h1 {
     margin: 0 0 8px;
@@ -299,10 +299,10 @@ input, select, textarea {
     min-width: 0;
     padding: 10px 12px;
     box-sizing: border-box;
-    border: 1px solid var(--me-border-color-2);
+    border: 1px solid var(--me-border-color-strong);
     border-radius: 5px;
-    background: var(--me-background-color-3);
-    color: var(--me-text-color-1);
+    background: var(--me-bg-color-recessed);
+    color: var(--me-text-color);
     font: inherit;
 }
 input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focus-visible {
@@ -317,19 +317,19 @@ footer {
 }
 button {
     padding: 10px 18px;
-    border: 1px solid var(--me-border-color-2);
+    border: 1px solid var(--me-border-color-strong);
     border-radius: 5px;
-    background: var(--me-background-color-3);
-    color: var(--me-text-color-1);
+    background: var(--me-bg-color-recessed);
+    color: var(--me-text-color);
     font: inherit;
     cursor: pointer;
 }
 button:hover { filter: brightness(1.15); }
-.primary { background: var(--me-background-color-emphasis); color: white; }
+.primary { background: var(--me-bg-color-emphasis); color: white; }
 .configuration-section {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid var(--me-border-color-1);
+    border-top: 1px solid var(--me-border-color-subtle);
 }
 summary { cursor: pointer; font-size: small; font-weight: 600; }
 .add-item { margin-top: 12px; }
@@ -337,7 +337,7 @@ fieldset {
     min-width: 0;
     margin: 16px 0 0;
     padding: 16px;
-    border: 1px solid var(--me-border-color-2);
+    border: 1px solid var(--me-border-color-strong);
     border-radius: 5px;
 }
 legend { padding: 0 6px; font-size: small; }
