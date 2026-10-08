@@ -267,7 +267,12 @@ async function recoverFile(contents: string, name: string, id: string) {
     color: var(--me-text-color-emphasis);
     display: flex;
     align-items: center;
+    text-align: left;
     gap: 3px;
+}
+
+.file-recovery-file .file-date {
+    flex-shrink: 0;
 }
 
 .file-recovery-delete {
