@@ -13,20 +13,31 @@
                 <img src="@/assets/images/ctid_logo.png" alt="MITRE CTID" height="27"/>
             </div>
             <div class="splash-body">
-                <h2>Recover File</h2>
-                <ScrollBox class="splash-scroll-box">
-                    <div class="file-recovery-container">
-                        <div v-for="_ in 7" class="file-recovery-row">
-                            <button class="file-recovery-file">
-                                <span>File Name</span>
-                                <span>Timestamp</span>
-                            </button>
-                            <button class="file-recovery-delete">
-                                Delete <XMark width="10" height="10"/>
-                            </button>
+                <template v-if="filesToRecover.size">
+                    <h2>Recover File</h2>
+                    <ScrollBox class="splash-scroll-box">
+                        <div class="file-recovery-container">
+                            <div v-for="f in filesToRecover" class="file-recovery-row">
+                                <button
+                                    class="file-recovery-file"
+                                    @click="() => recoverFile(f[1].contents, f[1].name, f[0])"
+                                >
+                                    <span class="file-name">
+                                        <FileLines /> {{ f[1].name }}
+                                    </span>
+                                    <span class="file-date">{{ formatDate(f[1].date) }}</span>
+                                </button>
+                                <button
+                                    class="file-recovery-delete"
+                                    @click="() => deleteFileToRecover(f[0])"
+                                >
+                                    Delete <XMark width="10" height="10"/>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </ScrollBox>
+                    </ScrollBox>
+                </template>
+                
                 <h2>Open File</h2>
                 <div class="button-row">
                     <button class="splash-button" @click="emit('create-file')">
@@ -89,26 +100,69 @@
     </dialog>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, computed } from 'vue';
+import { useApplicationStore } from '@/stores/ApplicationStore.js';
 import ScrollBox from '../Containers/ScrollBox.vue';
 import ArrowRight from '../Icons/ArrowRight.vue';
 import FileIcon from '../Icons/FileIcon.vue';
+import FileLines from '../Icons/FileLines.vue';
 import FolderOpen from '../Icons/FolderOpen.vue';
 import ReadmeIcon from '../Icons/ReadmeIcon.vue';
 import ListIcon from '../Icons/ListIcon.vue';
 import XMark from '../Icons/XMark.vue';
+import { loadExistingFile } from '@/assets/scripts/Application/index.js';
 const emit = defineEmits(['close', 'open-file', 'create-file']);
 const dialog = ref<HTMLDialogElement | null>(null);
 
 onMounted(() => {
     dialog.value?.showModal();
+    dialog.value?.focus();
 });
 
 onBeforeUnmount(() => {
     dialog.value?.close();
 });
+
+const app = useApplicationStore();
+
+const filesToRecover = computed(() => {
+    return app.fileRecoveryBank.files;
+});
+
+
+function formatDate(d: Date) {
+    const formattedDate = d.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    return formattedDate;
+}
+
+function deleteFileToRecover(file_id: string) {
+    app.fileRecoveryBank.deleteFile(file_id);
+}
+
+async function recoverFile(contents: string, name: string, id: string) {
+    try {
+        app.execute(await loadExistingFile(app, contents, name, id));
+        emit('close');
+    } catch (e) {
+        alert('The file could not be recovered.');
+    }
+}
+
 </script>
 <style scoped>
+dialog:focus-visible {
+    outline: none;
+}
+
+
 .splash-container::backdrop {
     background: transparent;
     backdrop-filter: blur(5px);
@@ -164,7 +218,9 @@ onBeforeUnmount(() => {
     color: var(--me-text-color-1);
 }
 
-.splash-button:hover {
+.splash-button:hover,
+.file-recovery-delete:hover,
+.file-recovery-file:hover {
     cursor: pointer;
     background-color: rgba(255, 255, 255, 0.1);
 }
@@ -181,10 +237,11 @@ onBeforeUnmount(() => {
 }
 
 .file-recovery-container {
-    max-height: 100px;
+    max-height: 150px;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding: 1px 0px;
 }
 
 .splash-scroll-box :deep(.scroll-bar) {
@@ -204,10 +261,18 @@ onBeforeUnmount(() => {
     justify-content: space-between;
     border-radius: 5px;
     border: 1px solid var(--me-border-color-1);
-    padding: 5px;
+    padding: 7px 10px;
     background: none;
     color: var(--me-text-color-1);
 }
+
+.file-recovery-file .file-name {
+    color: var(--me-text-color-emphasis);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
 .file-recovery-delete {
     background: none;
     color: var(--me-text-color-emphasis);
