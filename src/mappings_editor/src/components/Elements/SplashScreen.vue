@@ -116,6 +116,7 @@ const dialog = ref<HTMLDialogElement | null>(null);
 
 onMounted(() => {
     dialog.value?.showModal();
+    // Prevent inputs from automatically receiving unsightly focus outline.
     dialog.value?.focus();
 });
 
@@ -158,10 +159,6 @@ async function recoverFile(contents: string, name: string, id: string) {
 
 </script>
 <style scoped>
-dialog:focus-visible {
-    outline: none;
-}
-
 
 .splash-container::backdrop {
     background: rgb(0 0 0 / 30%);

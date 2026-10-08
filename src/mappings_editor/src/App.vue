@@ -537,4 +537,10 @@ ul {
 .vue-diff-viewer .vue-diff-row {
   flex-wrap: wrap;
 }
+
+/* Dialogs may be given focus so that inputs are not automatically focused with an
+unsightly outline. For this case, disable the dialog outline. */
+dialog:focus-visible {
+    outline: none;
+}
 </style>

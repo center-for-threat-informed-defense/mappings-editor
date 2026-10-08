@@ -162,7 +162,11 @@ async function onSectionToggle() {
     creationScrollBox.value?.scrollbox.refresh();
 }
 
-onMounted(() => dialog.value?.showModal());
+onMounted(() => {
+    dialog.value?.showModal();
+    // Prevent inputs from automatically receiving unsightly focus outline.
+    dialog.value?.focus();
+});
 onBeforeUnmount(() => dialog.value?.close());
 
 function submit() {
