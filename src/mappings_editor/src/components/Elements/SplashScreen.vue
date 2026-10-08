@@ -3,6 +3,8 @@
         ref="dialog"
         class="splash-container"
         aria-labelledby="splash-title"
+        @keydown.stop
+        @keyup.stop
     >
             <div class="splash-header">
                 <div>

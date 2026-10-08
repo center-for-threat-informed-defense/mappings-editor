@@ -1,5 +1,5 @@
 <template>
-  <AppHotkeyBox id="main" @execute="onExecute($event, true)">
+  <AppHotkeyBox id="main" @execute="onExecute($event)">
     <AppTitleBar id="app-title-bar" @execute="onExecute"/>
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
@@ -73,8 +73,6 @@ enum Handle {
   Left   = 1,
   Right  = 2,
 }
-
-const allowedSplashHotkeyCommands = [OpenFile];
 
 export default defineComponent({
   name: 'App',
@@ -156,14 +154,13 @@ export default defineComponent({
      * @param emitter
      *  The command.
      */
-    async onExecute(cmd: Command | Promise<Command>, fromHotkey = false) {
+    async onExecute(cmd: Command) {
       try {
-        const command = await cmd;
-        if (fromHotkey && this.showSplash &&
-            !allowedSplashHotkeyCommands.some(type => command instanceof type)) {
-          return;
+        if(cmd instanceof Promise) {
+          await this.application.execute(await cmd);
+        } else {
+          await this.application.execute(cmd);
         }
-        await this.application.execute(command);
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`)
         console.error(ex);
