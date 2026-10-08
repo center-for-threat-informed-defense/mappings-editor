@@ -46,7 +46,6 @@
 
 <script lang="ts">
 import * as AppCommands from "./assets/scripts/Application/Commands";
-import { OpenFile } from "./assets/scripts/Application/Commands/FileManagement/OpenFile";
 // Dependencies
 import { PointerTracker } from "./assets/scripts/Utilities";
 import { useApplicationStore } from "./stores/ApplicationStore";
@@ -251,8 +250,9 @@ export default defineComponent({
           },
           mapping_objects: [],
         }));
-        // Preserve metadata verbatim; replace filename separators only in the name.
+        // Preserve metadata verbatim; replace invalid filename characters only in the name.
         const name = `${sourceFramework}_v${sourceVersion}_v${settings.target_version}_${domain}_mappings`
+          // eslint-disable-next-line no-control-regex -- Intentionally remove ASCII control characters from filenames.
           .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_');
         const command = await AppCommands.loadNewFile(this.application, fileSettings, name);
         await this.application.execute(command);

@@ -19,7 +19,7 @@
                     <h2>Recover File</h2>
                     <ScrollBox class="splash-scroll-box">
                         <div class="file-recovery-container">
-                            <div v-for="f in filesToRecover" class="file-recovery-row">
+                            <div v-for="f in filesToRecover" class="file-recovery-row" :key="f[0]">
                                 <button
                                     class="file-recovery-file"
                                     @click="() => recoverFile(f[1].contents, f[1].name, f[0])"
