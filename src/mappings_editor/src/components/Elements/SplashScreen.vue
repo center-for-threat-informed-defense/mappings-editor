@@ -164,7 +164,7 @@ dialog:focus-visible {
 
 
 .splash-container::backdrop {
-    background: transparent;
+    background: rgb(0 0 0 / 30%);
     backdrop-filter: blur(5px);
 }
 .splash-container {
