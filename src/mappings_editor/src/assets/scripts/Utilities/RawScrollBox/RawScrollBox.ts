@@ -345,6 +345,11 @@ export class RawScrollBox {
      *   The scroll position will go to its original spot, after recalculation.
      *  (Default: true)
      */
+    /** Refreshes the scrollbar after a content layout change. */
+    public refresh() {
+        this.recalculateScrollState(false);
+    }
+
     private recalculateScrollState(resetTop: boolean = true) {
         const showScrollbar = this._bar.shown;
         const content = this._content.el;

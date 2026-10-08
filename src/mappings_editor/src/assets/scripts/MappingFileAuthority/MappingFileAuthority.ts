@@ -74,6 +74,7 @@ export class MappingFileAuthority {
         const now = Date.now();
         const mappingFile = new MappingFile({
             fileId             : id,
+            version            : file.version,
             creationDate       : new Date(file.creation_date ?? now),
             modifiedDate       : new Date(file.modified_date ?? now),
             mappingObjectTemplate

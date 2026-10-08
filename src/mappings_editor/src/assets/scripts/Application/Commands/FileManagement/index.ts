@@ -1,6 +1,7 @@
 import Configuration from "@/assets/configuration/app.config";
 import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { LoadFile } from "./LoadFile";
+import { OpenFile } from "./OpenFile";
 import { ImportFile } from './ImportFile';
 import { ExportType } from "..";
 import { AppCommand } from "../AppCommand";
@@ -29,14 +30,16 @@ export { ExportType } from './ExportType';
  *  The application's context.
  * @param settings
  *  The mapping file's settings.
+ * @param name
+ *  The mapping file's name, without the extension.
  * @returns
  *  A command that represents the action.
  */
-export async function loadNewFile(context: ApplicationStore, settings: MappingFileImport): Promise<AppCommand> {
+export async function loadNewFile(context: ApplicationStore, settings: MappingFileImport, name?: string): Promise<AppCommand> {
     // Create file
     const mappingFile = await context.fileAuthority.createEmptyMappingFile(settings);
     // Return command
-    return new LoadFile(context, mappingFile);
+    return new LoadFile(context, mappingFile, name);
 }
 
 /**
@@ -58,10 +61,7 @@ export async function loadExistingFile(context: ApplicationStore, file: string, 
     // Construct file
     const mappingFile = await context.fileAuthority.loadMappingFile(json, id);
     // Return command
-    const grp = new GroupCommand();
-    grp.add(new LoadFile(context, mappingFile, name));
-    grp.add(new AutoMigrateFile(context));
-    return grp;
+    return new OpenFile(context, mappingFile, name);
 }
 
 /**

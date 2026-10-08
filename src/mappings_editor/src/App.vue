@@ -1,5 +1,5 @@
 <template>
-  <AppHotkeyBox id="main" @execute="onExecute">
+  <AppHotkeyBox id="main" @execute="onExecute($event)">
     <AppTitleBar id="app-title-bar" @execute="onExecute"/>
     <div id="app-body" ref="body" :style="gridLayout">
       <div class="frame left">
@@ -28,6 +28,19 @@
         <AppFooterBar id="app-footer-bar"/>
       </div>
     </div>
+    <SplashScreen
+        v-if="showSplash"
+        id="app-splash-screen"
+        @close="showSplash = false;"
+        @open-file="onSplashOpenFile"
+        @create-file="onSplashCreateFile"
+    ></SplashScreen>
+    <FileCreationScreen
+        v-if="application.showFileCreation"
+        @close="application.showFileCreation = false; justOpenedFileCreationFromSplash = false;"
+        @create="onFileCreate"
+        @cancel="onFileCreateCancel"
+    ></FileCreationScreen>
   </AppHotkeyBox>
 </template>
 
@@ -40,6 +53,7 @@ import { defineComponent, markRaw, ref } from "vue";
 import { Browser, OperatingSystem, clamp } from "./assets/scripts/Utilities";
 import type { Command } from "./assets/scripts/Application";
 import type { MappingFileEditor } from "./assets/scripts/MappingFileEditor";
+import type { FileCreationSettings } from "./assets/scripts/MappingFileAuthority";
 // Components
 import AppTitleBar from "./components/Elements/AppTitleBar.vue";
 import AppHotkeyBox from "./components/Elements/AppHotkeyBox.vue";
@@ -49,6 +63,8 @@ import MappingFileViewControl from "./components/Controls/MappingFileViewControl
 import ActiveViewSidebar from "./components/Elements/ActiveViewSidebar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import ProblemPane from "./components/Elements/ProblemPane.vue";
+import SplashScreen from "./components/Elements/SplashScreen.vue";
+import FileCreationScreen from "./components/Elements/FileCreationScreen.vue";
 
 
 enum Handle {
@@ -60,7 +76,12 @@ enum Handle {
 export default defineComponent({
   name: 'App',
   setup() {
-    return { body: ref<HTMLElement | null>(null) };
+    const showSplash = ref(true);
+
+    return {
+        body: ref<HTMLElement | null>(null),
+        showSplash
+    };
   },
   data: () => ({
     Handle,
@@ -78,7 +99,8 @@ export default defineComponent({
     },
     track: markRaw(new PointerTracker()),
     onResizeObserver: null as ResizeObserver | null,
-    application: useApplicationStore()
+    application: useApplicationStore(),
+    justOpenedFileCreationFromSplash: false
   }),
   computed: {
 
@@ -190,9 +212,68 @@ export default defineComponent({
       const min = this.minFrameSize[Handle.Right];
       const max = Math.max(min, this.bodyWidth - minLeft - minCenter);
       this.activeFrameSize[Handle.Right] = clamp(size, min, max);
-    }
+    },
+    async onSplashOpenFile() {
+      try {
+        const command = await AppCommands.loadFileFromFileSystem(this.application);
+        await this.application.execute(command);
+        this.showSplash = false;
+      } catch(ex: any) {
+        alert(`Error: ${ ex.message }`);
+        console.error(ex);
+      }
+    },
 
+    onSplashCreateFile() {
+        this.showSplash = false;
+        this.justOpenedFileCreationFromSplash = true;
+        this.onExecute(AppCommands.showFileCreationScreen(this.application));
+    },
+
+    async onFileCreate(settings: FileCreationSettings) {
+      try {
+        const domain = settings.target_framework.replace(/^mitre_attack_/, '');
+        const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
+        const sourceVersion = settings.source_version.trim();
+        const fileSettings = this.application.fileSerializer.deserialize(JSON.stringify({
+          metadata: {
+            mapping_version: '1.0.0',
+            attack_version: settings.target_version,
+            technology_domain: domain,
+            mapping_framework: sourceFramework,
+            mapping_framework_version: sourceVersion,
+            author: settings.author,
+            contact: settings.author_contact,
+            organization: settings.author_organization,
+            mapping_types: settings.mapping_types,
+            capability_groups: settings.capability_groups,
+          },
+          mapping_objects: [],
+        }));
+        // Preserve metadata verbatim; replace invalid filename characters only in the name.
+        const name = `${sourceFramework}_v${sourceVersion}_v${settings.target_version}_${domain}_mappings`
+          // eslint-disable-next-line no-control-regex -- Intentionally remove ASCII control characters from filenames.
+          .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_');
+        const command = await AppCommands.loadNewFile(this.application, fileSettings, name);
+        await this.application.execute(command);
+        this.application.showFileCreation = false;
+        this.showSplash = false;
+      } catch(ex: any) {
+        alert(`Error: ${ ex.message }`);
+        console.error(ex);
+      }
+    },
+
+    onFileCreateCancel() {
+        this.application.showFileCreation = false;
+
+        // Return to splash if user just came from there.
+        if (this.justOpenedFileCreationFromSplash) {
+            this.showSplash = true;
+        }
+    }
   },
+
   async created() {
     // Import settings
     let settings;
@@ -253,7 +334,8 @@ export default defineComponent({
     AppFooterBar,
     MappingFileSearch, MappingFileViewControl,
     ActiveViewSidebar,
-    ViewFilterSidebar, ProblemPane
+    ViewFilterSidebar, ProblemPane,
+    SplashScreen, FileCreationScreen
   }
 });
 
@@ -261,6 +343,22 @@ export default defineComponent({
 
 
 <style>
+
+:root {
+    --me-bg-color-main: #242424;
+    --me-bg-color-recessed: #1c1c1c;
+    --me-bg-color-groupings: #262626;
+    --me-bg-color-emphasis: #637bc9;
+
+    --me-border-color-subtle: #333333;
+    --me-border-color-strong: #3b3b3b;
+
+    --me-text-color: #bfbfbf;
+    --me-text-color-emphasis: #89a0ec;
+    --me-text-color-valid: #2bd463;
+    --me-text-color-warning: #e6d846;
+    --me-text-color-error: #ff4d4d;
+}
 
 /** === Global === */
 
@@ -310,9 +408,13 @@ ul {
   flex-shrink: 0;
   height: 31px;
   color: #bfbfbf;
-  background: #262626;
-  border-bottom: solid 1px #333333;
+  background: var(--me-bg-color-groupings);
+  border-bottom: solid 1px var(--me-border-color-subtle);
   z-index: 1;
+}
+
+#app-splash-screen {
+    z-index: 2;
 }
 
 #app-body {
@@ -327,8 +429,8 @@ ul {
 #view-sidebar {
   width: 100%;
   height: 100%;
-  background: #1c1c1c;
-  border-right: solid 1px #333333;
+  background: var(--me-bg-color-recessed);
+  border-right: solid 1px var(--me-border-color-subtle);
   box-sizing: border-box;
 }
 
@@ -352,7 +454,7 @@ ul {
   width: 100%;
   height: 100%;
   color: #bfbfbf;
-  border-top: solid 1px #333333;
+  border-top: solid 1px var(--me-border-color-subtle);
   box-sizing: border-box;
 }
 
@@ -391,7 +493,7 @@ ul {
 .resize-handle {
   position: absolute;
   display: block;
-  background: #637bc9;
+  background: var(--me-bg-color-emphasis);
   transition: 0.15s opacity;
   opacity: 0;
   z-index: 1;
@@ -431,5 +533,11 @@ ul {
 }
 .vue-diff-viewer .vue-diff-row {
   flex-wrap: wrap;
+}
+
+/* Dialogs may be given focus so that inputs are not automatically focused with an
+unsightly outline. For this case, disable the dialog outline. */
+dialog:focus-visible {
+    outline: none;
 }
 </style>
