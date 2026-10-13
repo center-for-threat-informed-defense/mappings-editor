@@ -15,6 +15,7 @@ import { AutoMigrateFile } from "./AutoMigrateFile";
 import { UpgradeFileVersion } from "./UpgradeFileVersion";
 import { RebuildViewBreakouts } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/RebuildViewBreakouts";
 import { SetFilterState } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/SetFilterState";
+import { SaveMappingFileToDeviceAs } from "./SaveMappingFileToDeviceAs";
 export { ExportType } from './ExportType';
 
 
@@ -157,8 +158,12 @@ export async function importFileFromUrl(context: ApplicationStore, url: string):
  * @returns
  *  A command that represents the action.
  */
-export function saveActiveFileToDevice(context: ApplicationStore, saveAs: boolean = false): AppCommand {
-    return new SaveMappingFileToDevice(context, context.activeEditor as MappingFileEditor, saveAs);
+export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
+    return new SaveMappingFileToDevice(context, context.activeEditor as MappingFileEditor);
+}
+
+export function saveActiveFileToDeviceAs(context: ApplicationStore): AppCommand {
+    return new SaveMappingFileToDeviceAs(context, context.activeEditor as MappingFileEditor);
 }
 
 /**

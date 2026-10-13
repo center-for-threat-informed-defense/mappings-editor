@@ -162,12 +162,14 @@ export class Browser {
      *  The file's contents.
      * @param types
      *  The acceptable file types. (ex. 'txt', 'json', etc.)
+     * @returns
+     * The name of the saved file, or null if something went wrong.
      */
     public static async openFileSaveDialog(
         filename: string,
         contents: Blob | string,
         types: string[]
-    ): Promise<void> {
+    ): Promise<string | null> {
         if (typeof window.showSaveFilePicker === 'function') {
 
             // Options for showSaveFilePicker
@@ -191,14 +193,29 @@ export class Browser {
                 });
             }
 
-            const fileHandle : FileSystemFileHandle = await window.showSaveFilePicker(opts);
-            // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle#writing_a_file
-            const writable = await fileHandle.createWritable();
-            await writable.write(contents);
-            await writable.close();
+            try {
+                const fileHandle : FileSystemFileHandle = await window.showSaveFilePicker(opts);
+                // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle#writing_a_file
+                const writable = await fileHandle.createWritable();
+                await writable.write(contents);
+                await writable.close();
+                return fileHandle.name;
+            } catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'AbortError') {
+                        console.debug('File save was canceled by user.');
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    console.error(error);
+                }
+            }
         } else {
             console.log('Implement save as screen.');
         }
+
+        return null;
     }
 }
 

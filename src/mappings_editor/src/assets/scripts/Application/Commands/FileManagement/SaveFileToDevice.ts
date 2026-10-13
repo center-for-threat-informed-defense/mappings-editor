@@ -18,8 +18,6 @@ export class SaveFileToDevice extends AppCommand {
      */
     public readonly contents: Blob | string;
 
-    public readonly saveAs : boolean;
-
 
     /**
      * Saves a file to the user's file system.
@@ -29,20 +27,12 @@ export class SaveFileToDevice extends AppCommand {
      *  The file's extension.
      * @param contents
      *  The file's contents.
-     * @param saveAs
-     * Whether to open a dialog to choose a new name to save the file as.
      */
-    constructor(
-        name: string,
-        extension: string,
-        contents: Blob | string,
-        saveAs: boolean = false
-    ) {
+    constructor(name: string, extension: string, contents: Blob | string) {
         super();
         this.name = name;
         this.extension = extension;
         this.contents = contents;
-        this.saveAs = saveAs;
     }
 
 
@@ -50,19 +40,11 @@ export class SaveFileToDevice extends AppCommand {
      * Executes the command.
      */
     public async execute(): Promise<void> {
-        if (this.saveAs) {
-            Browser.openFileSaveDialog(
-                this.name,
-                this.contents,
-                [this.extension]
-            );
-        } else {
-            Browser.downloadFile(
-                this.name,
-                this.contents,
-                this.extension
-            );
-        }
+        Browser.downloadFile(
+            this.name,
+            this.contents,
+            this.extension
+        );
     }
 
 }

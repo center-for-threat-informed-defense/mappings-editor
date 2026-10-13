@@ -274,7 +274,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     {
                         text: "Save As...",
                         type: MenuType.Item,
-                        data: () => AppCommands.saveActiveFileToDevice(app, true),
+                        data: () => AppCommands.saveActiveFileToDeviceAs(app),
                         disabled: editor.id === MappingFileEditor.Phantom.id
                     }
                 ]
