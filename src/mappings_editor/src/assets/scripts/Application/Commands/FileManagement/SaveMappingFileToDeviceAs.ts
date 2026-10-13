@@ -2,6 +2,7 @@ import { Browser } from "@/assets/scripts/Utilities/Browser";
 import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
+import { RemoveFileFromRecoveryBank } from "./RemoveFileFromRecoveryBank";
 
 export class SaveMappingFileToDeviceAs extends AppCommand {
 
@@ -16,6 +17,8 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
     public readonly contents: Blob | string;
 
     private context: ApplicationStore;
+
+    private editor: MappingFileEditor;
 
 
     /**
@@ -35,6 +38,7 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
     ) {
         super();
         this.context = context;
+        this.editor = editor;
         this.suggestedName = editor.name;
         const file = context.fileAuthority.exportMappingFile(editor.file);
         const json = context.fileSerializer.serialize(file);
@@ -52,8 +56,10 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
             ['json']
         );
 
+        // If save was successful...
         if (savedFileName !== null) {
             this.context.activeEditor.name = savedFileName;
+            await new RemoveFileFromRecoveryBank(this.context, this.editor).execute();
         }
     }
 
