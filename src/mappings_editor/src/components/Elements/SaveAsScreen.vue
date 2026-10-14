@@ -26,6 +26,7 @@
                         v-model="fileName"
                         type="text"
                         required
+                        spellcheck="false"
                         style="flex: 1;"
                     />
                     <small>.{{ config.file_type_extension }}</small>
