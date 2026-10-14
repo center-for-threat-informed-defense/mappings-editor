@@ -21,6 +21,7 @@
                 <div style="display: flex; align-items: baseline; gap: 3px;">
                     <input
                         id="filename-input"
+                        ref="filename-input"
                         v-model="fileName"
                         type="text"
                         required
@@ -31,7 +32,7 @@
 
             </div>
 
-            <div>
+            <div style="display: flex; gap: 10px;">
                 <button type="button" @click="onClickCancel">Cancel</button>
                 <button type="submit">Save</button>
             </div>
@@ -46,6 +47,7 @@ import config from '@/assets/configuration/app.config';
 const app = useApplicationStore();
 
 const dialog = useTemplateRef('dialog');
+const filenameInput = useTemplateRef('filename-input');
 
 const fileName = ref(app.activeEditor.name);
 
@@ -59,7 +61,8 @@ function onFormSubmit() {
 
 onMounted(() => {
     dialog.value?.showModal();
-    dialog.value?.focus();
+    filenameInput.value?.focus();
+    filenameInput.value?.select();
 });
 
 onBeforeUnmount(() => {
@@ -106,11 +109,34 @@ h1 {
 }
 
 input[type="text"] {
-    background-color: #303030;
+    background-color: #1c1c1c;
     border: none;
     color: #bfbfbf;
     padding: 0px 10px;
     border-radius: 3px;
+    border: 1px solid #3b3b3b;
     height: 30px;
 }
+
+button {
+    border: 1px solid #3b3b3b;
+    background-color: #1c1c1c;
+    color: #bfbfbf;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: small;
+}
+button[type="submit"] {
+    background-color: #637bc9;
+    color: white;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: #414141;
+}
+button[type="submit"]:hover {
+    background-color: #96a9e8;
+}
+
 </style>

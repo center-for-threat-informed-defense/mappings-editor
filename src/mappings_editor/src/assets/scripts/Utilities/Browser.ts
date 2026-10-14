@@ -1,4 +1,3 @@
-import type { ApplicationStore } from "@/stores/ApplicationStore";
 
 export class Browser {
 
