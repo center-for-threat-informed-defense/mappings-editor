@@ -3,6 +3,7 @@ import { AppCommand } from "../AppCommand";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import type { MappingFileEditor } from "@/assets/scripts/MappingFileEditor";
 import { RemoveFileFromRecoveryBank } from "./RemoveFileFromRecoveryBank";
+import config from "@/assets/configuration/app.config";
 
 export class SaveMappingFileToDeviceAs extends AppCommand {
 
@@ -55,12 +56,12 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
             savedFileName = await Browser.openFileSaveDialog(
                 this.suggestedName,
                 this.contents,
-                ['json']
+                [config.file_type_extension]
             );
         } catch (error) {
             savedFileName = await this.context.askSaveAsName();
             if (savedFileName) {
-                Browser.downloadFile(savedFileName, this.contents, 'json');
+                Browser.downloadFile(savedFileName, this.contents, config.file_type_extension);
             }
         }
 
