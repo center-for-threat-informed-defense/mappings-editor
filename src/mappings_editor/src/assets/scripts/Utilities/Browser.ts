@@ -251,6 +251,14 @@ interface ShowSaveFilePickerOptions {
     suggestedName?: string
 }
 
+declare global {
+    interface Window {
+        showSaveFilePicker?: (
+            options?: ShowSaveFilePickerOptions
+        ) => Promise<FileSystemFileHandle>;
+    }
+}
+
 function startExtensionWithDot(ext: string) {
     if (ext && ext[0] !== ".") {
         return "." + ext;

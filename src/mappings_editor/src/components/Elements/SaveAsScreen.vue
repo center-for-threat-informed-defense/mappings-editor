@@ -48,8 +48,8 @@ import config from '@/assets/configuration/app.config';
 
 const app = useApplicationStore();
 
-const dialog = useTemplateRef('dialog');
-const filenameInput = useTemplateRef('filename-input');
+const dialog = useTemplateRef<HTMLDialogElement>('dialog');
+const filenameInput = useTemplateRef<HTMLInputElement>('filename-input');
 
 const fileName = ref(app.activeEditor.name);
 
