@@ -127,8 +127,8 @@ export const useApplicationStore = defineStore('applicationStore', {
             this.activeSidebar = newActiveOption;
         },
         /**
-         * Cause the SaveAs dialog to open, which prompts the user to enter a file name.
-         * @returns A promise which will resolve to a file name.
+         * Cause the Save As dialog to open, which prompts the user to enter a file name.
+         * @returns A promise which will resolve to a file name or null.
          */
         askSaveAsName(): Promise<string | null> {
             if (saveAsResolver) {
@@ -143,7 +143,7 @@ export const useApplicationStore = defineStore('applicationStore', {
         },
         /**
          * Answer the current ask for the Save As file name.
-         * @param filename the file name
+         * @param filename the file name or null
          */
         answerSaveAsName(filename: string | null) {
             this.showSaveAs = false;

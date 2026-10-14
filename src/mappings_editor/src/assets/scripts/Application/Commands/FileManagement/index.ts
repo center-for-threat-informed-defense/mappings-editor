@@ -153,8 +153,6 @@ export async function importFileFromUrl(context: ApplicationStore, url: string):
  * Saves a mapping file to the user's file system.
  * @param context
  *  The application's context.
- * @param saveAs
- * Whether to open a dialog to choose a new name to save the file as.
  * @returns
  *  A command that represents the action.
  */
@@ -162,6 +160,14 @@ export function saveActiveFileToDevice(context: ApplicationStore): AppCommand {
     return new SaveMappingFileToDevice(context, context.activeEditor as MappingFileEditor);
 }
 
+/**
+ * Saves a mapping file to the user's file system, giving the user the opportunity to
+ * rename it before saving.
+ * @param context
+ *  The application's context.
+ * @returns
+ *  A command that represents the action.
+ */
 export function saveActiveFileToDeviceAs(context: ApplicationStore): AppCommand {
     return new SaveMappingFileToDeviceAs(context, context.activeEditor as MappingFileEditor);
 }

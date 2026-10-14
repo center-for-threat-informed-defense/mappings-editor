@@ -7,31 +7,18 @@ import config from "@/assets/configuration/app.config";
 
 export class SaveMappingFileToDeviceAs extends AppCommand {
 
-    /**
-     * The suggested name to save the file as.
-     */
-    public readonly suggestedName: string;
-
-    /**
-     * The file's contents.
-     */
-    public readonly contents: Blob | string;
-
     private context: ApplicationStore;
 
     private editor: MappingFileEditor;
 
 
     /**
-     * Saves a file to the user's file system.
-     * @param name
-     *  The file's name.
-     * @param extension
-     *  The file's extension.
-     * @param contents
-     *  The file's contents.
-     * @param saveAs
-     * Whether to open a dialog to choose a new name to save the file as.
+     * Saves a file to the user's file system, giving them the opportunity to rename it
+     * before saving.
+     * @param context
+     *  The application store context.
+     * @param editor
+     *  The mapping file editor.
      */
     constructor(
         context: ApplicationStore,
@@ -40,10 +27,6 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
         super();
         this.context = context;
         this.editor = editor;
-        this.suggestedName = editor.name;
-        const file = context.fileAuthority.exportMappingFile(editor.file);
-        const json = context.fileSerializer.serialize(file);
-        this.contents = json;
     }
 
 
@@ -52,16 +35,20 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
      */
     public async execute(): Promise<void> {
         let savedFileName = null;
+
+        const file = this.context.fileAuthority.exportMappingFile(this.editor.file);
+        const json = this.context.fileSerializer.serialize(file);
+
         try {
             savedFileName = await Browser.openFileSaveDialog(
-                this.suggestedName,
-                this.contents,
+                this.editor.name,
+                json,
                 [config.file_type_extension]
             );
         } catch (error) {
             savedFileName = await this.context.askSaveAsName();
             if (savedFileName) {
-                Browser.downloadFile(savedFileName, this.contents, config.file_type_extension);
+                Browser.downloadFile(savedFileName, json, config.file_type_extension);
             }
         }
 
