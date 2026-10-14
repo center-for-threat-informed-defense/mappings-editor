@@ -50,11 +50,20 @@ export class SaveMappingFileToDeviceAs extends AppCommand {
      * Executes the command.
      */
     public async execute(): Promise<void> {
-        const savedFileName = await Browser.openFileSaveDialog(
-            this.suggestedName,
-            this.contents,
-            ['json']
-        );
+        let savedFileName = null;
+        try {
+            savedFileName = await Browser.openFileSaveDialog(
+                this.suggestedName,
+                this.contents,
+                ['json']
+            );
+        } catch (error) {
+            savedFileName = await this.context.askSaveAsName();
+            if (savedFileName) {
+                Browser.downloadFile(savedFileName, this.contents, 'json');
+            }
+        }
+
 
         // If save was successful...
         if (savedFileName !== null) {

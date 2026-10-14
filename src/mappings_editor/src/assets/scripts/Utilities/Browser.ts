@@ -1,3 +1,5 @@
+import type { ApplicationStore } from "@/stores/ApplicationStore";
+
 export class Browser {
 
 
@@ -155,7 +157,7 @@ export class Browser {
 
     /**
      * Opens a file save dialog where file name can be chosen. Native file system dialog
-     * is not supported in all browsers, so a custom modal will open in that case.
+     * is not supported in all browsers. An error is thrown if not supported.
      * @param filename
      *  The file's name.
      * @param text
@@ -168,7 +170,7 @@ export class Browser {
     public static async openFileSaveDialog(
         filename: string,
         contents: Blob | string,
-        types: string[]
+        types: string[],
     ): Promise<string | null> {
         if (typeof window.showSaveFilePicker === 'function') {
 
@@ -212,7 +214,7 @@ export class Browser {
                 }
             }
         } else {
-            console.log('Implement save as screen.');
+            throw new TypeError('Your browser does not support showSaveFilePicker.')
         }
 
         return null;
