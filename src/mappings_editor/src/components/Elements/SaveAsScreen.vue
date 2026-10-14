@@ -3,6 +3,7 @@
         ref="dialog"
         @keydown.stop
         @keyup.stop
+        @cancel="onClickCancel"
     >
         <header>
             <h1>Save As</h1>
