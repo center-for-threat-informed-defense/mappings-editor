@@ -70,6 +70,12 @@ export const useHotkeyStore = defineStore('hotkeyStore', {
                     shortcut: file.save_file,
                     repeatable: false,
                     disabled: editor.id === MappingFileEditor.Phantom.id
+                },
+                {
+                    data: () => AppCommands.saveActiveFileToDeviceAs(app),
+                    shortcut: file.save_file_as,
+                    repeatable: false,
+                    disabled: editor.id === MappingFileEditor.Phantom.id
                 }
             ];
         },

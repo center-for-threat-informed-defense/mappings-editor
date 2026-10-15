@@ -14,7 +14,8 @@ export const BaseAppSettings: AppSettings = {
             open_file: "",
             import_file: "",
             register_framework: "",
-            save_file: ""
+            save_file: "",
+            save_file_as: ""
         },
         edit: {
             undo: "",
@@ -61,7 +62,8 @@ export type FileHotkeys = {
     open_file: string,
     import_file: string,
     register_framework: string,
-    save_file: string
+    save_file: string,
+    save_file_as: string
 }
 
 /**

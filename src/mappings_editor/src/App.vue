@@ -28,6 +28,7 @@
         <AppFooterBar id="app-footer-bar"/>
       </div>
     </div>
+    <SaveAsScreen v-if="application.showSaveAs"/>
   </AppHotkeyBox>
 </template>
 
@@ -49,6 +50,7 @@ import MappingFileViewControl from "./components/Controls/MappingFileViewControl
 import ActiveViewSidebar from "./components/Elements/ActiveViewSidebar.vue";
 import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import ProblemPane from "./components/Elements/ProblemPane.vue";
+import SaveAsScreen from "./components/Elements/SaveAsScreen.vue";
 
 
 enum Handle {
@@ -253,7 +255,8 @@ export default defineComponent({
     AppFooterBar,
     MappingFileSearch, MappingFileViewControl,
     ActiveViewSidebar,
-    ViewFilterSidebar, ProblemPane
+    ViewFilterSidebar, ProblemPane,
+    SaveAsScreen
   }
 });
 

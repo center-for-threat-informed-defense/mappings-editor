@@ -51,6 +51,7 @@ const sidebarViewOptions: SidebarView[] = [
     }
 ];
 
+let saveAsResolver : Function | null = null;
 
 // Define Application Store
 export const useApplicationStore = defineStore('applicationStore', {
@@ -65,6 +66,7 @@ export const useApplicationStore = defineStore('applicationStore', {
         settings: BaseAppSettings,
         sidebarViewOptions: sidebarViewOptions,
         activeSidebar: sidebarViewOptions[0],
+        showSaveAs: false
     }),
     getters: {
 
@@ -123,9 +125,35 @@ export const useApplicationStore = defineStore('applicationStore', {
          */
         setActiveSidebar(newActiveOption: SidebarView) {
             this.activeSidebar = newActiveOption;
+        },
+        /**
+         * Cause the Save As dialog to open, which prompts the user to enter a file name.
+         * @returns A promise which will resolve to a file name or null.
+         */
+        askSaveAsName(): Promise<string | null> {
+            if (saveAsResolver) {
+                throw new Error('Save As is already in progress.')
+            }
+
+            this.showSaveAs = true;
+
+            return new Promise((resolve) => {
+                saveAsResolver = resolve;
+            });
+        },
+        /**
+         * Answer the current ask for the Save As file name.
+         * @param filename the file name or null
+         */
+        answerSaveAsName(filename: string | null) {
+            this.showSaveAs = false;
+            if (!saveAsResolver) {
+                throw new Error('Save As is not in progress.')
+            }
+
+            saveAsResolver(filename);
+            saveAsResolver = null;
         }
-
-
     }
 });
 

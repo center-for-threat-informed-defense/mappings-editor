@@ -1,5 +1,6 @@
+
 export class Browser {
-    
+
 
     ///////////////////////////////////////////////////////////////////////////
     //  1. Download Files  ////////////////////////////////////////////////////
@@ -36,8 +37,8 @@ export class Browser {
     ///////////////////////////////////////////////////////////////////////////
     //  2. File Selection Dialogs  ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
-    
-    
+
+
     /**
      * Prompts the user to select a text file from their file system.
      * @param accept
@@ -51,7 +52,7 @@ export class Browser {
     public static openTextFileDialog(types?: string[], multipleFiles?: true): Promise<TextFile[]>;
     public static openTextFileDialog(types?: string[], multipleFiles?: false): Promise<TextFile>;
     public static openTextFileDialog(types?: string[], multipleFiles: boolean = false): Promise<TextFile | TextFile[]> {
-            
+
         // Create file input
         const fileInput = document.createElement("input");
         fileInput.type = "file";
@@ -61,7 +62,7 @@ export class Browser {
         }
         // Configure allowable number of files
         fileInput.multiple = multipleFiles;
-        
+
         // Configure file input
         const result = new Promise<TextFile | TextFile[]>((resolve, reject) => {
             fileInput.addEventListener("change", (event) => {
@@ -89,10 +90,10 @@ export class Browser {
                 });
             });
         });
-        
+
         // Click file input
         fileInput.click();
-        
+
         // Return result
         return result;
 
@@ -147,8 +148,76 @@ export class Browser {
             return OperatingSystem.Other;
         }
     }
-    
-    
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  5. File Save Dialog  //////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Opens a file save dialog where file name can be chosen. Native file system dialog
+     * is not supported in all browsers. An error is thrown if not supported.
+     * @param filename
+     *  The file's name.
+     * @param text
+     *  The file's contents.
+     * @param types
+     *  The acceptable file types. (ex. 'txt', 'json', etc.)
+     * @returns
+     * The name of the saved file, or null if something went wrong.
+     */
+    public static async openFileSaveDialog(
+        filename: string,
+        contents: Blob | string,
+        types: string[],
+    ): Promise<string | null> {
+        if (typeof window.showSaveFilePicker === 'function') {
+
+            // Options for showSaveFilePicker
+            const opts: ShowSaveFilePickerOptions = {
+                // https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker#types
+                types: [],
+                suggestedName: filename
+            };
+
+            for (const s of types) {
+                let mimeType = 'text/plain';
+                if (s === 'json') {
+                    mimeType = 'application/json';
+                }
+
+                opts.types?.push({
+                    description: '',
+                    accept: {
+                        [mimeType]: [startExtensionWithDot(s)]
+                    }
+                });
+            }
+
+            try {
+                const fileHandle : FileSystemFileHandle = await window.showSaveFilePicker(opts);
+                // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle#writing_a_file
+                const writable = await fileHandle.createWritable();
+                await writable.write(contents);
+                await writable.close();
+                return fileHandle.name;
+            } catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'AbortError') {
+                        console.debug('File save was canceled by user.');
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    console.error(error);
+                }
+            }
+        } else {
+            throw new TypeError('Your browser does not support showSaveFilePicker.')
+        }
+
+        return null;
+    }
 }
 
 /**
@@ -172,4 +241,27 @@ type TextFile = {
     filename: string,
     extension: string,
     contents: string | ArrayBuffer | null | undefined
+}
+
+interface ShowSaveFilePickerOptions {
+    types?: {
+        description: string,
+        accept: { [key: string]: string[] }
+    }[],
+    suggestedName?: string
+}
+
+declare global {
+    interface Window {
+        showSaveFilePicker?: (
+            options?: ShowSaveFilePickerOptions
+        ) => Promise<FileSystemFileHandle>;
+    }
+}
+
+function startExtensionWithDot(ext: string) {
+    if (ext && ext[0] !== ".") {
+        return "." + ext;
+    }
+    return ext;
 }

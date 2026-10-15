@@ -11,7 +11,8 @@
             "open_file": "Control+O",
             "import_file": "Control+I",
             "register_framework": "",
-            "save_file": "Control+S"
+            "save_file": "Control+S",
+            "save_file_as": "Control+Shift+S"
         },
         "edit": {
             "undo": "Control+Z",
