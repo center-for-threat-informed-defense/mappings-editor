@@ -29,17 +29,16 @@
       </div>
     </div>
     <SplashScreen
-        v-if="showSplash"
+        v-if="application.modalStack.top === ModalStackId.Splash"
         id="app-splash-screen"
-        @close="showSplash = false;"
+        @close="onSplashClose"
         @open-file="onSplashOpenFile"
         @create-file="onSplashCreateFile"
     ></SplashScreen>
     <FileCreationScreen
-        v-if="application.showFileCreation"
-        @close="application.showFileCreation = false; justOpenedFileCreationFromSplash = false;"
+        v-if="application.modalStack.top === ModalStackId.FileCreation"
         @create="onFileCreate"
-        @cancel="onFileCreateCancel"
+        @close="onFileCreateClose"
     ></FileCreationScreen>
   </AppHotkeyBox>
 </template>
@@ -65,6 +64,7 @@ import ViewFilterSidebar from "./components/Elements/ViewFilterSidebar.vue";
 import ProblemPane from "./components/Elements/ProblemPane.vue";
 import SplashScreen from "./components/Elements/SplashScreen.vue";
 import FileCreationScreen from "./components/Elements/FileCreationScreen.vue";
+import { ModalStackId } from "./stores/ApplicationStore";
 
 
 enum Handle {
@@ -76,11 +76,9 @@ enum Handle {
 export default defineComponent({
   name: 'App',
   setup() {
-    const showSplash = ref(true);
-
     return {
         body: ref<HTMLElement | null>(null),
-        showSplash
+        ModalStackId
     };
   },
   data: () => ({
@@ -100,7 +98,6 @@ export default defineComponent({
     track: markRaw(new PointerTracker()),
     onResizeObserver: null as ResizeObserver | null,
     application: useApplicationStore(),
-    justOpenedFileCreationFromSplash: false
   }),
   computed: {
 
@@ -217,7 +214,7 @@ export default defineComponent({
       try {
         const command = await AppCommands.loadFileFromFileSystem(this.application);
         await this.application.execute(command);
-        this.showSplash = false;
+        this.application.modalStack.remove(ModalStackId.Splash);
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`);
         console.error(ex);
@@ -225,11 +222,17 @@ export default defineComponent({
     },
 
     onSplashCreateFile() {
-        this.showSplash = false;
-        this.justOpenedFileCreationFromSplash = true;
-        this.onExecute(AppCommands.showFileCreationScreen(this.application));
+        this.application.modalStack.add(ModalStackId.FileCreation);
     },
 
+    onSplashClose() {
+        this.application.modalStack.remove(ModalStackId.Splash);
+    },
+
+    /**
+     * Handler for the file creation dialog submission.
+     * @param settings a map of metadata values from the file creation form
+     */
     async onFileCreate(settings: FileCreationSettings) {
       try {
         const domain = settings.target_framework.replace(/^mitre_attack_/, '');
@@ -256,22 +259,18 @@ export default defineComponent({
           .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_');
         const command = await AppCommands.loadNewFile(this.application, fileSettings, name);
         await this.application.execute(command);
-        this.application.showFileCreation = false;
-        this.showSplash = false;
+        // On successful creation, hide both modals.
+        this.application.modalStack.remove(ModalStackId.FileCreation);
+        this.application.modalStack.remove(ModalStackId.Splash);
       } catch(ex: any) {
         alert(`Error: ${ ex.message }`);
         console.error(ex);
       }
     },
 
-    onFileCreateCancel() {
-        this.application.showFileCreation = false;
-
-        // Return to splash if user just came from there.
-        if (this.justOpenedFileCreationFromSplash) {
-            this.showSplash = true;
-        }
-    }
+    onFileCreateClose() {
+        this.application.modalStack.remove(ModalStackId.FileCreation);
+    },
   },
 
   async created() {

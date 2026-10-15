@@ -1,5 +1,6 @@
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 import { AppCommand } from "../AppCommand";
+import { ModalStackId } from "@/stores/ApplicationStore";
 
 /** Opens the form for creating a mapping file. */
 export class ShowFileCreationScreen extends AppCommand {
@@ -8,6 +9,6 @@ export class ShowFileCreationScreen extends AppCommand {
     }
 
     public async execute(): Promise<void> {
-        this.context.showFileCreation = true;
+        this.context.modalStack.add(ModalStackId.FileCreation);
     }
 }

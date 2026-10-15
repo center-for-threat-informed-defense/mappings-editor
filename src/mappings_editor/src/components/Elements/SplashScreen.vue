@@ -5,6 +5,7 @@
         aria-labelledby="splash-title"
         @keydown.stop
         @keyup.stop
+        @close="emit('close')"
     >
             <div class="splash-header">
                 <div>
