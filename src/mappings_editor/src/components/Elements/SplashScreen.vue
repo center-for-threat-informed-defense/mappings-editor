@@ -81,24 +81,6 @@
                         <span class="splash-button-description">Latest features and fixes</span>
                     </a>
                 </div>
-
-                <div style="text-align: right;">
-                    <button
-                        style="
-                            margin-top: 30px;
-                            background: none;
-                            border: none;
-                            color: var(--me-text-color-emphasis);
-                            cursor: pointer;
-                        "
-                        @click="emit('close')"
-                    >
-                        <span style="display: flex; align-items: center; gap: 5px;">
-                            Continue to editor
-                            <ArrowRight></ArrowRight>
-                        </span>
-                    </button>
-                </div>
             </div>
     </dialog>
 </template>
@@ -106,7 +88,6 @@
 import { onBeforeUnmount, onMounted, ref, computed } from 'vue';
 import { useApplicationStore } from '@/stores/ApplicationStore.js';
 import ScrollBox from '../Containers/ScrollBox.vue';
-import ArrowRight from '../Icons/ArrowRight.vue';
 import FileIcon from '../Icons/FileIcon.vue';
 import FileLines from '../Icons/FileLines.vue';
 import FolderOpen from '../Icons/FolderOpen.vue';
@@ -114,7 +95,16 @@ import ReadmeIcon from '../Icons/ReadmeIcon.vue';
 import ListIcon from '../Icons/ListIcon.vue';
 import XMark from '../Icons/XMark.vue';
 import { loadExistingFile } from '@/assets/scripts/Application/index.js';
-const emit = defineEmits(['close', 'open-file', 'create-file']);
+
+const emit = defineEmits<{
+    /** Fired when the dialog closes, such as when the user presses escape. */
+    (e: 'close'): void,
+    /** Fired when the Open File button is pressed. */
+    (e: 'open-file'): void,
+    /** Firesd when the Create New File button is pressed. */
+    (e: 'create-file'): void
+}>();
+
 const dialog = ref<HTMLDialogElement | null>(null);
 
 onMounted(() => {
