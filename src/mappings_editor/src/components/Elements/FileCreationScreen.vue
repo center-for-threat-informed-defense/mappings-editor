@@ -9,23 +9,29 @@
     >
         <header>
             <h1 id="file-creation-title">Create New File</h1>
-            <p>Choose your ATT&CK framework and describe what you’re mapping.</p>
+            <p>Choose your ATT&CK framework and describe what you're mapping.</p>
         </header>
         <ScrollBox ref="creationScrollBox" class="creation-scroll-box" :propagateScroll="false">
             <form @submit.prevent="submit">
                 <div class="fields">
-                    <label>
-                        <span>ATT&CK Version</span>
-                        <select v-model="settings.target_version" required autofocus>
-                            <option v-for="version in attackVersions" :key="version" :value="version">{{ version }}</option>
-                        </select>
-                    </label>
                     <label>
                         <span>Domain</span>
                         <select v-model="settings.target_framework" required>
                             <option value="mitre_attack_enterprise">Enterprise</option>
                             <option value="mitre_attack_mobile">Mobile</option>
                             <option value="mitre_attack_ics">ICS</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>ATT&CK Version</span>
+                        <select v-model="settings.target_version" required>
+                            <option
+                                v-for="version in attackVersionsByDomain.get(settings.target_framework)"
+                                :key="version"
+                                :value="version"
+                            >
+                                {{ version }}
+                            </option>
                         </select>
                     </label>
                     <label>
@@ -120,11 +126,29 @@ const mappingTypesDetails = ref<HTMLDetailsElement | null>(null);
 const capabilityGroupsDetails = ref<HTMLDetailsElement | null>(null);
 const creationScrollBox = ref<InstanceType<typeof ScrollBox> | null>(null);
 const error = ref('');
-const attackVersions = [...new Set(manifest.files.map(file => file.frameworkVersion))]
-    // Sort latest to earliest
-    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+
+function getAttackVersionsByDomain() : Map<string, string[]>{
+    const result = new Map<string, string[]>();
+    
+    for (const f of manifest.files) {
+        if (!result.has(f.frameworkId)) {
+            result.set(f.frameworkId, []);
+        }
+
+        result.get(f.frameworkId)?.push(f.frameworkVersion);
+    }
+
+    for (const val of result.values()) {
+        val.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    }
+
+    return result;
+}
+
+const attackVersionsByDomain = getAttackVersionsByDomain();
+
 const settings = reactive({
-    target_version: attackVersions[0], // default to latest
+    target_version: '',
     target_framework: 'mitre_attack_enterprise',
     source_framework: '',
     source_version: '',
