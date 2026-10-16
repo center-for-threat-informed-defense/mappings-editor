@@ -11,7 +11,8 @@
             "open_file": "Meta+O",
             "import_file": "Meta+I",
             "register_framework": "",
-            "save_file": "Meta+S"
+            "save_file": "Meta+S",
+            "save_file_as": "Meta+Shift+S"
         },
         "edit": {
             "undo": "Meta+Z",

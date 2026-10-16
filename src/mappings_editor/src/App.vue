@@ -40,6 +40,7 @@
         @create="onFileCreate"
         @close="onFileCreateClose"
     ></FileCreationScreen>
+    <SaveAsScreen v-if="application.showSaveAs"/>
   </AppHotkeyBox>
 </template>
 
@@ -65,6 +66,7 @@ import ProblemPane from "./components/Elements/ProblemPane.vue";
 import SplashScreen from "./components/Elements/SplashScreen.vue";
 import FileCreationScreen from "./components/Elements/FileCreationScreen.vue";
 import { ModalStackId } from "./stores/ApplicationStore";
+import SaveAsScreen from "./components/Elements/SaveAsScreen.vue";
 
 
 enum Handle {
@@ -334,7 +336,8 @@ export default defineComponent({
     MappingFileSearch, MappingFileViewControl,
     ActiveViewSidebar,
     ViewFilterSidebar, ProblemPane,
-    SplashScreen, FileCreationScreen
+    SplashScreen, FileCreationScreen,
+    SaveAsScreen
   }
 });
 
