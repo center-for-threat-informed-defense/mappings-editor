@@ -121,11 +121,10 @@ const capabilityGroupsDetails = ref<HTMLDetailsElement | null>(null);
 const creationScrollBox = ref<InstanceType<typeof ScrollBox> | null>(null);
 const error = ref('');
 const attackVersions = [...new Set(manifest.files.map(file => file.frameworkVersion))]
-    .filter(version => version.localeCompare('8.2', undefined, { numeric: true }) >= 0 &&
-        version.localeCompare('19.1', undefined, { numeric: true }) <= 0)
+    // Sort latest to earliest
     .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 const settings = reactive({
-    target_version: '19.1',
+    target_version: attackVersions[0], // default to latest
     target_framework: 'mitre_attack_enterprise',
     source_framework: '',
     source_version: '',
