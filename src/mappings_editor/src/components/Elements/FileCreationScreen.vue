@@ -146,10 +146,10 @@ function getAttackVersionsByDomain() : Map<string, string[]>{
 }
 
 const attackVersionsByDomain = getAttackVersionsByDomain();
-
+const defaultTargetFramework = 'mitre_attack_enterprise';
 const settings = reactive({
-    target_version: '',
-    target_framework: 'mitre_attack_enterprise',
+    target_version: attackVersionsByDomain.get(defaultTargetFramework)?.[0] ?? '',
+    target_framework: defaultTargetFramework,
     source_framework: '',
     source_version: '',
     author: '',
