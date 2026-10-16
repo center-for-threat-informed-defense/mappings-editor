@@ -356,6 +356,7 @@ export default defineComponent({
     --me-border-color-strong: #3b3b3b;
 
     --me-text-color: #bfbfbf;
+    --me-text-color-subtle: #919191;
     --me-text-color-emphasis: #89a0ec;
     --me-text-color-valid: #2bd463;
     --me-text-color-warning: #e6d846;

@@ -15,7 +15,7 @@
             <form @submit.prevent="submit">
                 <div class="fields">
                     <label>
-                        <span>Domain</span>
+                        <span>Domain <small>*</small></span>
                         <select v-model="settings.target_framework" required>
                             <option value="mitre_attack_enterprise">Enterprise</option>
                             <option value="mitre_attack_mobile">Mobile</option>
@@ -23,7 +23,7 @@
                         </select>
                     </label>
                     <label>
-                        <span>ATT&CK Version</span>
+                        <span>ATT&CK Version <small>*</small></span>
                         <select v-model="settings.target_version" required>
                             <option
                                 v-for="version in attackVersionsByDomain.get(settings.target_framework)"
@@ -34,26 +34,32 @@
                             </option>
                         </select>
                     </label>
-                    <label>
-                        <span>Mapping Framework</span>
-                        <input v-model="settings.source_framework" type="text" required />
-                    </label>
-                    <label>
-                        <span>Mapping Framework Version</span>
-                        <input v-model="settings.source_version" type="text" required />
-                    </label>
-                    <label>
-                        <span>Author <small>(optional)</small></span>
-                        <input v-model="settings.author" type="text" autocomplete="name" />
-                    </label>
-                    <label>
-                        <span>Contact <small>(optional)</small></span>
-                        <input v-model="settings.author_contact" type="text" />
-                    </label>
-                    <label class="full-width">
-                        <span>Organization <small>(optional)</small></span>
-                        <input v-model="settings.author_organization" type="text" autocomplete="organization" />
-                    </label>
+                    <InputText
+                        title="Mapping Framework"
+                        v-model="settings.source_framework"
+                        :error-message="errors.sourceFramework"
+                        required
+                    />
+                    <InputText
+                        title="Mapping Framework Version"
+                        v-model="settings.source_version"
+                        required
+                    />
+                    <InputText
+                        title="Author"
+                        v-model="settings.author"
+                        autocomplete="name"
+                    />
+                    <InputText
+                        title="Contact"
+                        v-model="settings.author_contact"
+                    />
+                    <InputText
+                        class="full-width"
+                        title="Organization"
+                        v-model="settings.author_organization"
+                        autocomplete="organization"
+                    />
                 </div>
                 <details ref="mappingTypesDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandMappingTypes">
@@ -62,16 +68,18 @@
                     <fieldset v-for="(type, index) in mappingTypes" :key="type.key">
                         <legend>Mapping Type {{ index + 1 }}</legend>
                         <div class="fields">
-                            <label>
-                                <span>Type ID</span>
-                                <input v-model="type.id" type="text" required spellcheck="false" />
-                            </label>
-                            <label>
-                                <span>Type Name</span>
-                                <input v-model="type.name" type="text" required />
-                            </label>
+                            <InputText
+                                title="Type ID"
+                                v-model="type.id"
+                                required
+                            />
+                            <InputText
+                                title="Type Name"
+                                v-model="type.name"
+                                required
+                            />
                             <label class="full-width">
-                                <span>Type Description</span>
+                                <span>Type Description <small>*</small></span>
                                 <textarea v-model="type.description" rows="3" required></textarea>
                             </label>
                         </div>
@@ -87,14 +95,16 @@
                     <fieldset v-for="(group, index) in capabilityGroups" :key="group.key">
                         <legend>Capability Group {{ index + 1 }}</legend>
                         <div class="fields">
-                            <label>
-                                <span>Group ID</span>
-                                <input v-model="group.id" type="text" required spellcheck="false" />
-                            </label>
-                            <label>
-                                <span>Group Name</span>
-                                <input v-model="group.name" type="text" required />
-                            </label>
+                            <InputText
+                                title="Group ID"
+                                v-model="group.id"
+                                required
+                            />
+                            <InputText
+                                title="Group Name"
+                                v-model="group.name"
+                                required
+                            />
                         </div>
                         <button class="remove-item" type="button"
                             :aria-label="`Remove capability group ${index + 1}`"
@@ -112,10 +122,11 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, computed } from 'vue';
 import manifest from '@/assets/configuration/app.framework.manifest.json';
 import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority';
 import ScrollBox from '../Containers/ScrollBox.vue';
+import InputText from './InputText.vue';
 
 const emit = defineEmits<{
     (event: 'create', settings: FileCreationSettings): void;
@@ -126,6 +137,17 @@ const mappingTypesDetails = ref<HTMLDetailsElement | null>(null);
 const capabilityGroupsDetails = ref<HTMLDetailsElement | null>(null);
 const creationScrollBox = ref<InstanceType<typeof ScrollBox> | null>(null);
 const error = ref('');
+
+function validateExists(val: string): string {
+    if (val) return "";
+    return "This field is required.";
+}
+
+const errors = computed(() => ({
+    sourceFramework: validateExists(settings.source_framework),
+    sourceVersion: validateExists(settings.source_version),
+    // Each validator returns an error string or undefined.
+}));
 
 function getAttackVersionsByDomain() : Map<string, string[]>{
     const result = new Map<string, string[]>();
