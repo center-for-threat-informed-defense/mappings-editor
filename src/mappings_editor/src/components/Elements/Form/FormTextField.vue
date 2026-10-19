@@ -11,6 +11,7 @@
                 v-model="model"
                 :required="required"
                 :autocomplete="autocomplete"
+                :spellcheck="spellcheck"
                 :aria-describedby="localValidationMessage ? messageId : undefined"
                 :aria-invalid="isInvalid"
                 @blur="checkValidation"
@@ -35,8 +36,12 @@ import { computed, ref, useId } from 'vue';
 
 const model = defineModel();
 
+const visited = ref(false);
+
 /** Validation message to show after the input has been visited. */ 
-const localValidationMessage = ref('');
+const localValidationMessage = computed(() => {
+    return visited.value ? props.errorMessage : '';
+});
 const messageId = useId();
 
 const props = defineProps({
@@ -56,6 +61,10 @@ const props = defineProps({
         default: "off",
         type: String
     },
+    spellcheck: {
+        default: false,
+        type: Boolean
+    }
 });
 
 const isInvalid = computed(() => Boolean(
@@ -63,13 +72,7 @@ const isInvalid = computed(() => Boolean(
 ));
 
 function checkValidation() {
-    // If an error message is present, that takes precedence.
-    if (props.errorMessage) {
-        localValidationMessage.value = props.errorMessage;
-        return;
-    } else {
-        localValidationMessage.value = "";
-    }
+    visited.value = true;
 }
 
 </script>

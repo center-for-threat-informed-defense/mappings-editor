@@ -116,7 +116,6 @@
                             @click="capabilityGroups.splice(index, 1)">Remove</button>
                     </fieldset>
                 </details>
-                <p v-if="error" role="alert" class="validation-error">{{ error }}</p>
                 <footer>
                     <button type="button" @click="emit('close');">Cancel</button>
                     <button type="submit" :disabled="disableSubmit">Create File</button>
@@ -149,11 +148,44 @@ const dialog = ref<HTMLDialogElement | null>(null);
 const mappingTypesDetails = ref<HTMLDetailsElement | null>(null);
 const capabilityGroupsDetails = ref<HTMLDetailsElement | null>(null);
 const creationScrollBox = ref<InstanceType<typeof ScrollBox> | null>(null);
-const error = ref('');
 
+/**
+ * Check that a value is truthy. Return an error message if not.
+ * @param val The value to check
+ * @returns a blank string if the value is valid, else an error string.
+ */
 function validateExists(val: string): string {
     if (val) return "";
     return "This field is required.";
+}
+
+
+/**
+ * Check if the ID field of a mapping type or a capability group is valid.
+ * @param val the ID value
+ * @param type "mappingType" or "capabilityGroup"
+ * @returns a blank string if the value is valid, else an error string.
+ */
+function validateId(val: string, type: "mappingType" | "capabilityGroup"): string {
+    // Check for existence.
+    const existsError = validateExists(val);
+    if (existsError) {
+        return existsError;
+    }
+
+    // Check for disallowed characters.
+    if (!/^[A-Za-z0-9_ ]+$/.test(val)) {
+        return "Use letters, numbers, spaces and underscores only for the ID.";
+    }
+
+    // Check for duplicate IDs.
+    const cleanedVal = cleanMappingTypeId(val);
+    const arrayToSearch = type === "mappingType" ? mappingTypes : capabilityGroups;
+    if (arrayToSearch.filter(v => cleanMappingTypeId(v.id) === cleanedVal).length > 1) {
+        return "Duplicate detected. ID must be unique.";
+    }    
+
+    return "";
 }
 
 const errors = computed(() => ({
@@ -171,7 +203,7 @@ const mappingTypesErrors = computed(() => {
     const results = [];
 
     for (const mt of mappingTypes) {
-        const typeIdError = validateExists(mt.id);
+        const typeIdError = validateId(mt.id, "mappingType");
         const typeNameError = validateExists(mt.name);
         const typeDescriptionError = validateExists(mt.description);
 
@@ -192,7 +224,7 @@ const capabilityGroupsErrors = computed(() => {
     const results = [];
 
     for (const cg of capabilityGroups) {
-        const groupIdError = validateExists(cg.id);
+        const groupIdError = validateId(cg.id, "capabilityGroup");
         const groupNameError = validateExists(cg.name);
 
         if (groupIdError || groupNameError) {
@@ -279,34 +311,21 @@ onMounted(() => {
 });
 onBeforeUnmount(() => dialog.value?.close());
 
+function cleanMappingTypeId(val: string): string {
+    // The mapping id should only contain lowercase alphanumeric characters and spaces
+    // should be replaced with underscores.
+    return val.trim().toLowerCase().replace(/\s+/g, '_');
+}
+
 function submit() {
     const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
     const sourceVersion = settings.source_version.trim();
-    if (!sourceFramework || !sourceVersion) {
-        error.value = 'Enter a mapping framework and its version.';
-        return;
-    }
     const typeEntries: [string, { name: string; description: string }][] = [];
     const ids = new Set<string>();
     for (const [index, type] of mappingTypes.entries()) {
-        const id = type.id.trim().toLowerCase().replace(/\s+/g, '_');
+        const id = cleanMappingTypeId(type.id);
         const name = type.name.trim();
         const description = type.description.trim();
-        if (!/^[a-z0-9_]+$/.test(id)) {
-            expandMappingTypes();
-            error.value = `Mapping type ${index + 1}: use letters, numbers, and underscores only for the ID.`;
-            return;
-        }
-        if (ids.has(id)) {
-            expandMappingTypes();
-            error.value = `Mapping type ID "${id}" is used more than once. Each type needs a unique ID.`;
-            return;
-        }
-        if (!name || !description) {
-            expandMappingTypes();
-            error.value = `Mapping type ${index + 1}: enter a name and description.`;
-            return;
-        }
         ids.add(id);
         typeEntries.push([id, { name, description }]);
     }
@@ -315,25 +334,10 @@ function submit() {
     for (const [index, group] of capabilityGroups.entries()) {
         const id = group.id.trim().replace(/\s+/g, '_');
         const name = group.name.trim();
-        if (!/^[A-Za-z0-9_]+$/.test(id)) {
-            expandCapabilityGroups();
-            error.value = `Capability group ${index + 1}: use letters, numbers, and underscores only for the ID.`;
-            return;
-        }
-        if (groupIds.has(id)) {
-            expandCapabilityGroups();
-            error.value = `Capability group ID "${id}" is used more than once. Each group needs a unique ID.`;
-            return;
-        }
-        if (!name) {
-            expandCapabilityGroups();
-            error.value = `Capability group ${index + 1}: enter a name.`;
-            return;
-        }
         groupIds.add(id);
         groupEntries.push([id, name]);
     }
-    error.value = '';
+
     emit('create', {
         ...settings,
         source_framework: sourceFramework,
