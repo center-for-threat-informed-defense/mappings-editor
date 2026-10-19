@@ -14,44 +14,44 @@
         <ScrollBox ref="creationScrollBox" class="creation-scroll-box" :propagateScroll="false">
             <form @submit.prevent="submit">
                 <div class="fields">
-                    <InputDropdown
+                    <FormDropdown
                         title="Domain"
                         required
                         :options="domainOptions"
                         :error-message="errors.target_framework"
                         v-model="settings.target_framework"
                     />
-                    <InputDropdown
+                    <FormDropdown
                         title="ATT&CK Version"
                         required
                         :options="attackVersionsByDomain.get(settings.target_framework) ?? []"
                         :error-message="errors.target_version"
                         v-model="settings.target_version"
                     />
-                    <InputText
+                    <FormTextField
                         title="Mapping Framework"
                         v-model="settings.source_framework"
                         :error-message="errors.source_framework"
                         required
                     />
-                    <InputText
+                    <FormTextField
                         title="Mapping Framework Version"
                         v-model="settings.source_version"
                         :error-message="errors.source_version"
                         required
                     />
-                    <InputText
+                    <FormTextField
                         title="Author"
                         v-model="settings.author"
                         autocomplete="name"
                         :error-message="errors.author"
                     />
-                    <InputText
+                    <FormTextField
                         title="Contact"
                         v-model="settings.author_contact"
                         :error-message="errors.author_contact"
                     />
-                    <InputText
+                    <FormTextField
                         class="full-width"
                         title="Organization"
                         v-model="settings.author_organization"
@@ -66,19 +66,19 @@
                     <fieldset v-for="(type, index) in mappingTypes" :key="type.key">
                         <legend>Mapping Type {{ index + 1 }}</legend>
                         <div class="fields">
-                            <InputText
+                            <FormTextField
                                 title="Type ID"
                                 v-model="type.id"
                                 :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.id"
                                 required
                             />
-                            <InputText
+                            <FormTextField
                                 title="Type Name"
                                 v-model="type.name"
                                 :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.name"
                                 required
                             />
-                            <InputTextarea
+                            <FormTextArea
                                 class="full-width"
                                 title="Type Description"
                                 v-model="type.description"
@@ -98,13 +98,13 @@
                     <fieldset v-for="(group, index) in capabilityGroups" :key="group.key">
                         <legend>Capability Group {{ index + 1 }}</legend>
                         <div class="fields">
-                            <InputText
+                            <FormTextField
                                 title="Group ID"
                                 v-model="group.id"
                                 required
                                 :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.id"
                             />
-                            <InputText
+                            <FormTextField
                                 title="Group Name"
                                 v-model="group.name"
                                 required
@@ -131,9 +131,9 @@ import { nextTick, onBeforeUnmount, onMounted, reactive, ref, computed } from 'v
 import manifest from '@/assets/configuration/app.framework.manifest.json';
 import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority';
 import ScrollBox from '../Containers/ScrollBox.vue';
-import InputText from './InputText.vue';
-import InputTextarea from './InputTextarea.vue';
-import InputDropdown from './InputDropdown.vue';
+import FormTextField from './Form/FormTextField.vue';
+import FormTextArea from './Form/FormTextArea.vue';
+import FormDropdown from './Form/FormDropdown.vue';
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },

@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
-import ScrollBox from '../Containers/ScrollBox.vue';
+import ScrollBox from '../../Containers/ScrollBox.vue';
 
 /** A single-select dropdown with parent-supplied validation and custom scrolling. */
 /** The selected option's value, synchronized with the parent's v-model. */
