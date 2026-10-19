@@ -45,15 +45,15 @@
                 <div class="button-row">
                     <button class="splash-button" @click="emit('create-file')">
                         <span class="splash-button-title">
-                            <FileIcon/> Create New File
+                            <FileIcon/> New File
                         </span>
-                        <span class="splash-button-description">Create new mappings file</span>
+                        <span class="splash-button-description">Create a new mapping file</span>
                     </button>
                     <button class="splash-button" @click="emit('open-file')">
                         <span class="splash-button-title">
                             <FolderOpen /> Open File
                         </span>
-                        <span class="splash-button-description">Open existing mappings file</span>
+                        <span class="splash-button-description">Open existing mapping file</span>
                     </button>
                 </div>
                 <h2>Resources</h2>

@@ -8,7 +8,7 @@
         @close="emit('close')"
     >
         <header>
-            <h1 id="file-creation-title">Create New File</h1>
+            <h1 id="file-creation-title">New File</h1>
             <p>Choose your ATT&CK framework and describe what you're mapping.</p>
         </header>
         <ScrollBox ref="creationScrollBox" class="creation-scroll-box" :propagateScroll="false">
