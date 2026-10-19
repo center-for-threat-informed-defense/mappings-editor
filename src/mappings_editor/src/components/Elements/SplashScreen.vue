@@ -212,7 +212,7 @@ async function recoverFile(contents: string, name: string, id: string) {
 .file-recovery-delete:hover,
 .file-recovery-file:hover {
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--me-bg-color-recessed-hover);
 }
 
 .splash-button-title {

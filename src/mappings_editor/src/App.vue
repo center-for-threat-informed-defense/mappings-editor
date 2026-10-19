@@ -349,15 +349,18 @@ export default defineComponent({
 :root {
     --me-bg-color-main: #242424;
     --me-bg-color-recessed: #1c1c1c;
+    --me-bg-color-recessed-hover: #3b3b3b;
     --me-bg-color-groupings: #262626;
     --me-bg-color-emphasis: #637bc9;
     --me-bg-color-emphasis-disabled: #5d688d;
+    --me-bg-color-emphasis-hover: #7590eb;
 
     --me-border-color-subtle: #333333;
     --me-border-color-strong: #3b3b3b;
 
     --me-text-color: #bfbfbf;
     --me-text-color-subtle: #919191;
+    --me-text-color-strong: #ffffff;
     --me-text-color-emphasis: #89a0ec;
     --me-text-color-valid: #2bd463;
     --me-text-color-warning: #e6d846;

@@ -438,10 +438,16 @@ button {
     font: inherit;
     cursor: pointer;
 }
-button:hover { filter: brightness(1.15); }
+button:hover {
+    background-color: var(--me-bg-color-recessed-hover);
+    color: var(--me-text-color-strong);
+}
 button[type="submit"] {
     background: var(--me-bg-color-emphasis);
-    color: white;
+    color: var(--me-text-color-strong);
+}
+button[type="submit"]:hover {
+    background: var(--me-bg-color-emphasis-hover);
 }
 button[type="submit"]:disabled {
     cursor: not-allowed;
