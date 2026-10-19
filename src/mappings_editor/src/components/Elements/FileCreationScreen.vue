@@ -14,26 +14,20 @@
         <ScrollBox ref="creationScrollBox" class="creation-scroll-box" :propagateScroll="false">
             <form @submit.prevent="submit">
                 <div class="fields">
-                    <label>
-                        <span>Domain <small>*</small></span>
-                        <select v-model="settings.target_framework" required>
-                            <option value="mitre_attack_enterprise">Enterprise</option>
-                            <option value="mitre_attack_mobile">Mobile</option>
-                            <option value="mitre_attack_ics">ICS</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span>ATT&CK Version <small>*</small></span>
-                        <select v-model="settings.target_version" required>
-                            <option
-                                v-for="version in attackVersionsByDomain.get(settings.target_framework)"
-                                :key="version"
-                                :value="version"
-                            >
-                                {{ version }}
-                            </option>
-                        </select>
-                    </label>
+                    <InputDropdown
+                        title="Domain"
+                        required
+                        :options="domainOptions"
+                        :error-message="errors.target_framework"
+                        v-model="settings.target_framework"
+                    />
+                    <InputDropdown
+                        title="ATT&CK Version"
+                        required
+                        :options="attackVersionsByDomain.get(settings.target_framework) ?? []"
+                        :error-message="errors.target_version"
+                        v-model="settings.target_version"
+                    />
                     <InputText
                         title="Mapping Framework"
                         v-model="settings.source_framework"
@@ -139,6 +133,13 @@ import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority
 import ScrollBox from '../Containers/ScrollBox.vue';
 import InputText from './InputText.vue';
 import InputTextarea from './InputTextarea.vue';
+import InputDropdown from './InputDropdown.vue';
+
+const domainOptions = [
+    { value: 'mitre_attack_enterprise', text: 'Enterprise' },
+    { value: 'mitre_attack_mobile', text: 'Mobile' },
+    { value: 'mitre_attack_ics', text: 'ICS' }
+];
 
 const emit = defineEmits<{
     (event: 'create', settings: FileCreationSettings): void;
@@ -158,8 +159,8 @@ function validateExists(val: string): string {
 const errors = computed(() => ({
     source_framework: validateExists(settings.source_framework),
     source_version: validateExists(settings.source_version),
-    target_framework: "",
-    target_version: "",
+    target_framework: validateExists(settings.target_framework),
+    target_version: validateExists(settings.target_version),
     author: "",
     author_contact: "",
     author_organization: ""
@@ -213,19 +214,19 @@ const disableSubmit = computed(() => {
     return mtErrors || cgErrors || otherErrors;
 });
 
-function getAttackVersionsByDomain() : Map<string, string[]>{
-    const result = new Map<string, string[]>();
+function getAttackVersionsByDomain() : Map<string, { value: string, text: string}[]>{
+    const result = new Map<string, { value: string, text: string}[]>();
     
     for (const f of manifest.files) {
         if (!result.has(f.frameworkId)) {
             result.set(f.frameworkId, []);
         }
 
-        result.get(f.frameworkId)?.push(f.frameworkVersion);
+        result.get(f.frameworkId)?.push({ value: f.frameworkVersion, text: f.frameworkVersion });
     }
 
     for (const val of result.values()) {
-        val.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+        val.sort((a, b) => b.text.localeCompare(a.text, undefined, { numeric: true }));
     }
 
     return result;
@@ -234,7 +235,7 @@ function getAttackVersionsByDomain() : Map<string, string[]>{
 const attackVersionsByDomain = getAttackVersionsByDomain();
 const defaultTargetFramework = 'mitre_attack_enterprise';
 const settings = reactive({
-    target_version: attackVersionsByDomain.get(defaultTargetFramework)?.[0] ?? '',
+    target_version: attackVersionsByDomain.get(defaultTargetFramework)?.[0].value ?? '',
     target_framework: defaultTargetFramework,
     source_framework: '',
     source_version: '',
@@ -370,7 +371,7 @@ function submit() {
     min-height: 0;
 }
 .creation-scroll-box :deep(.scroll-bar) {
-    margin: 8px 6px 8px 0;
+    margin: 0;
     border: 1px solid var(--me-border-color-subtle);
     border-radius: 5px;
 }
