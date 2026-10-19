@@ -351,6 +351,7 @@ export default defineComponent({
     --me-bg-color-recessed: #1c1c1c;
     --me-bg-color-groupings: #262626;
     --me-bg-color-emphasis: #637bc9;
+    --me-bg-color-emphasis-disabled: #5d688d;
 
     --me-border-color-subtle: #333333;
     --me-border-color-strong: #3b3b3b;

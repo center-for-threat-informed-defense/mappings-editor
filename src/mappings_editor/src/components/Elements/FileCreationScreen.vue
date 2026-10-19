@@ -37,28 +37,32 @@
                     <InputText
                         title="Mapping Framework"
                         v-model="settings.source_framework"
-                        :error-message="errors.sourceFramework"
+                        :error-message="errors.source_framework"
                         required
                     />
                     <InputText
                         title="Mapping Framework Version"
                         v-model="settings.source_version"
+                        :error-message="errors.source_version"
                         required
                     />
                     <InputText
                         title="Author"
                         v-model="settings.author"
                         autocomplete="name"
+                        :error-message="errors.author"
                     />
                     <InputText
                         title="Contact"
                         v-model="settings.author_contact"
+                        :error-message="errors.author_contact"
                     />
                     <InputText
                         class="full-width"
                         title="Organization"
                         v-model="settings.author_organization"
                         autocomplete="organization"
+                        :error-message="errors.author_organization"
                     />
                 </div>
                 <details ref="mappingTypesDetails" class="configuration-section"
@@ -71,17 +75,22 @@
                             <InputText
                                 title="Type ID"
                                 v-model="type.id"
+                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.id"
                                 required
                             />
                             <InputText
                                 title="Type Name"
                                 v-model="type.name"
+                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.name"
                                 required
                             />
-                            <label class="full-width">
-                                <span>Type Description <small>*</small></span>
-                                <textarea v-model="type.description" rows="3" required></textarea>
-                            </label>
+                            <InputTextarea
+                                class="full-width"
+                                title="Type Description"
+                                v-model="type.description"
+                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.description"
+                                required
+                            />
                         </div>
                         <button class="remove-item" type="button"
                             :aria-label="`Remove mapping type ${index + 1}`"
@@ -99,11 +108,13 @@
                                 title="Group ID"
                                 v-model="group.id"
                                 required
+                                :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.id"
                             />
                             <InputText
                                 title="Group Name"
                                 v-model="group.name"
                                 required
+                                :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.name"
                             />
                         </div>
                         <button class="remove-item" type="button"
@@ -114,7 +125,7 @@
                 <p v-if="error" role="alert" class="validation-error">{{ error }}</p>
                 <footer>
                     <button type="button" @click="emit('close');">Cancel</button>
-                    <button type="submit" class="primary">Create File</button>
+                    <button type="submit" :disabled="disableSubmit">Create File</button>
                 </footer>
             </form>
         </ScrollBox>
@@ -127,6 +138,7 @@ import manifest from '@/assets/configuration/app.framework.manifest.json';
 import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority';
 import ScrollBox from '../Containers/ScrollBox.vue';
 import InputText from './InputText.vue';
+import InputTextarea from './InputTextarea.vue';
 
 const emit = defineEmits<{
     (event: 'create', settings: FileCreationSettings): void;
@@ -144,10 +156,62 @@ function validateExists(val: string): string {
 }
 
 const errors = computed(() => ({
-    sourceFramework: validateExists(settings.source_framework),
-    sourceVersion: validateExists(settings.source_version),
-    // Each validator returns an error string or undefined.
+    source_framework: validateExists(settings.source_framework),
+    source_version: validateExists(settings.source_version),
+    target_framework: "",
+    target_version: "",
+    author: "",
+    author_contact: "",
+    author_organization: ""
+    
 }));
+
+const mappingTypesErrors = computed(() => {
+    const results = [];
+
+    for (const mt of mappingTypes) {
+        const typeIdError = validateExists(mt.id);
+        const typeNameError = validateExists(mt.name);
+        const typeDescriptionError = validateExists(mt.description);
+
+        if (typeIdError || typeNameError || typeDescriptionError) {
+            results.push({
+                id: typeIdError,
+                name: typeNameError,
+                description: typeDescriptionError,
+                key: mt.key
+            });
+        }
+    }
+
+    return results;
+});
+
+const capabilityGroupsErrors = computed(() => {
+    const results = [];
+
+    for (const cg of capabilityGroups) {
+        const groupIdError = validateExists(cg.id);
+        const groupNameError = validateExists(cg.name);
+
+        if (groupIdError || groupNameError) {
+            results.push({
+                id: groupIdError,
+                name: groupNameError,
+                key: cg.key
+            });
+        }
+    }
+
+    return results;
+});
+
+const disableSubmit = computed(() => {
+    const mtErrors = mappingTypesErrors.value.length > 0;
+    const cgErrors = capabilityGroupsErrors.value.length > 0;
+    const otherErrors = Object.values(errors.value).some(val => val);
+    return mtErrors || cgErrors || otherErrors;
+});
 
 function getAttackVersionsByDomain() : Map<string, string[]>{
     const result = new Map<string, string[]>();
@@ -374,7 +438,15 @@ button {
     cursor: pointer;
 }
 button:hover { filter: brightness(1.15); }
-.primary { background: var(--me-bg-color-emphasis); color: white; }
+button[type="submit"] {
+    background: var(--me-bg-color-emphasis);
+    color: white;
+}
+button[type="submit"]:disabled {
+    cursor: not-allowed;
+    background: var(--me-bg-color-emphasis-disabled );
+    color: lightgrey;
+}
 .configuration-section {
     margin-top: 20px;
     padding-top: 16px;
