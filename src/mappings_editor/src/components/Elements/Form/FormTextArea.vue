@@ -78,7 +78,7 @@ textarea {
     border-radius: 5px;
     background: var(--me-bg-color-recessed);
     color: var(--me-text-color);
-    font: inherit;
+    font: small;
     padding: 10px 12px;
     resize: vertical;
 }

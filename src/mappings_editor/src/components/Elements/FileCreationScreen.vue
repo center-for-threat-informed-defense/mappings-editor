@@ -359,7 +359,7 @@ function submit() {
     const sourceVersion = settings.source_version.trim();
     const typeEntries: [string, { name: string; description: string }][] = [];
     const ids = new Set<string>();
-    for (const [index, type] of mappingTypes.entries()) {
+    for (const type of mappingTypes.values()) {
         const id = cleanMappingTypeId(type.id);
         const name = type.name.trim();
         const description = type.description.trim();
@@ -368,7 +368,7 @@ function submit() {
     }
     const groupEntries: [string, string][] = [];
     const groupIds = new Set<string>();
-    for (const [index, group] of capabilityGroups.entries()) {
+    for (const group of capabilityGroups.values()) {
         const id = cleanCapabilityGroupId(group.id);
         const name = group.name.trim();
         groupIds.add(id);
