@@ -7,6 +7,9 @@ export type MappingFileConfiguration = {
      */
     fileId?: string;
 
+    /** The mapping file schema version. */
+    version?: string;
+
     /**
      * The file's creation date.
      */
