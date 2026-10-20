@@ -116,6 +116,10 @@
                             @click="capabilityGroups.splice(index, 1)">Remove</button>
                     </fieldset>
                 </details>
+                <p class="validation-summary-message">
+                    <span v-if="validationSummaryErrorMessage">{{ validationSummaryErrorMessage }}</span>
+                    <span v-else class="validation-successful">Validation Successful <CircleCheck /></span>
+                </p>
                 <footer>
                     <button type="button" @click="emit('close');">Cancel</button>
                     <button type="submit" :disabled="disableSubmit">Create File</button>
@@ -133,6 +137,7 @@ import ScrollBox from '../Containers/ScrollBox.vue';
 import FormTextField from './Form/FormTextField.vue';
 import FormTextArea from './Form/FormTextArea.vue';
 import FormDropdown from './Form/FormDropdown.vue';
+import CircleCheck from '../Icons/CircleCheck.vue';
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },
@@ -248,10 +253,28 @@ const capabilityGroupsErrors = computed(() => {
 });
 
 const disableSubmit = computed(() => {
-    const mtErrors = mappingTypesErrors.value.length > 0;
-    const cgErrors = capabilityGroupsErrors.value.length > 0;
-    const otherErrors = Object.values(errors.value).some(val => val);
+    const mtErrors : boolean = mappingTypesErrors.value.length > 0;
+    const cgErrors : boolean = capabilityGroupsErrors.value.length > 0;
+    const otherErrors : boolean = Object.values(errors.value).some(val => val);
     return mtErrors || cgErrors || otherErrors;
+});
+
+const validationSummaryErrorMessage = computed(() => {
+    const otherErrors : boolean = Object.values(errors.value).some(val => val);
+    if (otherErrors) {
+        return "Fill out all required fields to continue.";
+    }
+    const mtErrors : boolean = mappingTypesErrors.value.length > 0;
+    if (mtErrors) {
+        return "Mapping Types contains errors.";
+    }
+    const cgErrors : boolean = capabilityGroupsErrors.value.length > 0;
+    if (cgErrors) {
+        return "Capability Groups contains errors.";
+    }
+    
+    return "";
+
 });
 
 function getAttackVersionsByDomain() : Map<string, { value: string, text: string}[]>{
@@ -493,8 +516,15 @@ textarea { resize: vertical; }
     .fields { grid-template-columns: minmax(0, 1fr); }
 }
 
-.validation-error {
-    color: var(--me-text-color-error);
-    margin-top: 5px;
+.validation-summary-message {
+    font-size: small;
+    text-align: center;
+    margin-top: 1rem;
+}
+.validation-summary-message .validation-successful {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 </style>
