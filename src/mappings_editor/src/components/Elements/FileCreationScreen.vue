@@ -179,11 +179,19 @@ function validateId(val: string, type: "mappingType" | "capabilityGroup"): strin
     }
 
     // Check for duplicate IDs.
-    const cleanedVal = cleanMappingTypeId(val);
-    const arrayToSearch = type === "mappingType" ? mappingTypes : capabilityGroups;
-    if (arrayToSearch.filter(v => cleanMappingTypeId(v.id) === cleanedVal).length > 1) {
-        return "Duplicate detected. ID must be unique.";
-    }    
+    if (type === "mappingType") {
+        const cleanedVal = cleanMappingTypeId(val);
+        const arrayToSearch = mappingTypes;
+        if (arrayToSearch.filter(v => cleanMappingTypeId(v.id) === cleanedVal).length > 1) {
+            return "Duplicate detected. ID must be unique.";
+        }
+    } else if (type === "capabilityGroup") {
+        const cleanedVal = cleanCapabilityGroupId(val);
+        const arrayToSearch = capabilityGroups;
+        if (arrayToSearch.filter(v => cleanCapabilityGroupId(v.id) === cleanedVal).length > 1) {
+            return "Duplicate detected. ID must be unique.";
+        }
+    }
 
     return "";
 }
@@ -317,6 +325,12 @@ function cleanMappingTypeId(val: string): string {
     return val.trim().toLowerCase().replace(/\s+/g, '_');
 }
 
+function cleanCapabilityGroupId(val: string): string {
+    // The capability group id should only contain alphanumeric characters and spaces
+    // should be replaced with underscores.
+    return val.trim().replace(/\s+/g, '_');
+}
+
 function submit() {
     const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
     const sourceVersion = settings.source_version.trim();
@@ -332,7 +346,7 @@ function submit() {
     const groupEntries: [string, string][] = [];
     const groupIds = new Set<string>();
     for (const [index, group] of capabilityGroups.entries()) {
-        const id = group.id.trim().replace(/\s+/g, '_');
+        const id = cleanCapabilityGroupId(group.id);
         const name = group.name.trim();
         groupIds.add(id);
         groupEntries.push([id, name]);
