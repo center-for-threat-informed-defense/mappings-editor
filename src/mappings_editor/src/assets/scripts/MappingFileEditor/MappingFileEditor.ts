@@ -41,7 +41,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
     /**
      * The editor's file name.
      */
-    public readonly name: string;
+    public name: string;
 
     /**
      * The editor's file view.
