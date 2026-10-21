@@ -271,23 +271,17 @@ export async function upgradeFileVersion(context: ApplicationStore, version: str
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * Kicks off mappings upgrade from one ATT&CK version to another (ATT&CK Sync).
+ * Compares all mappings in the file and detects duplicates
  * @param context
  * The application context.
- * @param version
- * The new version to upgrade to.
  * @returns
  * A command that represents the action.
  */
 export function automatedDuplicateDetection(context: ApplicationStore) {
-    console.log("inside detect duplicates")
     const grp = new GroupCommand();
     grp.add(new CheckForDuplicates(context));
-
     const editor = context.activeEditor as MappingFileEditor;
+    // rebuild view after duplicate detection to show any problems in the view
     grp.add(new RebuildViewBreakouts(editor.view ));
-    console.log(
-        "end of detect dup method"
-    )
     return grp;
 }

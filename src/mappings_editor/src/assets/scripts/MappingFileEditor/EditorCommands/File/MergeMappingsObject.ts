@@ -47,18 +47,7 @@ export class MergeMappingsObject extends EditorCommand {
     // 2. Delete the other duplicates
     // 3. Persist changes and hook into undo/redo
 
-    console.log("Executing mergeMappings command with payload:", {
-      currentMapping: this.currentMapping,
-      duplicateMappings: this.duplicateMappings,
-      fieldSelections: this.fieldSelections,
-    });
     for (const selection of this.fieldSelections) {
-      console.log(
-        "field selection:",
-        selection.fieldKey,
-        selection.sourceKey,
-        selection.duplicateMappingId,
-      );
       // iterate over each field with a different value and apply the selected value to the current mapping
       if (selection.duplicateMappingId) {
         const duplicateMapping = this.duplicateMappings.find(
@@ -106,7 +95,6 @@ export class MergeMappingsObject extends EditorCommand {
     }
     // Delete the duplicate mappings after merging their selected values
     for (const duplicateMapping of this.duplicateMappings) {
-      console.log("Deleting duplicate mapping:", duplicateMapping.id);
       await EditorCommands.deleteMappingObject(duplicateMapping).execute(issueDirective);
     }
     const file = this.currentMapping.file;
@@ -117,7 +105,6 @@ export class MergeMappingsObject extends EditorCommand {
       }
     }
     issueDirective(EditorDirective.RefreshView);
-    console.log("MergeMappingsObject command executed successfully.");
   }
   /**
    * Undoes the editor command.
@@ -127,7 +114,6 @@ export class MergeMappingsObject extends EditorCommand {
   public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
     // add back deleted duplicates and restore their original values
     for (const duplicateMapping of this.duplicateMappings) {
-      console.log("Restoring duplicate mapping:", duplicateMapping.id);
       if (duplicateMapping.file !== null) {
         await EditorCommands.createMappingObject( duplicateMapping.file).execute(issueDirective);
       }
