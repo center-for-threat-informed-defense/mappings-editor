@@ -183,7 +183,9 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         id: "attack_versions",
                         items
                     }
-                ]
+                ],
+                disabled: app.activeEditor.id === MappingFileEditor.Phantom.id
+
             }
 
             // Return menu
@@ -207,6 +209,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         text: "Detect Duplicates",
                         type: MenuType.Item,
                         data: () => AppCommands.automatedDuplicateDetection(app),
+                        disabled: app.activeEditor.id === MappingFileEditor.Phantom.id
                     },
                 ],
             }
