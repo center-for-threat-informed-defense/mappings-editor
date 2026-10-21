@@ -112,6 +112,14 @@
                                             >
                                                 Combine All References
                                             </button>
+                                            <button
+                                                v-if="field.key === 'comments'"
+                                                class="merge-button small"
+                                                :class="{ active: getMergeChoice(change, field.key) === 'custom' }"
+                                                @click="combineComments(change)"
+                                            >
+                                                Combine &amp; Edit
+                                            </button>
                                         </div>
 
                                         <div
@@ -131,7 +139,22 @@
                                             </div>
                                         </div>
 
-                                        <div class="merge-preview">
+                                        <div v-if="field.key === 'comments'" class="comment-merge-editor">
+                                            <label :for="`merged-comments-${getProblemKey(change)}`">Merged comment</label>
+                                            <textarea
+                                                :id="`merged-comments-${getProblemKey(change)}`"
+                                                :value="getCommentMergeValue(change)"
+                                                :aria-describedby="`merged-comments-help-${getProblemKey(change)}`"
+                                                rows="8"
+                                                @keydown.stop
+                                                @keyup.stop
+                                                @input="editMergedComment(change, $event)"
+                                            ></textarea>
+                                            <p :id="`merged-comments-help-${getProblemKey(change)}`">
+                                                Edit the result to keep the parts you need. Changes are saved when you apply the merge.
+                                            </p>
+                                        </div>
+                                        <div v-else class="merge-preview">
                                             <p>
                                                 Selected result:
                                                 <span>{{ getMergedPreviewValue(change, field) || "—" }}</span>
@@ -208,6 +231,7 @@ export default defineComponent({
         return {
             application: useApplicationStore(),
             mergeSelections: {} as Record<string, Record<string, MergeSourceKey>>,
+            commentDrafts: {} as Record<string, string>,
             inspectedSources: {} as Record<string, MergeSourceKey>
         };
     },
@@ -237,6 +261,7 @@ export default defineComponent({
         currentMapping(newValue, oldValue) {
             if (newValue?.id !== oldValue?.id) {
                 this.mergeSelections = {};
+                this.commentDrafts = {};
                 this.inspectedSources = {};
             }
         }
@@ -443,6 +468,31 @@ export default defineComponent({
             this.mergeSelections[problemKey][fieldKey] = sourceKey;
         },
 
+        combineComments(problem: MappingObjectProblem): void {
+            const problemKey = this.getProblemKey(problem);
+            if (!(problemKey in this.commentDrafts)) {
+                this.commentDrafts[problemKey] = this.getSourceOptions(problem)
+                    .map(option => option.mapping?.comments.value ?? "")
+                    .filter(value => value.trim().length > 0)
+                    .join("\n\n");
+            }
+            this.setMergeChoice(problem, "comments", "custom");
+        },
+
+        getCommentMergeValue(problem: MappingObjectProblem): string {
+            const sourceKey = this.getMergeChoice(problem, "comments");
+            if (sourceKey === "custom") {
+                return this.commentDrafts[this.getProblemKey(problem)] ?? "";
+            }
+            const source = this.getSourceOptions(problem).find(option => option.key === sourceKey);
+            return source?.mapping?.comments.value ?? "";
+        },
+
+        editMergedComment(problem: MappingObjectProblem, event: Event): void {
+            this.commentDrafts[this.getProblemKey(problem)] = (event.target as HTMLTextAreaElement).value;
+            this.setMergeChoice(problem, "comments", "custom");
+        },
+
         getMergedPreviewValue(problem: MappingObjectProblem, field: DuplicateFieldDiff): string {
             const sourceKey = this.getMergeChoice(problem, field.key);
             if (field.key === "references" && sourceKey === "combine") {
@@ -486,6 +536,9 @@ export default defineComponent({
                     fieldKey: field.key as keyof MappingObject,
                     sourceKey: field.key as keyof MappingObject,
                     combineReferences: field.key === "references" && sourceKey === "combine",
+                    customComment: field.key === "comments" && sourceKey === "custom"
+                        ? this.getCommentMergeValue(problem)
+                        : undefined,
                     duplicateMappingId: sourceKey.startsWith("duplicate:")
                         ? sourceKey.replace("duplicate:", "")
                         : undefined
@@ -690,6 +743,39 @@ export default defineComponent({
     background-color: #202020;
     border: solid 1px #2f2f2f;
     border-radius: 4px;
+}
+
+.comment-merge-editor {
+    margin-top: 12px;
+}
+
+.comment-merge-editor label {
+    display: block;
+    margin-bottom: 8px;
+    color: #dcdcdc;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.comment-merge-editor textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: solid 1px #637bc9;
+    border-radius: 4px;
+    background-color: #1d1d1d;
+    color: #d0d0d0;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.comment-merge-editor p {
+    margin: 8px 0 0;
+    color: #9b9b9b;
+    font-size: 11px;
 }
 
 .merge-preview p {

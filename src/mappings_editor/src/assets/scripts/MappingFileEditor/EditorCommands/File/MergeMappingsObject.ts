@@ -13,6 +13,7 @@ export type MergeFieldSelection = {
   sourceKey: keyof MappingObject;
   duplicateMappingId: string | undefined;
   combineReferences?: boolean;
+  customComment?: string;
 };
 
 export class MergeMappingsObject extends EditorCommand {
@@ -52,6 +53,10 @@ export class MergeMappingsObject extends EditorCommand {
     const commands = new GroupCommand();
     for (const selection of this.fieldSelections) {
       const currentProp = this.currentMapping[selection.fieldKey];
+      if (selection.fieldKey === "comments" && selection.customComment !== undefined) {
+        commands.do(EditorCommands.setStringProperty(this.currentMapping.comments, selection.customComment));
+        continue;
+      }
       if (selection.fieldKey === "references" && selection.combineReferences) {
         const seen = new Set<string>();
         for (const mapping of [this.currentMapping, ...this.duplicateMappings]) {
@@ -122,5 +127,6 @@ export class MergeMappingsObject extends EditorCommand {
         await EditorCommands.createMappingObject( duplicateMapping.file).execute(issueDirective);
       }
     }
+        this.refreshProblems(issueDirective);
   }
 }
