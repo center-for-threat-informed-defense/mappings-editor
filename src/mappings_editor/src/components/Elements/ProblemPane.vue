@@ -3,7 +3,7 @@
         <AccordionPane :units="1" name="Problem Pane" class="pane">
             <ScrollBox class="problem-scrollbox">
                 <div class="problem-container">
-                    <p class="problem-title">VERSION CONTROL</p>
+                    <p class="problem-title">RESOLVE PROBLEMS</p>
 
                     <div v-for="change in changes" :key="getProblemKey(change)" class="problem-item">
                         <div class="problem-header">
@@ -131,6 +131,7 @@
                                                 :key="`value-${getProblemKey(change)}-${field.key}-${option.key}`"
                                                 class="merge-value-column"
                                                 :class="{ selected: getMergeChoice(change, field.key) === option.key }"
+                                                @click="setMergeChoice(change, field.key, option.key)"
                                             >
                                                 <p class="merge-value-label">{{ option.label }}</p>
                                                 <div class="merge-value-content">
@@ -709,6 +710,7 @@ export default defineComponent({
     border-radius: 5px;
     background-color: #242424;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .merge-value-column.selected {
