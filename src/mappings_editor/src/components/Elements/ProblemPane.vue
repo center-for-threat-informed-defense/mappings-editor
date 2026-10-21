@@ -56,7 +56,7 @@
                                 <div v-else class="duplicate-merge-panel">
                                     <div class="duplicate-panel-top">
                                         <p class="duplicate-summary-subtext">
-                                            Select a mapping below to inspect it, then choose which source to keep for each differing field.
+                                            Select a mapping below to inspect it, then choose which source to keep for each differing field or combine all references.
                                         </p>
 
                                         <div class="top-actions">
@@ -103,6 +103,14 @@
                                                 @click="setMergeChoice(change, field.key, option.key)"
                                             >
                                                 Use {{ option.label }}
+                                            </button>
+                                            <button
+                                                v-if="field.key === 'references'"
+                                                class="merge-button small"
+                                                :class="{ active: getMergeChoice(change, field.key) === 'combine' }"
+                                                @click="setMergeChoice(change, field.key, 'combine')"
+                                            >
+                                                Combine All References
                                             </button>
                                         </div>
 
@@ -152,6 +160,7 @@ import AccordionBox from "../Containers/AccordionBox.vue";
 import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
 import type { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
+import { ListProperty } from "../../assets/scripts/MappingFile";
 import type { MappingObject } from "../../assets/scripts/MappingFile/MappingObject";
 import * as EditorCommands from "../../assets/scripts/MappingFileEditor/EditorCommands";
 import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
@@ -317,6 +326,10 @@ export default defineComponent({
                     .join("\n");
             }
 
+            if (value instanceof ListProperty) {
+                return [...value.value.values()].map(item => item.toString()).join("\n");
+            }
+
             if (typeof value === "object") {
                 const obj = value as Record<string, unknown>;
 
@@ -432,6 +445,12 @@ export default defineComponent({
 
         getMergedPreviewValue(problem: MappingObjectProblem, field: DuplicateFieldDiff): string {
             const sourceKey = this.getMergeChoice(problem, field.key);
+            if (field.key === "references" && sourceKey === "combine") {
+                const urls = this.getSourceOptions(problem).flatMap(option =>
+                    [...(option.mapping?.references.value.values() ?? [])].map(item => item.getAsString("url"))
+                );
+                return [...new Set(urls)].join("\n");
+            }
             return field.values[sourceKey] ?? "";
         },
 
@@ -461,36 +480,24 @@ export default defineComponent({
             }
 
             const diffs = this.getProblemDuplicateDiffs(problem);
-
-
             const fieldSelections: MergeFieldSelection[] = diffs.map(field => {
                 const sourceKey = this.getMergeChoice(problem, field.key);
                 return {
                     fieldKey: field.key as keyof MappingObject,
                     sourceKey: field.key as keyof MappingObject,
+                    combineReferences: field.key === "references" && sourceKey === "combine",
                     duplicateMappingId: sourceKey.startsWith("duplicate:")
                         ? sourceKey.replace("duplicate:", "")
                         : undefined
                 };
             });
 
-            let command = EditorCommands.mergeMappingsObject(
+            const command = EditorCommands.mergeMappingsObject(
                 this.currentMapping,
                 problem.duplicateMappings ?? [],
                 fieldSelections
             );
             this.$emit("execute", command);
-
-
-
-            // TODO:
-            // Replace this emit with your real merge command/store action.
-            // That implementation will likely need to:
-            // 1. For each field, copy the selected source value into the current mapping
-            // 2. Resolve/remove the duplicate problem on the current mapping
-            // 3. Resolve/remove duplicate problems on all duplicate mappings
-            // 4. Optionally delete/archive/mark duplicate mappings as merged
-            // 5. Persist changes and hook into undo/redo
         }
     }
 });

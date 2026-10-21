@@ -2,8 +2,9 @@ import {
   MappingObject,
   StringProperty,
   ListItemProperty,
+  ListProperty,
 } from "@/assets/scripts/MappingFile";
-import { EditorCommand, EditorDirective, type DirectiveIssuer } from "../..";
+import { EditorCommand, EditorDirective, GroupCommand, type DirectiveIssuer } from "../..";
 import * as EditorCommands from "../../EditorCommands";
 import { checkDuplicateMappings } from "@/assets/scripts/MappingFile/CheckDuplicateMappings";
 
@@ -11,6 +12,7 @@ export type MergeFieldSelection = {
   fieldKey: keyof MappingObject;
   sourceKey: keyof MappingObject;
   duplicateMappingId: string | undefined;
+  combineReferences?: boolean;
 };
 
 export class MergeMappingsObject extends EditorCommand {
@@ -19,13 +21,9 @@ export class MergeMappingsObject extends EditorCommand {
   public readonly duplicateMappings: MappingObject[];
 
   public readonly fieldSelections: MergeFieldSelection[];
-  /**
-   * Uncollapses / Collapses a {@link MappingFileViewItem}.
-   * @param item
-   *  The view item to collapse.
-   * @param value
-   *  True to collapse the item, false to uncollapse the item.
-   */
+  private commands: GroupCommand | undefined;
+
+  /** Creates an undoable merge of the selected fields and duplicate mappings. */
   constructor(
     currentMapping: MappingObject,
     duplicateMappings: MappingObject[],
@@ -43,60 +41,66 @@ export class MergeMappingsObject extends EditorCommand {
    *  A function that can issue one or more editor directives.
    */
   public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
-    // 1. For each field, copy the selected source value into the current mapping
-    // 2. Delete the other duplicates
-    // 3. Persist changes and hook into undo/redo
+    if (!this.commands) {
+      this.commands = this.buildCommands();
+    }
+    await this.commands.execute(issueDirective);
+    this.refreshProblems(issueDirective);
+  }
 
+  private buildCommands(): GroupCommand {
+    const commands = new GroupCommand();
     for (const selection of this.fieldSelections) {
-      // iterate over each field with a different value and apply the selected value to the current mapping
-      if (selection.duplicateMappingId) {
-        const duplicateMapping = this.duplicateMappings.find(
-          (mapping) => mapping.id === selection.duplicateMappingId,
-        );
-        if (duplicateMapping) {
-          const currentProp = this.currentMapping[selection.fieldKey];
-          const duplicateProp = duplicateMapping[selection.sourceKey];
-
-          if (
-            currentProp instanceof StringProperty &&
-            duplicateProp instanceof StringProperty
-          ) {
-            await EditorCommands.setStringProperty(
-              currentProp,
-              duplicateProp.value,
-            ).execute(issueDirective);
-          } else if (
-            currentProp instanceof ListItemProperty &&
-            duplicateProp instanceof ListItemProperty
-          ) {
-            // Handle null exportValue by using the 2-parameter overload
-            if (duplicateProp.exportValue === null) {
-              await EditorCommands.setListItemProperty(
-                currentProp,
-                null,
-              ).execute(issueDirective);
-            } else {
-              // Use the 3-parameter overload for non-null exportValue
-              const exportText = duplicateProp.exportText ?? undefined;
-              await EditorCommands.setListItemProperty(
-                currentProp,
-                duplicateProp.exportValue,
-                exportText,
-              ).execute(issueDirective);
+      const currentProp = this.currentMapping[selection.fieldKey];
+      if (selection.fieldKey === "references" && selection.combineReferences) {
+        const seen = new Set<string>();
+        for (const mapping of [this.currentMapping, ...this.duplicateMappings]) {
+          for (const item of mapping.references.value.values()) {
+            const url = item.getAsString("url");
+            if (!seen.has(url)) {
+              seen.add(url);
+              commands.do(EditorCommands.addItemToListProperty(this.currentMapping.references, item.duplicate()));
             }
-          } else {
-            // Fallback to the original behavior? Or log an error?
-            console.warn(
-              `Unsupported property type for field ${selection.fieldKey}`,
-            );
           }
         }
+        // Remove the originals after capturing independent copies of the combined list.
+        for (const item of this.currentMapping.references.value.values()) {
+          commands.do(EditorCommands.deleteItemFromListProperty(this.currentMapping.references, item));
+        }
+        continue;
+      }
+      if (!selection.duplicateMappingId) {
+        continue;
+      }
+      const duplicateMapping = this.duplicateMappings.find(
+        mapping => mapping.id === selection.duplicateMappingId
+      );
+      if (!duplicateMapping) {
+        continue;
+      }
+      const duplicateProp = duplicateMapping[selection.sourceKey];
+      if (currentProp instanceof StringProperty && duplicateProp instanceof StringProperty) {
+        commands.do(EditorCommands.setStringProperty(currentProp, duplicateProp.value));
+      } else if (currentProp instanceof ListItemProperty && duplicateProp instanceof ListItemProperty) {
+        commands.do(duplicateProp.exportValue === null
+          ? EditorCommands.setListItemProperty(currentProp, null)
+          : EditorCommands.setListItemProperty(currentProp, duplicateProp.exportValue, duplicateProp.exportText ?? undefined));
+      } else if (currentProp instanceof ListProperty && duplicateProp instanceof ListProperty) {
+        for (const item of currentProp.value.values()) {
+          commands.do(EditorCommands.deleteItemFromListProperty(currentProp, item));
+        }
+        for (const item of duplicateProp.value.values()) {
+          commands.do(EditorCommands.addItemToListProperty(currentProp, item.duplicate()));
+        }
+      } else {
+        throw new Error(`Unsupported property type for field ${selection.fieldKey}`);
       }
     }
-    // Delete the duplicate mappings after merging their selected values
-    for (const duplicateMapping of this.duplicateMappings) {
-      await EditorCommands.deleteMappingObject(duplicateMapping).execute(issueDirective);
-    }
+    commands.do(EditorCommands.deleteMappingObjects(this.duplicateMappings));
+    return commands;
+  }
+
+  private refreshProblems(issueDirective: DirectiveIssuer): void {
     const file = this.currentMapping.file;
     if (file !== null) {
       checkDuplicateMappings(file);
