@@ -94,27 +94,10 @@
                 <details ref="capabilityGroupsDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandCapabilityGroups">
                     <summary>Capability Groups ({{ capabilityGroups.length }})</summary>
-                    <button class="add-item" type="button" @click="addCapabilityGroup">Add Capability Group</button>
-                    <fieldset v-for="(group, index) in capabilityGroups" :key="group.key">
-                        <legend>Capability Group {{ index + 1 }}</legend>
-                        <div class="fields">
-                            <FormTextField
-                                title="Group ID"
-                                v-model="group.id"
-                                required
-                                :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.id"
-                            />
-                            <FormTextField
-                                title="Group Name"
-                                v-model="group.name"
-                                required
-                                :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.name"
-                            />
-                        </div>
-                        <button class="remove-item" type="button"
-                            :aria-label="`Remove capability group ${index + 1}`"
-                            @click="capabilityGroups.splice(index, 1)">Remove</button>
-                    </fieldset>
+                    <UpdateCapabilityGroupsWrapper
+                        v-model="capabilityGroups"
+                        v-model:is-valid="capabilityGroupsAreValid"
+                    />
                 </details>
                 <p class="validation-summary-message">
                     <span v-if="validationSummaryErrorMessage">{{ validationSummaryErrorMessage }}</span>
@@ -138,6 +121,8 @@ import FormTextField from './Form/FormTextField.vue';
 import FormTextArea from './Form/FormTextArea.vue';
 import FormDropdown from './Form/FormDropdown.vue';
 import CircleCheck from '../Icons/CircleCheck.vue';
+import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
+import { cleanCapabilityGroupId } from './MetadataValidation.js';
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },
@@ -190,12 +175,6 @@ function validateId(val: string, type: "mappingType" | "capabilityGroup"): strin
         if (arrayToSearch.filter(v => cleanMappingTypeId(v.id) === cleanedVal).length > 1) {
             return "Duplicate detected. ID must be unique.";
         }
-    } else if (type === "capabilityGroup") {
-        const cleanedVal = cleanCapabilityGroupId(val);
-        const arrayToSearch = capabilityGroups;
-        if (arrayToSearch.filter(v => cleanCapabilityGroupId(v.id) === cleanedVal).length > 1) {
-            return "Duplicate detected. ID must be unique.";
-        }
     }
 
     return "";
@@ -233,28 +212,9 @@ const mappingTypesErrors = computed(() => {
     return results;
 });
 
-const capabilityGroupsErrors = computed(() => {
-    const results = [];
-
-    for (const cg of capabilityGroups) {
-        const groupIdError = validateId(cg.id, "capabilityGroup");
-        const groupNameError = validateExists(cg.name);
-
-        if (groupIdError || groupNameError) {
-            results.push({
-                id: groupIdError,
-                name: groupNameError,
-                key: cg.key
-            });
-        }
-    }
-
-    return results;
-});
-
 const disableSubmit = computed(() => {
     const mtErrors : boolean = mappingTypesErrors.value.length > 0;
-    const cgErrors : boolean = capabilityGroupsErrors.value.length > 0;
+    const cgErrors : boolean = !capabilityGroupsAreValid.value;
     const otherErrors : boolean = Object.values(errors.value).some(val => val);
     return mtErrors || cgErrors || otherErrors;
 });
@@ -268,7 +228,7 @@ const validationSummaryErrorMessage = computed(() => {
     if (mtErrors) {
         return "Mapping Types contains errors.";
     }
-    const cgErrors : boolean = capabilityGroupsErrors.value.length > 0;
+    const cgErrors : boolean = !capabilityGroupsAreValid.value;
     if (cgErrors) {
         return "Capability Groups contains errors.";
     }
@@ -308,12 +268,8 @@ const settings = reactive({
 });
 let nextMappingTypeKey = 0;
 const mappingTypes = reactive<{ key: number; id: string; name: string; description: string }[]>([]);
-let nextCapabilityGroupKey = 0;
-const capabilityGroups = reactive<{ key: number; id: string; name: string }[]>([]);
-
-function addCapabilityGroup() {
-    capabilityGroups.push({ key: nextCapabilityGroupKey++, id: '', name: '' });
-}
+const capabilityGroups = ref<{ key: number; id: string; name: string }[]>([]);
+const capabilityGroupsAreValid = ref(false);
 
 function expandCapabilityGroups() {
     if (capabilityGroupsDetails.value) capabilityGroupsDetails.value.open = true;
@@ -348,12 +304,6 @@ function cleanMappingTypeId(val: string): string {
     return val.trim().toLowerCase().replace(/\s+/g, '_');
 }
 
-function cleanCapabilityGroupId(val: string): string {
-    // The capability group id should only contain alphanumeric characters and spaces
-    // should be replaced with underscores.
-    return val.trim().replace(/\s+/g, '_');
-}
-
 function submit() {
     const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
     const sourceVersion = settings.source_version.trim();
@@ -368,7 +318,7 @@ function submit() {
     }
     const groupEntries: [string, string][] = [];
     const groupIds = new Set<string>();
-    for (const group of capabilityGroups.values()) {
+    for (const group of capabilityGroups.value) {
         const id = cleanCapabilityGroupId(group.id);
         const name = group.name.trim();
         groupIds.add(id);
@@ -501,17 +451,10 @@ button[type="submit"]:disabled {
     border-top: 1px solid var(--me-border-color-subtle);
 }
 summary { cursor: pointer; font-size: small; font-weight: 600; }
-.add-item { margin-top: 12px; }
-fieldset {
-    min-width: 0;
-    margin: 16px 0 0;
-    padding: 16px;
-    border: 1px solid var(--me-border-color-strong);
-    border-radius: 5px;
-}
+
 legend { padding: 0 6px; font-size: small; }
 textarea { resize: vertical; }
-.remove-item { margin-top: 12px; }
+
 @media (max-width: 520px) {
     .fields { grid-template-columns: minmax(0, 1fr); }
 }
