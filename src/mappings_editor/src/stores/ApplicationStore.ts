@@ -89,6 +89,7 @@ class ModalStack {
 }
 
 let saveAsResolver : Function | null = null;
+let editCapabilityGroupsResolver : Function | null = null;
 
 // Define Application Store
 export const useApplicationStore = defineStore('applicationStore', {
@@ -104,7 +105,8 @@ export const useApplicationStore = defineStore('applicationStore', {
         sidebarViewOptions: sidebarViewOptions,
         activeSidebar: sidebarViewOptions[0],
         modalStack: new ModalStack([ModalStackId.Splash]),
-        showSaveAs: false
+        showSaveAs: false,
+        showEditCapabilityGroups: false
     }),
     getters: {
 
@@ -191,6 +193,26 @@ export const useApplicationStore = defineStore('applicationStore', {
 
             saveAsResolver(filename);
             saveAsResolver = null;
+        },
+        askEditCapabilityGroups(): Promise<void> {
+            if (editCapabilityGroupsResolver) {
+                throw new Error("Edit Capability Groups already in progress.");
+            }
+
+            this.showEditCapabilityGroups = true;
+
+            return new Promise((resolve) => {
+                editCapabilityGroupsResolver = resolve;
+            });
+        },
+        answerEditCapabilityGroups() {
+            this.showEditCapabilityGroups = false;
+            if (!editCapabilityGroupsResolver) {
+                throw new Error('Edit Capability Groups is not in progress.');
+            }
+
+            editCapabilityGroupsResolver();
+            editCapabilityGroupsResolver = null;
         }
     }
 });

@@ -26,7 +26,7 @@ import { computed, watchEffect } from 'vue';
 import FormTextField from './Form/FormTextField.vue';
 import { cleanCapabilityGroupId } from './MetadataValidation.js';
 
-const model = defineModel<{ key: number, id: string, name: string }[]>({ default: [] });
+const model = defineModel<{ key: number, id: string, name: string }[]>({ required: true });
 const isValid = defineModel('isValid', { default: false, type: Boolean });
 
 function validateName(val: string) {

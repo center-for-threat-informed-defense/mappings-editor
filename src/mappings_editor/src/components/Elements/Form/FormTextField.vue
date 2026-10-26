@@ -89,6 +89,7 @@ input {
     border-radius: 5px;
     background: var(--me-bg-color-recessed);
     padding: 10px 12px;
+    color: var(--me-text-color);
 }
 
 .error-message {

@@ -319,7 +319,8 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     this.undoRedoMenu,
                     this.clipboardMenu,
                     this.deleteMappingMenu,
-                    this.selectMappingMenu
+                    this.selectMappingMenu,
+                    this.editCapabilityGroupsMenu
                 ]
             }
         },
@@ -437,6 +438,20 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                         data: () => EditorCommands.unselectAllMappingObjectViews(editor.view),
                         shortcut: edit.unselect_all,
                         disabled: !app.hasSelection
+                    }
+                ],
+            }
+        },
+
+        editCapabilityGroupsMenu(): ContextMenuSection {
+            const app = useApplicationStore();
+            return {
+                id: "edit_capability_groups",
+                items: [
+                    {
+                        text: "Edit Capability Groups",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.editCapabilityGroups(app),
                     }
                 ],
             }

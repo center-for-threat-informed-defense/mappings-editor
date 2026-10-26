@@ -8,6 +8,8 @@ import type { EditorCommand } from "..";
 import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 import { PatchMappingObject } from "./PatchMappingObject";
+import { EditCapabilityGroups } from "./EditCapabilityGroups";
+import type { ApplicationStore } from "@/stores/ApplicationStore";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 
 /**
@@ -102,4 +104,8 @@ export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
  */
 export function patchMappingObject(object: MappingObject): EditorCommand {
     return new PatchMappingObject(object);
+}
+
+export function editCapabilityGroups(context: ApplicationStore): EditorCommand {
+    return new EditCapabilityGroups(context);
 }
