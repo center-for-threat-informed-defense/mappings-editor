@@ -11,9 +11,11 @@
                 <p>{{ description }}</p>
             </slot>
         </header>
-        <div class="modal-body">
-            <slot></slot>
-        </div>
+        <ScrollBox class="scroll-box">
+            <div class="modal-body">
+                <slot></slot>
+            </div>
+        </ScrollBox>
     </dialog>
 </template>
 <script setup lang="ts">
@@ -21,6 +23,7 @@
  * Generic modal component.
  */
 import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue';
+import ScrollBox from '../Containers/ScrollBox.vue';
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialog');
 
@@ -58,6 +61,15 @@ dialog {
     border-radius: 10px;
     padding: 0;
     width: 640px;
+    overflow: hidden;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll-box {
+    flex: 0 1 auto;
+    min-height: 0;
 }
 
 header {
