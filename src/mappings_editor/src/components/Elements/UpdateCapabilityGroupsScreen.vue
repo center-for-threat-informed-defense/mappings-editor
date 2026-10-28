@@ -1,5 +1,6 @@
 <template>
     <AppModal
+        class="modal-root"
         title="Edit Capability Groups",
         description="Add new capability groups, update existing groups, or delete groups."
         @close="emit('close')"
@@ -8,30 +9,69 @@
             class="modal-body"
             @submit.prevent="onSubmit"
         >
-            <UpdateCapabilityGroupsWrapper v-model="capabilityGroups"/>
+            <UpdateCapabilityGroupsWrapper
+                ref="wrapper"
+                v-model="capabilityGroups"
+                v-model:is-valid="isValid"
+            />
             <div class="modal-buttons">
-                <button type="button" @click="emit('close')">Cancel</button>
-                <button type="submit">Confirm</button>
+                <button type="button" @click="onCancel">Cancel</button>
+                <button type="submit" :disabled="!isValid">Confirm</button>
             </div>
         </form>
     </AppModal>
 </template>
+
 <script setup lang="ts">
 import AppModal from './AppModal.vue';
 import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
-import { ref } from 'vue';
+import { ref, onMounted, useTemplateRef } from 'vue';
+import { useApplicationStore } from '@/stores/ApplicationStore.js';
+import { nextTick } from 'vue';
 
-const capabilityGroups = ref([]);
+const wrapper = useTemplateRef('wrapper');
+
+const app = useApplicationStore();
+
+const capabilityGroups = ref<{ key: number, id: string, name: string }[]>([]);
+
+const isValid = ref(false);
 
 const emit = defineEmits(['close']);
 
-function onSubmit() {
-
+function initializeCapabilityGroups(): { key: number, id: string, name: string}[] {
+    const capabilityGroupsString = "[" + app.activeEditor.file.capabilityGroups.toString() + "]";
+    const capabilityGroupsArray : { id: string, name: string }[] = JSON.parse(capabilityGroupsString);
+    const result = capabilityGroupsArray.map((cg, index) => {
+        return {
+            id: cg.id,
+            name: cg.name,
+            key: index
+        }
+    });
+    return result;
 }
 
-</script>
-<style scoped>
+function onCancel() {
+    app.answerEditCapabilityGroups(null);
+    emit('close');
+}
 
+function onSubmit() {
+    const strippedKeys = capabilityGroups.value.map(
+        (g) => { return {id: g.id, name: g.name} });
+    app.answerEditCapabilityGroups(strippedKeys);
+}
+
+onMounted(async () => {
+    capabilityGroups.value = initializeCapabilityGroups();
+    await nextTick();
+    wrapper.value?.markAllVisited();
+});
+
+</script>
+
+<style scoped>
 button {
     padding: 10px 18px;
     border: 1px solid var(--me-border-color-strong);

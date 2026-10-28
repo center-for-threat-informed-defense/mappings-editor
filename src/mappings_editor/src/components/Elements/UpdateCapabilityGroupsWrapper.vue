@@ -4,17 +4,20 @@
         <legend>Capability Group {{ index + 1 }}</legend>
         <div class="fields">
             <FormTextField
+                ref="inputRefs"
                 title="Group ID"
                 v-model="group.id"
                 required
                 :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.id"
             />
             <FormTextField
+                ref="inputRefs"
                 title="Group Name"
                 v-model="group.name"
                 required
                 :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.name"
             />
+            {{ group.key }}
         </div>
         <button class="remove-item" type="button"
             :aria-label="`Remove capability group ${index + 1}`"
@@ -22,12 +25,23 @@
     </fieldset>
 </template>
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue';
+import { computed, watchEffect, ref, useTemplateRef } from 'vue';
 import FormTextField from './Form/FormTextField.vue';
 import { cleanCapabilityGroupId } from './MetadataValidation.js';
 
 const model = defineModel<{ key: number, id: string, name: string }[]>({ required: true });
+
+/** Use this model to detect when the capability groups input is valid. */
 const isValid = defineModel('isValid', { default: false, type: Boolean });
+
+const inputRefs = useTemplateRef<InstanceType<typeof FormTextField>[]>('inputRefs');
+
+defineExpose({
+    markAllVisited: () => {
+        /** Mark all fields as visited so that validation errors may display. */
+        inputRefs.value?.forEach((val) => val.markVisited())
+    }
+});
 
 function validateName(val: string) {
     if (!val) {
@@ -58,7 +72,7 @@ function validateId(val: string): string {
 
 function addItem() {
     const currentMaxKey = model.value.toSorted((a, b) => {
-        return a.key - b.key;
+        return b.key - a.key;
     })?.[0]?.key ?? 0;
 
     const nextKey = currentMaxKey + 1;

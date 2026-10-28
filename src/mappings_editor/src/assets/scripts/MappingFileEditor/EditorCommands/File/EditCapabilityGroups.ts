@@ -13,7 +13,8 @@ export class EditCapabilityGroups extends EditorCommand {
 
 
     public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
-        this.context.askEditCapabilityGroups();
+        const editedGroups = await this.context.askEditCapabilityGroups();
+        console.log('TODO: Use this', editedGroups);
     }
 
     public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {

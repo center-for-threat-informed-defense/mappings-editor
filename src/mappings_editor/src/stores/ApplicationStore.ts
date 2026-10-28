@@ -88,6 +88,8 @@ class ModalStack {
     }
 }
 
+interface CapabilityGroup { id: string, name: string };
+
 let saveAsResolver : Function | null = null;
 let editCapabilityGroupsResolver : Function | null = null;
 
@@ -194,7 +196,7 @@ export const useApplicationStore = defineStore('applicationStore', {
             saveAsResolver(filename);
             saveAsResolver = null;
         },
-        askEditCapabilityGroups(): Promise<void> {
+        askEditCapabilityGroups(): Promise<CapabilityGroup[] | null> {
             if (editCapabilityGroupsResolver) {
                 throw new Error("Edit Capability Groups already in progress.");
             }
@@ -205,13 +207,13 @@ export const useApplicationStore = defineStore('applicationStore', {
                 editCapabilityGroupsResolver = resolve;
             });
         },
-        answerEditCapabilityGroups() {
+        answerEditCapabilityGroups(updatedGroups: CapabilityGroup[] | null) {
             this.showEditCapabilityGroups = false;
             if (!editCapabilityGroupsResolver) {
                 throw new Error('Edit Capability Groups is not in progress.');
             }
 
-            editCapabilityGroupsResolver();
+            editCapabilityGroupsResolver(updatedGroups);
             editCapabilityGroupsResolver = null;
         }
     }
