@@ -5,6 +5,14 @@ import { EditorCommand } from "../EditorCommand";
 import { EditorDirective } from "../EditorDirective";
 import { CapabilityGroupSectionView } from "../../MappingFileView/MappingFileViewItem/CapabilityGroupSectionView";
 
+export interface EditCapabilityGroupRecord {
+    /** Internal unique key (primary key) that may correspond with ListItem id */
+    key: string;
+    /** Capability group name */
+    name: string;
+    /** Capability group id */
+    id: string;
+}
 
 export class EditCapabilityGroups extends EditorCommand {
     private context: ApplicationStore
@@ -26,11 +34,11 @@ export class EditCapabilityGroups extends EditorCommand {
     public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         const editedGroups = await this.context.askEditCapabilityGroups();
         if (editedGroups === null) {
+            // The command was canceled. Nothing to do.
             return;
         }
         this.recordExistingCapabilityGroups();
-        console.log('TODO: Use this', editedGroups);
-        // this.context.activeEditor.file.capabilityGroups.
+        
     }
 
     /** Records the original items, values, and order for undo only once. */

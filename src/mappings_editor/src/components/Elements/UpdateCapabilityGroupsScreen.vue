@@ -28,28 +28,24 @@ import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
 import { ref, onMounted, useTemplateRef } from 'vue';
 import { useApplicationStore } from '@/stores/ApplicationStore.js';
 import { nextTick } from 'vue';
+import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
 
 const wrapper = useTemplateRef('wrapper');
 
 const app = useApplicationStore();
 
-const capabilityGroups = ref<{ key: number, id: string, name: string }[]>([]);
+const capabilityGroups = ref<EditCapabilityGroupRecord[]>([]);
 
 const isValid = ref(false);
 
 const emit = defineEmits(['close']);
 
-function initializeCapabilityGroups(): { key: number, id: string, name: string}[] {
-    const capabilityGroupsString = "[" + app.activeEditor.file.capabilityGroups.toString() + "]";
-    const capabilityGroupsArray : { id: string, name: string }[] = JSON.parse(capabilityGroupsString);
-    const result = capabilityGroupsArray.map((cg, index) => {
-        return {
-            id: cg.id,
-            name: cg.name,
-            key: index
-        }
-    });
-    return result;
+function initializeCapabilityGroups(): EditCapabilityGroupRecord[] {
+    return [...app.activeEditor.file.capabilityGroups.value.values()].map(item => ({
+        key: item.id,
+        id: item.getAsString("id"),
+        name: item.getAsString("name"),
+    }));
 }
 
 function onCancel() {
@@ -58,9 +54,7 @@ function onCancel() {
 }
 
 function onSubmit() {
-    const strippedKeys = capabilityGroups.value.map(
-        (g) => { return {id: g.id, name: g.name} });
-    app.answerEditCapabilityGroups(strippedKeys);
+    app.answerEditCapabilityGroups(capabilityGroups.value);
 }
 
 onMounted(async () => {

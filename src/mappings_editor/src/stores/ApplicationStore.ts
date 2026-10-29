@@ -5,6 +5,7 @@ import { MappingFileEditor, EditorCommand } from '@/assets/scripts/MappingFileEd
 import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFileAuthority, type Framework } from '@/assets/scripts/MappingFileAuthority'
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
 import { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
+import type { EditCapabilityGroupRecord } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups";
 
 // Build Framework Registry
 const registry = new FrameworkRegistry();
@@ -87,8 +88,6 @@ class ModalStack {
         return this.stack.at(-1);
     }
 }
-
-interface CapabilityGroup { id: string, name: string };
 
 let saveAsResolver : Function | null = null;
 let editCapabilityGroupsResolver : Function | null = null;
@@ -196,7 +195,7 @@ export const useApplicationStore = defineStore('applicationStore', {
             saveAsResolver(filename);
             saveAsResolver = null;
         },
-        askEditCapabilityGroups(): Promise<CapabilityGroup[] | null> {
+        askEditCapabilityGroups(): Promise<EditCapabilityGroupRecord[] | null> {
             if (editCapabilityGroupsResolver) {
                 throw new Error("Edit Capability Groups already in progress.");
             }
@@ -207,7 +206,7 @@ export const useApplicationStore = defineStore('applicationStore', {
                 editCapabilityGroupsResolver = resolve;
             });
         },
-        answerEditCapabilityGroups(updatedGroups: CapabilityGroup[] | null) {
+        answerEditCapabilityGroups(updatedGroups: EditCapabilityGroupRecord[] | null) {
             this.showEditCapabilityGroups = false;
             if (!editCapabilityGroupsResolver) {
                 throw new Error('Edit Capability Groups is not in progress.');

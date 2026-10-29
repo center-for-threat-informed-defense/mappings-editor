@@ -123,6 +123,7 @@ import FormDropdown from './Form/FormDropdown.vue';
 import CircleCheck from '../Icons/CircleCheck.vue';
 import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
 import { cleanCapabilityGroupId } from './MetadataValidation.js';
+import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },
@@ -268,7 +269,7 @@ const settings = reactive({
 });
 let nextMappingTypeKey = 0;
 const mappingTypes = reactive<{ key: number; id: string; name: string; description: string }[]>([]);
-const capabilityGroups = ref<{ key: number; id: string; name: string }[]>([]);
+const capabilityGroups = ref<EditCapabilityGroupRecord[]>([]);
 const capabilityGroupsAreValid = ref(false);
 
 function expandCapabilityGroups() {

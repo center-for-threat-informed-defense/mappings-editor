@@ -25,11 +25,12 @@
     </fieldset>
 </template>
 <script setup lang="ts">
-import { computed, watch, watchEffect, useTemplateRef } from 'vue';
+import { computed, watchEffect, useTemplateRef } from 'vue';
 import FormTextField from './Form/FormTextField.vue';
 import { cleanCapabilityGroupId } from './MetadataValidation.js';
+import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
 
-const model = defineModel<{ key: number, id: string, name: string }[]>({ required: true });
+const model = defineModel<EditCapabilityGroupRecord[]>({ required: true });
 
 /** Use this model to detect when the capability groups input is valid. */
 const isValid = defineModel('isValid', { default: false, type: Boolean });
@@ -70,36 +71,12 @@ function validateId(val: string): string {
     return "";
 }
 
-/** The key of the last item added to the list. */
-let lastKey : number | null = null;
-
-/** The maximum key of all items currently in the list. */
-const currentMaxKey = computed<number>(() => {
-    return model.value.toSorted((a, b) => {
-        return b.key - a.key;
-    })?.[0]?.key ?? 0;
-});
-
-watch(model, () => {
-    if (lastKey === null) {
-        lastKey = currentMaxKey.value;
-    } else {
-        // In case the model was unexpectedly updated with large keys, update the last
-        // key to the new highest value.
-        lastKey = Math.max(lastKey, currentMaxKey.value);
-    }
-}, { deep: true });
-
 function addItem() {
-    const nextKey = (lastKey ?? 0) + 1;
-
     model.value.push({
-        key: nextKey,
+        key: crypto.randomUUID(),
         id: '',
         name: ''
     });
-
-    lastKey = nextKey;
 }
 
 const capabilityGroupsErrors = computed(() => {
