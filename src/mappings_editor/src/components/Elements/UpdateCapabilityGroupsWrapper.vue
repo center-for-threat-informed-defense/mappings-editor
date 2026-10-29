@@ -84,13 +84,14 @@ watch(model, () => {
     if (lastKey === null) {
         lastKey = currentMaxKey.value;
     } else {
+        // In case the model was unexpectedly updated with large keys, update the last
+        // key to the new highest value.
         lastKey = Math.max(lastKey, currentMaxKey.value);
     }
 }, { deep: true });
 
 function addItem() {
-    // Make sure keys always increment when adding items.
-    const nextKey = Math.max(currentMaxKey.value + 1, (lastKey ?? 0) + 1);
+    const nextKey = (lastKey ?? 0) + 1;
 
     model.value.push({
         key: nextKey,
