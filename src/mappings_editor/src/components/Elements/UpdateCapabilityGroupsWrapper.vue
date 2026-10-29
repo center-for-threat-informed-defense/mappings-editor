@@ -17,7 +17,7 @@
                 required
                 :error-message="capabilityGroupsErrors.find(cg => cg.key === group.key)?.name"
             />
-            {{ group.key }}
+            <!-- {{ group.key }} -->
         </div>
         <button class="remove-item" type="button"
             :aria-label="`Remove capability group ${index + 1}`"
@@ -25,7 +25,7 @@
     </fieldset>
 </template>
 <script setup lang="ts">
-import { computed, watchEffect, ref, useTemplateRef } from 'vue';
+import { computed, watch, watchEffect, useTemplateRef } from 'vue';
 import FormTextField from './Form/FormTextField.vue';
 import { cleanCapabilityGroupId } from './MetadataValidation.js';
 
@@ -70,18 +70,35 @@ function validateId(val: string): string {
     return "";
 }
 
-function addItem() {
-    const currentMaxKey = model.value.toSorted((a, b) => {
+/** The key of the last item added to the list. */
+let lastKey : number | null = null;
+
+/** The maximum key of all items currently in the list. */
+const currentMaxKey = computed<number>(() => {
+    return model.value.toSorted((a, b) => {
         return b.key - a.key;
     })?.[0]?.key ?? 0;
+});
 
-    const nextKey = currentMaxKey + 1;
+watch(model, () => {
+    if (lastKey === null) {
+        lastKey = currentMaxKey.value;
+    } else {
+        lastKey = Math.max(lastKey, currentMaxKey.value);
+    }
+}, { deep: true });
+
+function addItem() {
+    // Make sure keys always increment when adding items.
+    const nextKey = Math.max(currentMaxKey.value + 1, (lastKey ?? 0) + 1);
 
     model.value.push({
         key: nextKey,
         id: '',
         name: ''
     });
+
+    lastKey = nextKey;
 }
 
 const capabilityGroupsErrors = computed(() => {

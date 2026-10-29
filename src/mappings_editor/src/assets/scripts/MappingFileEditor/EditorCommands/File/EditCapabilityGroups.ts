@@ -15,6 +15,7 @@ export class EditCapabilityGroups extends EditorCommand {
     public async execute(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
         const editedGroups = await this.context.askEditCapabilityGroups();
         console.log('TODO: Use this', editedGroups);
+        // this.context.activeEditor.file.capabilityGroups.
     }
 
     public async undo(issueDirective: DirectiveIssuer = () => {}): Promise<void> {
