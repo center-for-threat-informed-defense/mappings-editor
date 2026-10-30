@@ -9,6 +9,6 @@
       "@/*": ["./src/*"]
     },
     "target": "es2022",
-    "lib": ["es2023", "DOM"]
+    "lib": ["es2023", "DOM", "DOM.Iterable"]
   }
 }
