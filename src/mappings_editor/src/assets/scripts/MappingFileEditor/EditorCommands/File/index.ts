@@ -9,6 +9,7 @@ import type { MappingFile, MappingObject } from "@/assets/scripts/MappingFile";
 import type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 import { PatchMappingObject } from "./PatchMappingObject";
 import { EditCapabilityGroups } from "./EditCapabilityGroups";
+import { EditMappingTypes } from "./EditMappingTypes";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
 
@@ -108,4 +109,9 @@ export function patchMappingObject(object: MappingObject): EditorCommand {
 
 export function editCapabilityGroups(context: ApplicationStore): EditorCommand {
     return new EditCapabilityGroups(context);
+}
+
+/** Creates a command that opens the Edit Mapping Types dialog. */
+export function editMappingTypes(context: ApplicationStore): EditorCommand {
+    return new EditMappingTypes(context);
 }

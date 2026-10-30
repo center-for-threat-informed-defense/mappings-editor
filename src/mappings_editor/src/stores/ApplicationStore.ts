@@ -6,6 +6,7 @@ import { FrameworkRegistry, FrameworkSourceFile, FrameworksSourceUrl, MappingFil
 import { BaseAppSettings, type AppCommand, MappingFileSerializer } from '@/assets/scripts/Application';
 import { MigrationContext } from "@/assets/scripts/MappingFileAuthority/MigrationContext";
 import type { EditCapabilityGroupRecord } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups";
+import type { EditMappingTypeRecord } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/EditMappingTypes";
 
 // Build Framework Registry
 const registry = new FrameworkRegistry();
@@ -91,6 +92,7 @@ class ModalStack {
 
 let saveAsResolver : Function | null = null;
 let editCapabilityGroupsResolver : Function | null = null;
+let editMappingTypesResolver: ((updatedTypes: EditMappingTypeRecord[] | null) => void) | null = null;
 
 // Define Application Store
 export const useApplicationStore = defineStore('applicationStore', {
@@ -107,7 +109,8 @@ export const useApplicationStore = defineStore('applicationStore', {
         activeSidebar: sidebarViewOptions[0],
         modalStack: new ModalStack([ModalStackId.Splash]),
         showSaveAs: false,
-        showEditCapabilityGroups: false
+        showEditCapabilityGroups: false,
+        showEditMappingTypes: false
     }),
     getters: {
 
@@ -195,6 +198,11 @@ export const useApplicationStore = defineStore('applicationStore', {
             saveAsResolver(filename);
             saveAsResolver = null;
         },
+        /**
+         * Open the Edit Capability Groups dialog and wait for its response.
+         * @returns The updated group list, or null if canceled.
+         * @throws If a capability group edit is already in progress.
+         */
         askEditCapabilityGroups(): Promise<EditCapabilityGroupRecord[] | null> {
             if (editCapabilityGroupsResolver) {
                 throw new Error("Edit Capability Groups already in progress.");
@@ -206,6 +214,11 @@ export const useApplicationStore = defineStore('applicationStore', {
                 editCapabilityGroupsResolver = resolve;
             });
         },
+        /**
+         * Close the Edit Capability Groups dialog and resolve its pending request.
+         * @param updatedGroups The complete updated group list, or null to cancel.
+         * @throws If no capability group edit is in progress.
+         */
         answerEditCapabilityGroups(updatedGroups: EditCapabilityGroupRecord[] | null) {
             this.showEditCapabilityGroups = false;
             if (!editCapabilityGroupsResolver) {
@@ -214,6 +227,35 @@ export const useApplicationStore = defineStore('applicationStore', {
 
             editCapabilityGroupsResolver(updatedGroups);
             editCapabilityGroupsResolver = null;
+        },
+        /**
+         * Open the Edit Mapping Types dialog and wait for its response.
+         * @returns The updated mapping type list, or null if canceled.
+         * @throws If a mapping type edit is already in progress.
+         */
+        askEditMappingTypes(): Promise<EditMappingTypeRecord[] | null> {
+            if (editMappingTypesResolver) {
+                throw new Error('Edit Mapping Types already in progress.');
+            }
+
+            this.showEditMappingTypes = true;
+            return new Promise(resolve => {
+                editMappingTypesResolver = resolve;
+            });
+        },
+        /**
+         * Close the Edit Mapping Types dialog and resolve its pending request.
+         * @param updatedTypes The complete updated mapping type list, or null to cancel.
+         * @throws If no mapping type edit is in progress.
+         */
+        answerEditMappingTypes(updatedTypes: EditMappingTypeRecord[] | null) {
+            if (!editMappingTypesResolver) {
+                throw new Error('Edit Mapping Types is not in progress.');
+            }
+
+            this.showEditMappingTypes = false;
+            editMappingTypesResolver(updatedTypes);
+            editMappingTypesResolver = null;
         }
     }
 });

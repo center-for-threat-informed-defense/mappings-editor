@@ -101,36 +101,11 @@ import FormTextField from './Form/FormTextField.vue';
 import FormDropdown from './Form/FormDropdown.vue';
 import CircleCheck from '../Icons/CircleCheck.vue';
 import { capabilityGroupFields } from './CapabilityGroupFields';
-import FormListEditor, { type FormListField } from './Form/FormListEditor.vue';
+import FormListEditor from './Form/FormListEditor.vue';
+import { mappingTypeFields } from './MappingTypeFields';
+import type { EditMappingTypeRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditMappingTypes';
 import { cleanCapabilityGroupId, cleanMappingTypeId } from './MetadataValidation.js';
 import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
-
-interface MappingTypeRecord {
-    key: string;
-    id: string;
-    name: string;
-    description: string;
-}
-
-const mappingTypeFields: FormListField<MappingTypeRecord>[] = [
-    {
-        key: 'id',
-        label: 'Type ID',
-        validate: (value, row, rows) => {
-            if (!/^[A-Za-z0-9_ ]+$/.test(value)) {
-                return 'Use letters, numbers, spaces and underscores only for the ID.';
-            }
-
-            const normalized = cleanMappingTypeId(value);
-            const duplicate = rows.some(other =>
-                other.key !== row.key && cleanMappingTypeId(other.id) === normalized
-            );
-            return duplicate ? 'Duplicate detected. ID must be unique.' : '';
-        },
-    },
-    { key: 'name', label: 'Type Name' },
-    { key: 'description', label: 'Type Description', multiline: true },
-];
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },
@@ -223,7 +198,7 @@ const settings = reactive({
     author_contact: '',
     author_organization: '',
 });
-const mappingTypes = ref<MappingTypeRecord[]>([]);
+const mappingTypes = ref<EditMappingTypeRecord[]>([]);
 const mappingTypesAreValid = ref(false);
 const capabilityGroups = ref<EditCapabilityGroupRecord[]>([]);
 const capabilityGroupsAreValid = ref(false);

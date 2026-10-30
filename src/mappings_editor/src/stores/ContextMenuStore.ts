@@ -320,7 +320,7 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
                     this.clipboardMenu,
                     this.deleteMappingMenu,
                     this.selectMappingMenu,
-                    this.editCapabilityGroupsMenu
+                    this.editFileMetadataMenu
                 ]
             }
         },
@@ -443,15 +443,21 @@ export const useContextMenuStore = defineStore('contextMenuStore', {
             }
         },
 
-        editCapabilityGroupsMenu(): ContextMenuSection {
+        /** Returns the capability group and mapping type editing menu section. */
+        editFileMetadataMenu(): ContextMenuSection {
             const app = useApplicationStore();
             return {
-                id: "edit_capability_groups",
+                id: "edit_file_metadata",
                 items: [
                     {
                         text: "Edit Capability Groups",
                         type: MenuType.Item,
                         data: () => EditorCommands.editCapabilityGroups(app),
+                    },
+                    {
+                        text: "Edit Mapping Types",
+                        type: MenuType.Item,
+                        data: () => EditorCommands.editMappingTypes(app),
                     }
                 ],
             }
