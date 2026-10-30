@@ -100,3 +100,8 @@ export type MappingFileImport = {
     default_mapping_type?: string | null;
 
 }
+
+/** Metadata collected when creating a new mapping file. */
+export type FileCreationSettings = Pick<MappingFileImport,
+    'target_version' | 'target_framework' | 'source_framework' | 'source_version' |
+    'author' | 'author_contact' | 'author_organization' | 'mapping_types' | 'capability_groups'>;
