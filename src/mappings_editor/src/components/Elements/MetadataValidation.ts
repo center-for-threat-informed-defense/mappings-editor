@@ -8,3 +8,8 @@ export function cleanCapabilityGroupId(val: string): string {
     // should be replaced with underscores.
     return val.trim().replace(/\s+/g, '_');
 }
+
+/** Normalize mapping type IDs for validation and file creation. */
+export function cleanMappingTypeId(val: string): string {
+    return val.trim().toLowerCase().replace(/\s+/g, '_');
+}

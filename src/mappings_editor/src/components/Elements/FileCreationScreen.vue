@@ -62,34 +62,10 @@
                 <details ref="mappingTypesDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandMappingTypes">
                     <summary>Mapping Types ({{ mappingTypes.length }})</summary>
-                    <button class="add-item" type="button" @click="addMappingType">Add Mapping Type</button>
-                    <fieldset v-for="(type, index) in mappingTypes" :key="type.key">
-                        <legend>Mapping Type {{ index + 1 }}</legend>
-                        <div class="fields">
-                            <FormTextField
-                                title="Type ID"
-                                v-model="type.id"
-                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.id"
-                                required
-                            />
-                            <FormTextField
-                                title="Type Name"
-                                v-model="type.name"
-                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.name"
-                                required
-                            />
-                            <FormTextArea
-                                class="full-width"
-                                title="Type Description"
-                                v-model="type.description"
-                                :error-message="mappingTypesErrors.find(mt => mt.key === type.key)?.description"
-                                required
-                            />
-                        </div>
-                        <button class="remove-item" type="button"
-                            :aria-label="`Remove mapping type ${index + 1}`"
-                            @click="mappingTypes.splice(index, 1)">Remove</button>
-                    </fieldset>
+                    <UpdateMappingTypesWrapper
+                        v-model="mappingTypes"
+                        v-model:is-valid="mappingTypesAreValid"
+                    />
                 </details>
                 <details ref="capabilityGroupsDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandCapabilityGroups">
@@ -118,11 +94,11 @@ import manifest from '@/assets/configuration/app.framework.manifest.json';
 import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority';
 import ScrollBox from '../Containers/ScrollBox.vue';
 import FormTextField from './Form/FormTextField.vue';
-import FormTextArea from './Form/FormTextArea.vue';
 import FormDropdown from './Form/FormDropdown.vue';
 import CircleCheck from '../Icons/CircleCheck.vue';
 import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
-import { cleanCapabilityGroupId } from './MetadataValidation.js';
+import UpdateMappingTypesWrapper, { type MappingTypeRecord } from './UpdateMappingTypesWrapper.vue';
+import { cleanCapabilityGroupId, cleanMappingTypeId } from './MetadataValidation.js';
 import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
 
 const domainOptions = [
@@ -151,36 +127,6 @@ function validateExists(val: string): string {
 }
 
 
-/**
- * Check if the ID field of a mapping type or a capability group is valid.
- * @param val the ID value
- * @param type "mappingType" or "capabilityGroup"
- * @returns a blank string if the value is valid, else an error string.
- */
-function validateId(val: string, type: "mappingType" | "capabilityGroup"): string {
-    // Check for existence.
-    const existsError = validateExists(val);
-    if (existsError) {
-        return existsError;
-    }
-
-    // Check for disallowed characters.
-    if (!/^[A-Za-z0-9_ ]+$/.test(val)) {
-        return "Use letters, numbers, spaces and underscores only for the ID.";
-    }
-
-    // Check for duplicate IDs.
-    if (type === "mappingType") {
-        const cleanedVal = cleanMappingTypeId(val);
-        const arrayToSearch = mappingTypes;
-        if (arrayToSearch.filter(v => cleanMappingTypeId(v.id) === cleanedVal).length > 1) {
-            return "Duplicate detected. ID must be unique.";
-        }
-    }
-
-    return "";
-}
-
 const errors = computed(() => ({
     source_framework: validateExists(settings.source_framework),
     source_version: validateExists(settings.source_version),
@@ -192,29 +138,8 @@ const errors = computed(() => ({
     
 }));
 
-const mappingTypesErrors = computed(() => {
-    const results = [];
-
-    for (const mt of mappingTypes) {
-        const typeIdError = validateId(mt.id, "mappingType");
-        const typeNameError = validateExists(mt.name);
-        const typeDescriptionError = validateExists(mt.description);
-
-        if (typeIdError || typeNameError || typeDescriptionError) {
-            results.push({
-                id: typeIdError,
-                name: typeNameError,
-                description: typeDescriptionError,
-                key: mt.key
-            });
-        }
-    }
-
-    return results;
-});
-
 const disableSubmit = computed(() => {
-    const mtErrors : boolean = mappingTypesErrors.value.length > 0;
+    const mtErrors : boolean = !mappingTypesAreValid.value;
     const cgErrors : boolean = !capabilityGroupsAreValid.value;
     const otherErrors : boolean = Object.values(errors.value).some(val => val);
     return mtErrors || cgErrors || otherErrors;
@@ -225,7 +150,7 @@ const validationSummaryErrorMessage = computed(() => {
     if (otherErrors) {
         return "Fill out all required fields to continue.";
     }
-    const mtErrors : boolean = mappingTypesErrors.value.length > 0;
+    const mtErrors : boolean = !mappingTypesAreValid.value;
     if (mtErrors) {
         return "Mapping Types contains errors.";
     }
@@ -267,17 +192,13 @@ const settings = reactive({
     author_contact: '',
     author_organization: '',
 });
-let nextMappingTypeKey = 0;
-const mappingTypes = reactive<{ key: number; id: string; name: string; description: string }[]>([]);
+const mappingTypes = ref<MappingTypeRecord[]>([]);
+const mappingTypesAreValid = ref(false);
 const capabilityGroups = ref<EditCapabilityGroupRecord[]>([]);
 const capabilityGroupsAreValid = ref(false);
 
 function expandCapabilityGroups() {
     if (capabilityGroupsDetails.value) capabilityGroupsDetails.value.open = true;
-}
-
-function addMappingType() {
-    mappingTypes.push({ key: nextMappingTypeKey++, id: '', name: '', description: '' });
 }
 
 function expandMappingTypes() {
@@ -299,18 +220,12 @@ onMounted(() => {
 });
 onBeforeUnmount(() => dialog.value?.close());
 
-function cleanMappingTypeId(val: string): string {
-    // The mapping id should only contain lowercase alphanumeric characters and spaces
-    // should be replaced with underscores.
-    return val.trim().toLowerCase().replace(/\s+/g, '_');
-}
-
 function submit() {
     const sourceFramework = settings.source_framework.trim().toLowerCase().replace(/\s+/g, '_');
     const sourceVersion = settings.source_version.trim();
     const typeEntries: [string, { name: string; description: string }][] = [];
     const ids = new Set<string>();
-    for (const type of mappingTypes.values()) {
+    for (const type of mappingTypes.value) {
         const id = cleanMappingTypeId(type.id);
         const name = type.name.trim();
         const description = type.description.trim();
@@ -453,8 +368,6 @@ button[type="submit"]:disabled {
 }
 summary { cursor: pointer; font-size: small; font-weight: 600; }
 
-legend { padding: 0 6px; font-size: small; }
-textarea { resize: vertical; }
 
 @media (max-width: 520px) {
     .fields { grid-template-columns: minmax(0, 1fr); }

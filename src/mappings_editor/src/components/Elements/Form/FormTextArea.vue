@@ -33,6 +33,10 @@ import { computed, ref, useId } from 'vue';
 /** A multiline text input with parent-supplied inline validation. */
 const model = defineModel<string>();
 const visited = ref(false);
+defineExpose({
+    /** Mark the field as visited so that validation errors may display. */
+    markVisited: () => visited.value = true
+});
 const messageId = useId();
 
 const props = defineProps({
