@@ -1,5 +1,4 @@
 <template>
-    <button class="add-item" type="button" @click="addItem">Add Capability Group</button>
     <fieldset v-for="(group, index) in model" :key="group.key">
         <legend>Capability Group {{ index + 1 }}</legend>
         <div class="fields">
@@ -23,6 +22,7 @@
             :aria-label="`Remove capability group ${index + 1}`"
             @click="model.splice(index, 1)">Remove</button>
     </fieldset>
+    <button class="add-item" type="button" @click="addItem">Add Capability Group</button>
 </template>
 <script setup lang="ts">
 import { computed, watchEffect, useTemplateRef } from 'vue';
