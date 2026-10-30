@@ -89,10 +89,7 @@ export class EditCapabilityGroups extends EditorCommand {
 
         // Refresh fallback text/IDs on surviving assignments after renames.
         for (const object of [editor.file.mappingObjectTemplate, ...editor.file.mappingObjects.values()]) {
-            const prop = object.capabilityGroup;
-            if (prop.value !== null && groups.value.has(prop.value)) {
-                prop.value = prop.value;
-            }
+            object.capabilityGroup.refreshCachedValue();
         }
 
         const filters = editor.view.filterSets.get(MappingObjectDiscriminator.CapabilityGroup);

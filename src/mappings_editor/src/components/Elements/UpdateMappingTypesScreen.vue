@@ -1,7 +1,7 @@
 <template>
     <AppModal
         class="modal-root"
-        title="Edit Mapping Types",
+        title="Edit Mapping Types"
         description="Add new mapping types, update existing types, or delete types."
         @close="onCancel"
     >

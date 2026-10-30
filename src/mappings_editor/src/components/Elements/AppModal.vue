@@ -35,7 +35,7 @@ onBeforeUnmount(() => {
     dialog.value?.close();
 });
 
-const props = defineProps({
+defineProps({
     title: {
         default: 'Title',
         type: String

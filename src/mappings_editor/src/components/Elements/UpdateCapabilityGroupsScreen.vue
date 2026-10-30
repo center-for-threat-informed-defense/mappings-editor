@@ -1,7 +1,7 @@
 <template>
     <AppModal
         class="modal-root"
-        title="Edit Capability Groups",
+        title="Edit Capability Groups"
         description="Add new capability groups, update existing groups, or delete groups."
         @close="emit('close')"
     >

@@ -96,10 +96,7 @@ export class EditMappingTypes extends EditorCommand {
 
         // Refresh fallback text/IDs on surviving assignments after renames.
         for (const object of objects) {
-            const prop = object.mappingType;
-            if (prop.value !== null && types.value.has(prop.value)) {
-                prop.value = prop.value;
-            }
+            object.mappingType.refreshCachedValue();
         }
 
         const filters = editor.view.filterSets.get(MappingObjectDiscriminator.MappingType);
