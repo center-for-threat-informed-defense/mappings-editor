@@ -62,17 +62,21 @@
                 <details ref="mappingTypesDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandMappingTypes">
                     <summary>Mapping Types ({{ mappingTypes.length }})</summary>
-                    <UpdateMappingTypesWrapper
+                    <FormListEditor
                         v-model="mappingTypes"
                         v-model:is-valid="mappingTypesAreValid"
+                        item-label="Mapping Type"
+                        :fields="mappingTypeFields"
                     />
                 </details>
                 <details ref="capabilityGroupsDetails" class="configuration-section"
                     @toggle="onSectionToggle" @invalid.capture="expandCapabilityGroups">
                     <summary>Capability Groups ({{ capabilityGroups.length }})</summary>
-                    <UpdateCapabilityGroupsWrapper
+                    <FormListEditor
                         v-model="capabilityGroups"
                         v-model:is-valid="capabilityGroupsAreValid"
+                        item-label="Capability Group"
+                        :fields="capabilityGroupFields"
                     />
                 </details>
                 <p class="validation-summary-message">
@@ -96,10 +100,37 @@ import ScrollBox from '../Containers/ScrollBox.vue';
 import FormTextField from './Form/FormTextField.vue';
 import FormDropdown from './Form/FormDropdown.vue';
 import CircleCheck from '../Icons/CircleCheck.vue';
-import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
-import UpdateMappingTypesWrapper, { type MappingTypeRecord } from './UpdateMappingTypesWrapper.vue';
+import { capabilityGroupFields } from './CapabilityGroupFields';
+import FormListEditor, { type FormListField } from './Form/FormListEditor.vue';
 import { cleanCapabilityGroupId, cleanMappingTypeId } from './MetadataValidation.js';
 import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
+
+interface MappingTypeRecord {
+    key: string;
+    id: string;
+    name: string;
+    description: string;
+}
+
+const mappingTypeFields: FormListField<MappingTypeRecord>[] = [
+    {
+        key: 'id',
+        label: 'Type ID',
+        validate: (value, row, rows) => {
+            if (!/^[A-Za-z0-9_ ]+$/.test(value)) {
+                return 'Use letters, numbers, spaces and underscores only for the ID.';
+            }
+
+            const normalized = cleanMappingTypeId(value);
+            const duplicate = rows.some(other =>
+                other.key !== row.key && cleanMappingTypeId(other.id) === normalized
+            );
+            return duplicate ? 'Duplicate detected. ID must be unique.' : '';
+        },
+    },
+    { key: 'name', label: 'Type Name' },
+    { key: 'description', label: 'Type Description', multiline: true },
+];
 
 const domainOptions = [
     { value: 'mitre_attack_enterprise', text: 'Enterprise' },

@@ -9,10 +9,12 @@
             class="modal-body"
             @submit.prevent="onSubmit"
         >
-            <UpdateCapabilityGroupsWrapper
-                ref="wrapper"
+            <FormListEditor
+                ref="listEditor"
                 v-model="capabilityGroups"
                 v-model:is-valid="isValid"
+                item-label="Capability Group"
+                :fields="capabilityGroupFields"
             />
             <div class="modal-buttons">
                 <button type="button" @click="onCancel">Cancel</button>
@@ -24,13 +26,16 @@
 
 <script setup lang="ts">
 import AppModal from './AppModal.vue';
-import UpdateCapabilityGroupsWrapper from './UpdateCapabilityGroupsWrapper.vue';
+import FormListEditor from './Form/FormListEditor.vue';
+import { capabilityGroupFields } from './CapabilityGroupFields';
 import { ref, onMounted, useTemplateRef } from 'vue';
 import { useApplicationStore } from '@/stores/ApplicationStore.js';
 import { nextTick } from 'vue';
 import type { EditCapabilityGroupRecord } from '@/assets/scripts/MappingFileEditor/EditorCommands/File/EditCapabilityGroups.js';
 
-const wrapper = useTemplateRef('wrapper');
+// Generic components expose their instance through the third argument's callback.
+type FormListEditorInstance = Parameters<NonNullable<Parameters<typeof FormListEditor>[2]>>[0];
+const listEditor = useTemplateRef<FormListEditorInstance>('listEditor');
 
 const app = useApplicationStore();
 
@@ -60,7 +65,7 @@ function onSubmit() {
 onMounted(async () => {
     capabilityGroups.value = initializeCapabilityGroups();
     await nextTick();
-    wrapper.value?.markAllVisited();
+    listEditor.value?.markAllVisited();
 });
 
 </script>
