@@ -1,3 +1,5 @@
+import type { Mitigation } from "../../MappingFile/Mitigation";
+
 export type MappingObjectExport = {
 
     /**
@@ -64,6 +66,13 @@ export type MappingObjectExport = {
      * The mapping object's comments.
      */
     comments: string | null;
+
+    mitigations?: Mitigation[];
+    rationale?: string | null;
+    evidence_capability?: string | null;
+    confidence_level?: string | null;
+    changelog?: string | null;
+
 
     /**
      * The object's capability group.

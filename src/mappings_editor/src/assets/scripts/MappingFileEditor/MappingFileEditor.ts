@@ -137,7 +137,7 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
             sectionHeight: 33,
             sectionPaddingHeight: 10,
             objectHeightCollapsed: 42,
-            objectHeightUncollapsed: 328,
+            objectHeightUncollapsed: 720,
             objectPaddingHeight: 6,
             loadMargin: 0,
         });
