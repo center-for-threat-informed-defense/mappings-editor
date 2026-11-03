@@ -15,6 +15,7 @@ import { AutoMigrateFile } from "./AutoMigrateFile";
 import { UpgradeFileVersion } from "./UpgradeFileVersion";
 import { RebuildViewBreakouts } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/RebuildViewBreakouts";
 import { SetFilterState } from "@/assets/scripts/MappingFileEditor/EditorCommands/View/SetFilterState";
+import { CheckForDuplicates } from "./CheckForDuplicates";
 import { SaveMappingFileToDeviceAs } from "./SaveMappingFileToDeviceAs";
 export { ExportType } from './ExportType';
 
@@ -262,5 +263,25 @@ export async function upgradeFileVersion(context: ApplicationStore, version: str
         grp.add(new SetFilterState(statusFilter, id, true))
     }
     grp.add(new RebuildViewBreakouts(editor.view ))
+    return grp;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  5. Duplicate Detections  //////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Compares all mappings in the file and detects duplicates
+ * @param context
+ * The application context.
+ * @returns
+ * A command that represents the action.
+ */
+export function automatedDuplicateDetection(context: ApplicationStore) {
+    const grp = new GroupCommand();
+    grp.add(new CheckForDuplicates(context));
+    const editor = context.activeEditor as MappingFileEditor;
+    // rebuild view after duplicate detection to show any problems in the view
+    grp.add(new RebuildViewBreakouts(editor.view ));
     return grp;
 }

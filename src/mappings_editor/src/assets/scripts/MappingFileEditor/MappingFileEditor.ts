@@ -234,6 +234,9 @@ export class MappingFileEditor extends EventEmitter<MappingFileEditorEvents> {
         if (args.directives & EditorDirective.Reindex) {
             this.reindexFile(args.reindexObjects);
         }
+        if (args.directives & EditorDirective.RefreshView) {
+            this.view.rebuildBreakouts();
+        }
     }
 
 
