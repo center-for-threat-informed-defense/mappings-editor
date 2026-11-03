@@ -1,27 +1,30 @@
 <template>
-  <div :class="['list-item-options-list-field', { flip }]">
-    <div ref="scrollbox" :style="style">
-      <div ref="content">
-        <ul class="options" v-if="hasOptions">
-          <li 
-            ref="items"
-            v-for="option in options"
-            :key="option.value ?? 'null'"
-            :list-id="option.value"
-            :class="{ active: isActive(option), null: isNull(option) }"
-            @pointerdown="$emit('select', option.value)"
-            @mouseenter="setActive(option)"
-            exit-focus-box
-          >
-            {{ option.text }}
-          </li>
-        </ul>
-        <div class="no-options" v-else>
-          No results found
+  <Teleport to="body">
+    <div :class="['list-item-options-list-field', { flip }]"
+      :style="menuStyle" @pointerdown.prevent>
+      <!-- Keep focus on the search field while interacting with the detached menu. -->
+      <div ref="scrollbox" :style="style">
+        <div ref="content">
+          <ul class="options" v-if="hasOptions">
+            <li
+              ref="items"
+              v-for="option in options"
+              :key="option.value ?? 'null'"
+              :list-id="option.value"
+              :class="{ active: isActive(option), null: isNull(option) }"
+              @pointerdown="$emit('select', option.value)"
+              @mouseenter="setActive(option)"
+              >
+              {{ option.text }}
+            </li>
+          </ul>
+          <div class="no-options" v-else>
+            No results found
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script lang="ts">
@@ -31,6 +34,10 @@ import { defineComponent, markRaw, type PropType } from "vue";
 export default defineComponent({
   name: "OptionsList",
   props: {
+    anchor: {
+      type: Object as PropType<HTMLElement>,
+      required: true
+    },
     options: {
       type: Array as PropType<{ value: string | null, text: string }[]>,
       required: true
@@ -46,6 +53,11 @@ export default defineComponent({
   data() {
     return {
       flip: false,
+      left: 0,
+      top: 0,
+      width: 0,
+      availableHeight: this.maxHeight,
+      resizeObserver: null as ResizeObserver | null,
       scrollbox: markRaw(new RawScrollBox(false, false))
     }
   },
@@ -66,12 +78,55 @@ export default defineComponent({
      *  The option list's style.
      */
     style(): { maxHeight: string } {
-      return { maxHeight: `${ this.maxHeight }px` };
+      return { maxHeight: `${ this.availableHeight }px` };
+    },
+
+    /** Position the detached menu using viewport coordinates. */
+    menuStyle() {
+      return {
+        left: `${ this.left }px`, top: `${ this.top }px`, width: `${ this.width }px`
+      };
     }
 
   },
-  emits: ["hover", "select"],
+  emits: ["hover", "select", "close"],
   methods: {
+
+    /** Keep the menu aligned through nested scrolling, resizing, and filtering. */
+    updatePosition() {
+      const rect = this.anchor.getBoundingClientRect();
+      let visibleTop = Math.max(0, rect.top);
+      let visibleBottom = Math.min(window.innerHeight, rect.bottom);
+      let visibleLeft = Math.max(0, rect.left);
+      let visibleRight = Math.min(window.innerWidth, rect.right);
+      // Close when scrolling moves the field out of any clipping ancestor.
+      for(let parent = this.anchor.parentElement; parent; parent = parent.parentElement) {
+        const css = getComputedStyle(parent);
+        const bounds = parent.getBoundingClientRect();
+        if(/hidden|clip|auto|scroll/.test(css.overflowY)) {
+          visibleTop = Math.max(visibleTop, bounds.top);
+          visibleBottom = Math.min(visibleBottom, bounds.bottom);
+        }
+        if(/hidden|clip|auto|scroll/.test(css.overflowX)) {
+          visibleLeft = Math.max(visibleLeft, bounds.left);
+          visibleRight = Math.min(visibleRight, bounds.right);
+        }
+      }
+      if(!this.anchor.isConnected || visibleBottom <= visibleTop || visibleRight <= visibleLeft) {
+        this.$emit("close");
+        return;
+      }
+      const below = Math.max(0, window.innerHeight - rect.bottom - 4);
+      const above = Math.max(0, rect.top - 4);
+      const content = this.$refs.content as HTMLElement;
+      const desiredHeight = Math.min(this.maxHeight, content.scrollHeight + 2);
+      this.flip = below < desiredHeight && above > below;
+      this.availableHeight = Math.min(this.maxHeight, this.flip ? above : below);
+      const height = Math.min(desiredHeight, this.availableHeight);
+      this.width = Math.min(rect.width, window.innerWidth - 8);
+      this.left = Math.max(4, Math.min(rect.left, window.innerWidth - this.width - 4));
+      this.top = this.flip ? rect.top - height : rect.bottom;
+    },
 
     /**
      * Tests if an option is the null option.
@@ -161,43 +216,25 @@ export default defineComponent({
 
   },
   mounted() {
-
-    /**
-     * Developer's Note:
-     * If an <ListItemOptionsList> does not extend past the bottom of the
-     * document's body or it's parent <ScrollBox>, it's deemed visible. These
-     * checks do not account for any other scroll constructs and do not account
-     * for nested <ScrollBox>'s. 
-     */
-    
-    // Resolve parent
-    let sc = "scroll-content";
-    let ele = this.$refs.scrollbox as HTMLElement;
-    let par = this.$el.parentElement;
-    let body = document.body;
-    while(par !== body && !par.classList.contains(sc)) {
-      par = par.parentElement;
-    }
-    // Resolve overlap
-    let { bottom: b1 } = par.getBoundingClientRect();
-    let { bottom: b2 } = ele.getBoundingClientRect();
-    if(b1 < b2) {
-      this.flip = true;
-    } else {
-      this.flip = false;
-    }
-    // Configure scrollbox
+    this.updatePosition();
     this.scrollbox.mount(
       this.$refs.scrollbox as HTMLElement,
       this.$refs.content as HTMLElement,
       this.$options.__scopeId
-    )
-    // Focus selection
+    );
+    window.addEventListener("scroll", this.updatePosition, true);
+    window.addEventListener("resize", this.updatePosition);
+    this.resizeObserver = markRaw(new ResizeObserver(this.updatePosition));
+    this.resizeObserver.observe(this.anchor);
+    this.resizeObserver.observe(this.$refs.content as HTMLElement);
     if(this.select !== undefined) {
       this.focusItemTop(this.select);
     }
   },
   unmounted() {
+    window.removeEventListener("scroll", this.updatePosition, true);
+    window.removeEventListener("resize", this.updatePosition);
+    this.resizeObserver?.disconnect();
     this.scrollbox.destroy();
   }
 });
@@ -205,7 +242,7 @@ export default defineComponent({
 /**
  * Option type
  */
- type Option = { 
+ type Option = {
   value: string | null,
   text: string
 }
@@ -217,12 +254,15 @@ export default defineComponent({
 /** === Main Field === */
 
 .list-item-options-list-field {
+  position: fixed;
+  z-index: 1000;
+  font-size: 10pt;
   background: #1c1c1c;
   border-radius: 3px;
 }
 
 .scroll-box {
-  position: absolute;
+  position: relative;
   width: 100%;
   font-size: 10pt;
   border-width: 1px;
@@ -233,7 +273,6 @@ export default defineComponent({
 }
 
 .list-item-options-list-field:not(.flip) .scroll-box {
-  top: 100%;
   border-style: none solid solid solid;
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -241,7 +280,6 @@ export default defineComponent({
 }
 
 .list-item-options-list-field.flip .scroll-box {
-  bottom: 100%;
   border-style: solid solid none solid;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;

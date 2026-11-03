@@ -28,12 +28,13 @@
       <div class="search-container">
         <OptionsList 
           ref="optionsList"
-          class="options-list"
+          :anchor="($refs.search as HTMLInputElement)"
           :select="select"
           :options="searchOptions"
           :maxHeight="maxHeight"
           @hover="value => select = value"
-          @select="applyFilter"
+          @select="selectFilter"
+          @close="closeOptions"
           v-if="showOptions"
         />
         <input 
@@ -129,6 +130,16 @@ export default defineComponent({
   },
   emits: ["execute"],
   methods: {
+
+    closeOptions() {
+      (this.$refs.search as HTMLInputElement | undefined)?.blur();
+      this.onSearchFocusOut();
+    },
+
+    selectFilter(id: string | null) {
+      this.applyFilter(id);
+      this.closeOptions();
+    },
 
     /**
      * Tests if a filter is checked.
@@ -449,26 +460,6 @@ export default defineComponent({
 
 .filter-search:focus {
   outline: none;
-}
-
-.options-list:not(.flip) + .filter-search {
-  border: solid 1px #3b3b3b;
-  border-bottom-style: dotted;
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-}
-
-.options-list.flip + .filter-search {
-  border: solid 1px #3b3b3b;
-  border-top-style: dotted;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-}
-
-.options-list {
-  position: relative;
-  grid-area: 1 / 1;
-  background: #252525;
 }
 
 .new-filter .drop-filter {

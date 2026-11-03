@@ -8,6 +8,8 @@
           :is="getPropertyField(prop)"
           :property="prop"
           :placeholder="prop.name"
+          :aria-label="prop.name"
+          :update-delay="0"
           @execute="setProperty"
         />
       </div>
