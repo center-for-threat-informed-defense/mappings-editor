@@ -157,8 +157,9 @@ export class HotkeyObserver<T> {
      */
     private onKeyDown(e: KeyboardEvent) {
 
-        // If inside input field, ignore hotkeys
-        if((e.target as any).tagName === "INPUT") {
+        // Preserve typing and native text-editing shortcuts in editable fields.
+        const target = e.target as HTMLElement | null;
+        if(target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable) {
             return;
         }
 

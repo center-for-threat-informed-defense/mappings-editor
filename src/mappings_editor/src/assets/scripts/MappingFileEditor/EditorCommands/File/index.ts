@@ -11,8 +11,11 @@ import { PatchMappingObject } from "./PatchMappingObject";
 import { EditCapabilityGroups } from "./EditCapabilityGroups";
 import { EditMappingTypes } from "./EditMappingTypes";
 import type { ApplicationStore } from "@/stores/ApplicationStore";
+import {
+  MergeMappingsObject,
+  type MergeFieldSelection,
+} from "./MergeMappingsObject";
 export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
-
 /**
  * Creates a new {@link MappingObject} in a {@link MappingFile}.
  * @remarks
@@ -25,7 +28,7 @@ export type { IdentifiedMappingObjectParameters } from "./ImportMappingObjects";
  *  A command that represents the action.
  */
 export function createMappingObject(file: MappingFile): EditorCommand {
-    return new CreateMappingObject(file);
+  return new CreateMappingObject(file);
 }
 
 /**
@@ -41,8 +44,11 @@ export function createMappingObject(file: MappingFile): EditorCommand {
  * @returns
  *  A command that represents the action.
  */
-export function importMappingObjects(file: MappingFile, objects: IdentifiedMappingObjectParameters[]): EditorCommand {
-    return new ImportMappingObjects(file, objects);
+export function importMappingObjects(
+  file: MappingFile,
+  objects: IdentifiedMappingObjectParameters[],
+): EditorCommand {
+  return new ImportMappingObjects(file, objects);
 }
 
 /**
@@ -54,8 +60,11 @@ export function importMappingObjects(file: MappingFile, objects: IdentifiedMappi
  * @returns
  *  A command that represents the action.
  */
-export function insertMappingObject(file: MappingFile, obj: MappingObject): EditorCommand {
-    return new InsertMappingObject(file, obj);
+export function insertMappingObject(
+  file: MappingFile,
+  obj: MappingObject,
+): EditorCommand {
+  return new InsertMappingObject(file, obj);
 }
 
 /**
@@ -67,8 +76,11 @@ export function insertMappingObject(file: MappingFile, obj: MappingObject): Edit
  * @returns
  *  A command that represents the action.
  */
-export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): EditorCommand {
-    return new InsertMappingObjects(file, objs);
+export function insertMappingObjects(
+  file: MappingFile,
+  objs: MappingObject[],
+): EditorCommand {
+  return new InsertMappingObjects(file, objs);
 }
 
 /**
@@ -81,7 +93,7 @@ export function insertMappingObjects(file: MappingFile, objs: MappingObject[]): 
  *  A command that represents the action.
  */
 export function deleteMappingObject(object: MappingObject): EditorCommand {
-    return new DeleteMappingObject(object);
+  return new DeleteMappingObject(object);
 }
 
 /**
@@ -92,7 +104,7 @@ export function deleteMappingObject(object: MappingObject): EditorCommand {
  *  A command that represents the action.
  */
 export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
-    return new DeleteMappingObjects(objects);
+  return new DeleteMappingObjects(objects);
 }
 
 /**
@@ -104,7 +116,29 @@ export function deleteMappingObjects(objects: MappingObject[]): EditorCommand {
  * A command that represents the action.
  */
 export function patchMappingObject(object: MappingObject): EditorCommand {
-    return new PatchMappingObject(object);
+  return new PatchMappingObject(object);
+}
+
+/**
+ * Merges multiple mapping objects into a single object. Used in duplicate resolition
+ * @param currentMapping
+ * The "source" mapping object that will be kept and have the other duplicates merged into it
+ * @param duplicateMappings
+ * The other mapping objects that will be merged into the currentMapping and then deleted
+ * @param fieldSelections
+ * The field selections that determine which values from the duplicate mappings will be kept in the current mapping
+ * @returns
+ */
+export function mergeMappingsObject(
+  currentMapping: MappingObject,
+  duplicateMappings: MappingObject[],
+  fieldSelections: MergeFieldSelection[],
+): EditorCommand {
+  return new MergeMappingsObject(
+    currentMapping,
+    duplicateMappings,
+    fieldSelections,
+  );
 }
 
 export function editCapabilityGroups(context: ApplicationStore): EditorCommand {
