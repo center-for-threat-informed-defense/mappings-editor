@@ -1,6 +1,7 @@
 import type { FrameworkObject } from "../MappingFileAuthority";
+import type { MappingObject } from "./MappingObject";
 
-export type MappingProblemType =  "technique_name" | "technique_description" | "technique_removed" | "mitigation_new" | "mitigation_deleted" | "detection_new" | "detection_deleted"
+export type MappingProblemType =  "technique_name" | "technique_description" | "technique_removed" | "mitigation_new" | "mitigation_deleted" | "detection_new" | "detection_deleted" | "duplicate"
 
 export type MappingObjectProblem  = {
 
@@ -19,5 +20,8 @@ export type MappingObjectProblem  = {
      * The new framework object associated with the mapping (ex. a specific v17.1 ATT&CK technique)
      */
     readonly newVersion?: FrameworkObject;
-
+    /**
+     * Mappings that have been detected as duplicates of the currrent mapping
+     */
+    readonly duplicateMappings?: MappingObject[];
 }

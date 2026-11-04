@@ -18,6 +18,9 @@ export enum EditorDirective {
     /**
      * Specify if the editor should reindex its file after the command has run.
      */
-    Reindex              = 0b100
+    Reindex              = 0b100,
+
+    /** Rebuilds the displayed mapping list after the command has run. */
+    RefreshView          = 0b1000
 
 }
