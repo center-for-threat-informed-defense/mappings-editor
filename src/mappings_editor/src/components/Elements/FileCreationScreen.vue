@@ -81,7 +81,6 @@
                 </details>
                 <p class="validation-summary-message">
                     <span v-if="validationSummaryErrorMessage">{{ validationSummaryErrorMessage }}</span>
-                    <span v-else class="validation-successful">Validation Successful <CircleCheck /></span>
                 </p>
                 <footer>
                     <button type="button" @click="emit('close');">Cancel</button>
@@ -350,6 +349,7 @@ button {
     color: var(--me-text-color);
     font: inherit;
     cursor: pointer;
+    font-size: 13px;
 }
 button:hover {
     background-color: var(--me-bg-color-recessed-hover);

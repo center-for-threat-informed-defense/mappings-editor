@@ -8,8 +8,8 @@ export const mappingTypeFields: FormListField<EditMappingTypeRecord>[] = [
         key: 'id',
         label: 'Type ID',
         validate: (value, row, rows) => {
-            if (!/^[A-Za-z0-9_ ]+$/.test(value)) {
-                return 'Use letters, numbers, spaces and underscores only for the ID.';
+            if (!/^[A-Za-z0-9_-]+$/.test(value)) {
+                return 'Use letters, numbers, dashes and underscores only for the ID.';
             }
 
             const normalized = cleanMappingTypeId(value);
