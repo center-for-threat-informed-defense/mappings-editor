@@ -178,8 +178,8 @@ function validateId(val: string, type: "mappingType" | "capabilityGroup"): strin
     }
 
     // Check for disallowed characters.
-    if (!/^[A-Za-z0-9_ ]+$/.test(val)) {
-        return "Use letters, numbers, spaces and underscores only for the ID.";
+    if (!/^[A-Za-z0-9_-]+$/.test(val)) {
+        return "Use letters, numbers, dashes and underscores only for the ID.";
     }
 
     // Check for duplicate IDs.
