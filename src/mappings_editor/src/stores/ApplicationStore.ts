@@ -51,6 +51,43 @@ const sidebarViewOptions: SidebarView[] = [
     }
 ];
 
+export enum ModalStackId {
+    Splash = 1,
+    FileCreation
+}
+
+/**
+ * A data structure to track which modal should be open when multiple modals
+ * can be opened in succession.
+ */
+class ModalStack {
+
+    private stack : ModalStackId[] = [];
+
+    constructor(initialStack: ModalStackId[]) {
+        this.stack = initialStack;
+    }
+
+    /** Add the id to the stack if it isn't in there already. */
+    public add(modalStackId: ModalStackId): void {
+        if (!this.stack.includes(modalStackId)) {
+            this.stack.push(modalStackId);
+        }
+    }
+
+    /** Remove the given id if it is the last element in the stack. */
+    public remove(modalStackId: ModalStackId): void {
+        if (this.stack.at(-1) == modalStackId) {
+            this.stack.pop();
+        }
+    }
+
+    /** The top element of the stack, i.e. the last in the stack array. */
+    public get top() {
+        return this.stack.at(-1);
+    }
+}
+
 let saveAsResolver : Function | null = null;
 
 // Define Application Store
@@ -66,6 +103,7 @@ export const useApplicationStore = defineStore('applicationStore', {
         settings: BaseAppSettings,
         sidebarViewOptions: sidebarViewOptions,
         activeSidebar: sidebarViewOptions[0],
+        modalStack: new ModalStack([ModalStackId.Splash]),
         showSaveAs: false
     }),
     getters: {

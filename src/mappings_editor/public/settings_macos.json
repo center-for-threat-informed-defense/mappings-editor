@@ -7,7 +7,7 @@
     },
     "hotkeys": {
         "file": {
-            "new_file": "Meta+N",
+            "new_file": "Shift+N",
             "open_file": "Meta+O",
             "import_file": "Meta+I",
             "register_framework": "",

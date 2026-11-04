@@ -3,6 +3,12 @@ import { AppCommand } from "../AppCommand";
 import { OpenHyperlink } from "./OpenHyperlink"
 import { SetAutoScroll } from "./SetAutoScroll";
 import { SwitchToFullscreen } from "./SwitchToFullscreen";
+import { ShowFileCreationScreen } from "./ShowFileCreationScreen";
+
+/** Creates a command that opens the new mapping file form. */
+export function showFileCreationScreen(context: ApplicationStore): AppCommand {
+    return new ShowFileCreationScreen(context);
+}
 
 /**
  * Opens an external hyperlink.
@@ -36,5 +42,4 @@ export function switchToFullscreen(): AppCommand {
 export function setAutoScroll(context: ApplicationStore, value: boolean): AppCommand {
     return new SetAutoScroll(context, value);
 }
-
 

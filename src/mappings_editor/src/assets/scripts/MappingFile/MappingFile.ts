@@ -128,7 +128,7 @@ export class MappingFile {
     constructor(config: MappingFileConfiguration) {
         const template = config.mappingObjectTemplate;
         this.id = config.fileId ?? randomUUID();
-        this.version = ""
+        this.version = config.version ?? "";
         this.author = template.author;
         this.authorContact = template.authorContact;
         this.authorOrganization = template.authorOrganization;
