@@ -98,7 +98,6 @@ import type { FileCreationSettings } from '@/assets/scripts/MappingFileAuthority
 import ScrollBox from '../Containers/ScrollBox.vue';
 import FormTextField from './Form/FormTextField.vue';
 import FormDropdown from './Form/FormDropdown.vue';
-import CircleCheck from '../Icons/CircleCheck.vue';
 import { capabilityGroupFields } from './CapabilityGroupFields';
 import FormListEditor from './Form/FormListEditor.vue';
 import { mappingTypeFields } from './MappingTypeFields';
