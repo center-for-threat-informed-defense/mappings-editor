@@ -36,14 +36,6 @@ import { computed, ref, useId } from 'vue';
 
 const model = defineModel();
 
-const visited = ref(false);
-
-/** Validation message to show after the input has been visited. */ 
-const localValidationMessage = computed(() => {
-    return visited.value ? props.errorMessage : '';
-});
-const messageId = useId();
-
 const props = defineProps({
     title: {
         default: "",
@@ -67,6 +59,21 @@ const props = defineProps({
     }
 });
 
+defineExpose({
+    /** Mark the field as visited so that validation errors may display. */
+    markVisited: () => visited.value = true
+});
+
+const visited = ref(false);
+
+/** Validation message to show after the input has been visited. */ 
+const localValidationMessage = computed(() => {
+    return visited.value ? props.errorMessage : '';
+});
+const messageId = useId();
+
+
+
 const isInvalid = computed(() => Boolean(
     localValidationMessage.value || props.errorMessage
 ));
@@ -89,6 +96,7 @@ input {
     border-radius: 5px;
     background: var(--me-bg-color-recessed);
     padding: 10px 12px;
+    color: var(--me-text-color);
 }
 
 .error-message {

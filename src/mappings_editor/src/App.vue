@@ -41,6 +41,14 @@
         @close="onFileCreateClose"
     ></FileCreationScreen>
     <SaveAsScreen v-if="application.showSaveAs"/>
+    <UpdateCapabilityGroupsScreen
+        v-if="application.showEditCapabilityGroups"
+        @close="application.showEditCapabilityGroups = false;"
+    />
+    <UpdateMappingTypesScreen
+        v-if="application.showEditMappingTypes"
+        @close="application.showEditMappingTypes = false;"
+    />
   </AppHotkeyBox>
 </template>
 
@@ -67,6 +75,8 @@ import SplashScreen from "./components/Elements/SplashScreen.vue";
 import FileCreationScreen from "./components/Elements/FileCreationScreen.vue";
 import { ModalStackId } from "./stores/ApplicationStore";
 import SaveAsScreen from "./components/Elements/SaveAsScreen.vue";
+import UpdateCapabilityGroupsScreen from "./components/Elements/UpdateCapabilityGroupsScreen.vue";
+import UpdateMappingTypesScreen from "./components/Elements/UpdateMappingTypesScreen.vue";
 
 
 enum Handle {
@@ -337,7 +347,7 @@ export default defineComponent({
     ActiveViewSidebar,
     ViewFilterSidebar, ProblemPane,
     SplashScreen, FileCreationScreen,
-    SaveAsScreen
+    SaveAsScreen, UpdateCapabilityGroupsScreen, UpdateMappingTypesScreen
   }
 });
 

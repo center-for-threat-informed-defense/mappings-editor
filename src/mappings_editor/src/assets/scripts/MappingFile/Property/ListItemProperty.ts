@@ -57,8 +57,7 @@ export class ListItemProperty extends Property {
             throw new Error(`List does not contain item '${id}'.`)
         }
         this._value = value.id;
-        this._cachedExportValue = this.exportValue;
-        this._cachedExportText = this.exportText;
+        this.refreshCachedValue();
     }
 
     /**
@@ -163,6 +162,21 @@ export class ListItemProperty extends Property {
         } else {
             this.cacheValue(exportValue, exportText);
         }
+    }
+
+    /**
+     * Copies the selected option's current export ID and text into the fallback cache.
+     * @remarks
+     *  These strings are used if the option is later removed. The selection is
+     *  unchanged, and unset or already unresolved values are left intact.
+     */
+    public refreshCachedValue(): void {
+        if (this._value === null || !this.options.value.has(this._value)) {
+            return;
+        }
+
+        this._cachedExportValue = this.exportValue;
+        this._cachedExportText = this.exportText;
     }
 
     /**
