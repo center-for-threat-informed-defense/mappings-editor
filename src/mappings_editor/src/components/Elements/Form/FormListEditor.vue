@@ -137,6 +137,7 @@ button {
     color: var(--me-text-color);
     font: inherit;
     cursor: pointer;
+    font-size: 13px;
 }
 
 button:hover {
