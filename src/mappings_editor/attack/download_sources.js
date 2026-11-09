@@ -8,6 +8,7 @@ const BASE_URL =
  * Enterprise Sources
  */
 const ENTERPRISE_SOURCES = [
+    "20.1",
     "20.0",
     "19.1",
     "19.0",
@@ -44,6 +45,7 @@ const ENTERPRISE_SOURCES = [
  * ICS Sources
  */
 const ICS_SOURCES = [
+    "20.1",
     "20.0",
     "19.1",
     "19.0",
@@ -81,6 +83,7 @@ const ICS_SOURCES = [
  * Mobile Sources
  */
 const MOBILE_SOURCES = [
+    "20.1",
     "20.0",
     "19.1",
     "19.0",

@@ -800,7 +800,7 @@ export default defineComponent({
   }
 });
 
-enum EditMode {
+export enum EditMode {
   Standard,
   PaintSelect,
   ItemMove
