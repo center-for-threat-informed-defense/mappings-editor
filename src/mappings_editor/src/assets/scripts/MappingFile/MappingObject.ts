@@ -208,12 +208,7 @@ export class MappingObject {
                     && !this.mappingType.isValueCached()
                     && !this.mappingStatus.isValueCached()
                     && !this.scoreCategory.isValueCached()
-                    && !this.scoreValue.isValueCached()
-                // Each mitigation must identify and name its ATT&CK object.
-                    && [...this.mitigations.value.values()].every(item =>
-                        item.getAsString("attack_object_id").trim().length > 0
-                        && item.getAsString("attack_object_name").trim().length > 0
-                    )
+                    && !this.scoreValue.isValueCached();
                 // If there are any problems and status is version change detected, mark as invalid
                 // If there are problems but status is anything else, that means the user resolved the conflict
                 if (this.mappingStatus.exportValue === "version_changed" && this.problems.length > 0) {

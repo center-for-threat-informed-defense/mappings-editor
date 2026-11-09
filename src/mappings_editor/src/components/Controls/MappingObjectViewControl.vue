@@ -74,27 +74,6 @@
             </a>
           </ListField>
         </div>
-        <div class="property mitigations">
-          <p class="property-name">Mitigations</p>
-          <ListField
-            class="property-value"
-            :property="view.object.mitigations"
-            @execute="alterProperty"
-            v-slot="{ item }"
-          >
-            <div class="mitigation-fields">
-              <component
-                v-for="[key, prop] of item.properties"
-                :key="key"
-                :is="getPropertyField(prop)"
-                :property="prop"
-                :placeholder="prop.name"
-                :aria-label="prop.name"
-                @execute="alterProperty"
-              />
-            </div>
-          </ListField>
-        </div>
       </div>
     </div>
   </div>
@@ -154,26 +133,6 @@ export default defineComponent({
         {
           key: "comments",
           prop: object.comments,
-          type: "TextAreaField"
-        },
-        {
-          key: "rationale",
-          prop: object.rationale,
-          type: "TextAreaField"
-        },
-        {
-          key: "evidence-capability",
-          prop: object.evidenceCapability,
-          type: "TextAreaField"
-        },
-        {
-          key: "confidence-level",
-          prop: object.confidenceLevel,
-          type: "TextField"
-        },
-        {
-          key: "changelog",
-          prop: object.changelog,
           type: "TextAreaField"
         },
         {
@@ -408,7 +367,7 @@ export default defineComponent({
   row-gap: 15px;
   column-gap: 16px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: auto minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
   padding: 25px 29px;
   box-sizing: border-box;
@@ -443,18 +402,6 @@ export default defineComponent({
 .author-organization {
   grid-area: 1 / 3;
 }
-
-.rationale { grid-area: 3 / 1 / 4 / 3; }
-.evidence-capability { grid-area: 3 / 3 / 4 / 5; }
-.confidence-level { grid-area: 4 / 1 / 5 / 2; }
-.changelog { grid-area: 4 / 2 / 5 / 5; }
-.mitigations { grid-area: 5 / 1 / 6 / 5; min-height: 0; }
-.rationale .property-value,
-.evidence-capability .property-value,
-.changelog .property-value,
-.mitigations .property-value { flex: 1; min-height: 0; }
-.mitigation-fields { display: flex; gap: 6px; padding: 3px; }
-.mitigation-fields > * { flex: 1; min-width: 0; }
 
 .comments {
   grid-area: 2 / 1 / 3 / 3;

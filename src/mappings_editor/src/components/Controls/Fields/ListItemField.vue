@@ -2,13 +2,12 @@
   <div class="list-item-field">
     <OptionsList
       ref="optionsList"
-      :anchor="$el"
+      class="options-list"
       :select="select"
       :options="options"
       :maxHeight="maxHeight"
       @hover="value => select = value"
-      @select="selectOption"
-      @close="closeMenu"
+      @select="updateProperty"
       v-if="showMenu"
     />
     <div :class="['value-container', { 'search-open': showSearch, 'is-cached': isCached }]">
@@ -120,17 +119,6 @@ export default defineComponent({
   },
   emits: ["execute"],
   methods: {
-
-    /** Close the detached menu and return focus handling to the field. */
-    closeMenu() {
-      (this.$refs.search as HTMLInputElement | undefined)?.blur();
-      this.onFocusOut();
-    },
-
-    selectOption(value: string | null) {
-      this.updateProperty(value);
-      this.closeMenu();
-    },
 
     /**
      * Field focus in behavior.
@@ -290,8 +278,20 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-.value-container.search-open {
-  border: solid 1px #454545;
+.options-list:not(.flip) + .value-container.search-open {
+  border-style: solid;
+  border-width: 1px;
+  border-bottom: none;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.options-list.flip + .value-container.search-open {
+  border-style: solid;
+  border-width: 1px;
+  border-top: none;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
 }
 
 .value-container.search-open .value-text {
@@ -339,6 +339,13 @@ export default defineComponent({
 
 .value-search:focus {
   outline: none;
+}
+
+/** === Dropdown Options === */
+
+.options-list {
+  grid-area: 1 / 1;
+  position: relative;
 }
 
 /** === Default Palette === */
