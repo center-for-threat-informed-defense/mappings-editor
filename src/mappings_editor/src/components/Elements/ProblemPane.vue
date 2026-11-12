@@ -1,5 +1,37 @@
 <template>
     <AccordionBox class="problem-pane-sidebar-element">
+        <AccordionPane name="Technique Changelog" :collapsed="true">
+            <ScrollBox>
+                <p class="mapping-detail">No changelog available.</p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Rationale" :collapsed="false">
+            <ScrollBox>
+                <p class="mapping-detail">
+                    {{ mappingDetails?.rationale?.value || "No rationale available." }}
+                </p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Mitigations" :collapsed="true">
+            <ScrollBox>
+                <ul v-if="mappingMitigations.length" class="mitigation-list">
+                    <li v-for="mitigation in mappingMitigations" :key="mitigation.key">
+                        <strong v-if="mitigation.mostRelevant">
+                            {{ mitigation.id }} — {{ mitigation.name }}
+                        </strong>
+                        <span v-else>{{ mitigation.id }} — {{ mitigation.name }}</span>
+                    </li>
+                </ul>
+                <p v-else class="mapping-detail">No mitigations available.</p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Capability Evidence" :collapsed="true">
+            <ScrollBox>
+                <p class="mapping-detail">
+                    {{ mappingDetails?.evidenceCapability?.value || "No capability evidence available." }}
+                </p>
+            </ScrollBox>
+        </AccordionPane>
         <AccordionPane :units="1" name="Problem Pane" class="pane">
             <ScrollBox class="problem-scrollbox">
                 <div class="problem-container">
@@ -185,12 +217,19 @@ import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
 import type { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
 import { ListProperty } from "../../assets/scripts/MappingFile";
+import type { ListItemProperty, StringProperty } from "../../assets/scripts/MappingFile";
 import type { MappingObject } from "../../assets/scripts/MappingFile/MappingObject";
 import * as EditorCommands from "../../assets/scripts/MappingFileEditor/EditorCommands";
 import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
 import type { MergeFieldSelection } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/MergeMappingsObject";
 
 type MergeSourceKey = string;
+
+type MappingDetails = MappingObject & {
+    rationale?: StringProperty;
+    mitigations?: ListProperty;
+    evidenceCapability?: StringProperty;
+};
 
 type SourceOption = {
     key: MergeSourceKey;
@@ -250,6 +289,26 @@ export default defineComponent({
             });
 
             return problems;
+        },
+
+        mappingDetails(): MappingDetails | undefined {
+            return this.currentMapping;
+        },
+
+        mappingMitigations() {
+            const mitigations = this.mappingDetails?.mitigations;
+            if (!mitigations) {
+                return [];
+            }
+            return Array.from(mitigations.value.entries()).map(([key, item]) => {
+                const relevance = item.get("most_relevant") as ListItemProperty;
+                return {
+                    key,
+                    id: item.getAsString("attack_object_id"),
+                    name: item.getAsString("attack_object_name"),
+                    mostRelevant: relevance.exportValue === "true"
+                };
+            });
         },
 
         currentMapping(): MappingObject | undefined {
@@ -558,6 +617,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.mapping-detail {
+    margin: 0;
+    padding: 16px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mitigation-list {
+    margin: 0;
+    padding: 16px 16px 16px 32px;
+    overflow-wrap: anywhere;
+}
+
+.mitigation-list li + li {
+    margin-top: 8px;
+}
+
 .problem-item {
     margin-bottom: 10px;
 }
