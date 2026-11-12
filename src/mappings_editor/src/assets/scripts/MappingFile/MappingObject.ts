@@ -1,5 +1,5 @@
 import { randomUUID } from "../Utilities";
-import { StringProperty, ListItemProperty, ListProperty, ListItem, ComputedProperty } from ".";
+import { type Property, StringProperty, ListItemProperty, ListProperty, ListItem, ComputedProperty } from ".";
 import type { MappingFile } from "./MappingFile";
 import type { FrameworkObjectProperty } from "./Property/FrameworkObjectProperty/FrameworkObjectProperty";
 import type { MappingObjectConfiguration } from "./MappingFileConfiguration";
@@ -61,6 +61,13 @@ export class MappingObject {
      * The mapping object's comments.
      */
     public readonly comments: StringProperty;
+
+    public readonly mitigations: ListProperty;
+    public readonly rationale: StringProperty;
+    public readonly evidenceCapability: StringProperty;
+    public readonly confidenceLevel: StringProperty;
+    public readonly changelog: StringProperty;
+
 
     /**
      * The mapping object's score category.
@@ -139,6 +146,29 @@ export class MappingObject {
         )
         this.problems = config.problems;
         this.comments = config.comments ?? new StringProperty("Comments");
+        const relevanceOptions = new ListProperty(
+            "Relevance Options",
+            new ListItem(new Map([
+                ["id", new StringProperty("ID")],
+                ["name", new StringProperty("Name")]
+            ]))
+        );
+        for(const [id, name] of [["true", "Yes"], ["false", "No"]]) {
+            relevanceOptions.insertListItem(relevanceOptions.createNewItem({ id, name }));
+        }
+        this.mitigations = config.mitigations ?? new ListProperty(
+            "Mitigations",
+            new ListItem(new Map<string, Property>([
+                ["attack_object_id", new StringProperty("ATT&CK Object ID")],
+                ["attack_object_name", new StringProperty("ATT&CK Object Name")],
+                ["most_relevant", new ListItemProperty("Most Relevant", "id", "name", relevanceOptions)]
+            ]))
+        );
+        this.rationale = config.rationale ?? new StringProperty("Rationale");
+        this.evidenceCapability = config.evidenceCapability ?? new StringProperty("Evidence Capability");
+        this.confidenceLevel = config.confidenceLevel ?? new StringProperty("Confidence Level");
+        this.changelog = config.changelog ?? new StringProperty("Changelog");
+
         this.scoreCategory = config.scoreCategory ?? new ListItemProperty(
             "Score Category", "id", "name",
             new ListProperty(
@@ -222,6 +252,11 @@ export class MappingObject {
             authorOrganization : this.authorOrganization.duplicate(),
             references         : this.references.duplicate(),
             comments           : this.comments.duplicate(),
+            mitigations        : this.mitigations.duplicate(),
+            rationale          : this.rationale.duplicate(),
+            evidenceCapability : this.evidenceCapability.duplicate(),
+            confidenceLevel    : this.confidenceLevel.duplicate(),
+            changelog          : this.changelog.duplicate(),
             capabilityGroup    : this.capabilityGroup.duplicate(),
             mappingType        : this.mappingType.duplicate(),
             mappingStatus      : this.mappingStatus.duplicate(),

@@ -1,3 +1,5 @@
+import type { Mitigation } from "../../MappingFile/Mitigation";
+
 export type MappingObjectExport = {
 
     /**
@@ -14,7 +16,7 @@ export type MappingObjectExport = {
      * The object's source framework version.
      */
     source_version: string,
-        
+
     /**
      * The object's source framework.
      */
@@ -66,6 +68,32 @@ export type MappingObjectExport = {
     comments: string | null;
 
     /**
+     * The mapping object's mitigations.
+     */
+    mitigations?: Mitigation[];
+
+    /**
+     * The mapping object's rationale.
+     */
+    rationale?: string | null;
+
+    /**
+     * The mapping object's evidence capability.
+     */
+    evidence_capability?: string | null;
+
+    /**
+     * The mapping object's confidence level.
+     */
+    confidence_level?: string | null;
+
+    /**
+     * The mapping object's changelog.
+     */
+    changelog?: string | null;
+
+
+    /**
      * The object's capability group.
      */
     capability_group: string | null;
@@ -74,7 +102,7 @@ export type MappingObjectExport = {
      * The object's mapping type.
      */
     mapping_type: string | null;
-    
+
     /**
      * The object's mapping status.
      */

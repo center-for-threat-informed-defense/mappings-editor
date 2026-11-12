@@ -52,8 +52,11 @@ export class MappingFileSerializer {
      */
     public processCopy(objects: MappingObjectExport[]): string {
         return this.objectsToCsv(
-            objects.map(o => this.compressObjectExport(o)
-        ), "\t");
+            objects.map(o => ({
+                ...this.compressObjectExport(o),
+                mitigations: JSON.stringify(o.mitigations ?? [])
+            })), "\t"
+        );
     }
 
     /**
@@ -84,6 +87,11 @@ export class MappingFileSerializer {
             score_value         : obj.score_value       ?? undefined,
             mapping_status      : obj.mapping_status    ?? undefined,
             comments            : obj.comments          ?? undefined,
+            mitigations         : obj.mitigations,
+            rationale           : obj.rationale ?? undefined,
+            evidence_capability : obj.evidence_capability ?? undefined,
+            confidence_level    : obj.confidence_level ?? undefined,
+            changelog           : obj.changelog ?? undefined,
             references          : obj.references,
             author              : this.maskValue(file, obj, "author"),
             author_contact      : this.maskValue(file, obj, "author_contact"),
@@ -184,6 +192,14 @@ export class MappingFileSerializer {
         return imports;
     }
 
+    /** Reads a structured mitigation list or the JSON cell used by clipboard exports. */
+    protected parseMitigations(value: MappingObjectImport["mitigations"] | string): MappingObjectImport["mitigations"] {
+        if(typeof value === "string") {
+            return value.trim() === "" ? undefined : JSON.parse(value);
+        }
+        return value;
+    }
+
     /**
      * Processes an incompletely defined {@link MappingObjectImport}.
      * @remarks
@@ -211,6 +227,11 @@ export class MappingFileSerializer {
             author_organization : obj.author_organization,
             references          : obj.references,
             comments            : obj.comments,
+            mitigations         : this.parseMitigations(obj.mitigations),
+            rationale           : obj.rationale,
+            evidence_capability : obj.evidence_capability,
+            confidence_level    : obj.confidence_level,
+            changelog           : obj.changelog,
             capability_group    : obj.capability_group,
             mapping_type        : obj.mapping_type,
             mapping_status      : obj.mapping_status,
@@ -274,6 +295,11 @@ export class MappingFileSerializer {
                 score_category      : this.getListItemName(file.score_categories, obj.score_category),
                 score_value         : this.getListItemName(file.score_values, obj.score_value),
                 comments            : obj.comments,
+                mitigations         : JSON.stringify(obj.mitigations ?? []),
+                rationale           : obj.rationale,
+                evidence_capability : obj.evidence_capability,
+                confidence_level    : obj.confidence_level,
+                changelog           : obj.changelog,
                 references          : obj.references,
                 author              : obj.author,
                 source_framework    : obj.source_framework,
@@ -623,6 +649,11 @@ type CompressedMappingObjectExport = {
     score_value?         : string;
     mapping_status?      : string;
     comments?            : string;
+    mitigations?: MappingObjectExport["mitigations"];
+    rationale?: string;
+    evidence_capability?: string;
+    confidence_level?: string;
+    changelog?: string;
     references           : string | string[];
     author?              : string;
     author_contact?      : string;

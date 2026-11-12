@@ -1,3 +1,5 @@
+import type { Mitigation } from "./Mitigation";
+
 export type MappingObjectParameters = {
 
     /**
@@ -69,6 +71,13 @@ export type MappingObjectParameters = {
      * The mapping object's comments.
      */
     comments?: string | null;
+
+    mitigations?: Mitigation[];
+    rationale?: string | null;
+    evidenceCapability?: string | null;
+    confidenceLevel?: string | null;
+    changelog?: string | null;
+
 
     /**
      * The object's capability group.

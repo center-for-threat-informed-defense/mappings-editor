@@ -1,4 +1,4 @@
-import { NumberProperty, Property, StringProperty } from "..";
+import { ListItemProperty, NumberProperty, Property, StringProperty } from "..";
 import type { ListItem } from "./ListItem";
 
 export class ListProperty extends Property {
@@ -33,35 +33,35 @@ export class ListProperty extends Property {
         this._itemTemplate = itemTemplate;
     }
 
-
-    /**
-     * Creates a new list item.
-     * @remarks
-     *  This function only creates a list item, it doesn't insert into the
-     *  list. Use {@link ListProperty.insertListItem} to insert the item.
-     * @returns
-     *  The new list item.
-     */
-    public createNewItem(): ListItem;
-
     /**
      * Creates a new list item.
      * @remarks
      *  This function only creates a list item, it doesn't insert into the
      *  list. Use {@link ListProperty.insertListItem} to insert the item.
      * @param values
-     *  An object containing the item's values.
+     *  Plain values keyed by the template's property names, such as
+     *  { attack_object_id: "M1036", most_relevant: true }.
      * @returns
      *  The new list item.
      */
-    public createNewItem(values: { [key: string]: any }): ListItem;
     public createNewItem(values?: { [key: string]: any }): ListItem {
+        // Copy the template's property objects into a new row with its own UUID.
+        // Dropdown properties keep the same options list when duplicated.
         const item = this._itemTemplate.duplicate();
         if(values) {
             for(const id in values) {
+                // Here, 'id' is a field name, not the row's UUID. get() returns
+                // its Property object and throws if the template has no such field.
                 const prop = item.get(id);
                 if(prop instanceof StringProperty) {
+                    // StringProperty stores text directly; its setter treats "" as unset.
                     prop.value = `${ values[id] }`
+                } else if(prop instanceof ListItemProperty) {
+                    // A dropdown's value is an internal option UUID. exportValue
+                    // selects by the supplied data value instead (e.g. "true").
+                    // Null/undefined clears it; unmatched values are cached so
+                    // the editor can retain and flag unrecognized selections.
+                    prop.exportValue = values[id] == null ? null : String(values[id]);
                 } else if(prop instanceof NumberProperty) {
                     prop.value = parseFloat(values[id])
                 } else {
@@ -116,7 +116,7 @@ export class ListProperty extends Property {
     /**
      * Returns the id of the first item in the list where the predicate is
      * true, and undefined otherwise.
-     * @param predicate 
+     * @param predicate
      *  The predicate to execute on each list item.
      * @returns
      *  The item's id, `undefined` if no item matched the predicate.

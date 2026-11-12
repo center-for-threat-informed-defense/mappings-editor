@@ -189,7 +189,15 @@ export class MappingFile {
         obj.authorContact.value = options.authorContact;
         obj.authorOrganization.value = options.authorOrganization;
         // Configure comments
-        obj.comments.value = options.comments
+        obj.comments.value = options.comments;
+        obj.rationale.value = options.rationale;
+        obj.evidenceCapability.value = options.evidenceCapability;
+        obj.confidenceLevel.value = options.confidenceLevel;
+        obj.changelog.value = options.changelog;
+        for(const mitigation of options.mitigations ?? []) {
+            obj.mitigations.insertListItem(obj.mitigations.createNewItem(mitigation));
+        }
+
         // Configure references
         let references = options.references;
         if(typeof references === "string" && references !== "") {
