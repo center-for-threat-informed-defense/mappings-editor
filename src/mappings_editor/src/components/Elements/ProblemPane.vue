@@ -1,19 +1,21 @@
 <template>
     <AccordionBox class="problem-pane-sidebar-element">
         <AccordionPane name="Technique Changelog" :collapsed="true">
-            <ScrollBox>
-                <p class="mapping-detail">No changelog available.</p>
+            <ScrollBox class="problem-scrollbox">
+                <p class="mapping-detail">
+                    {{ currentMapping?.changelog.value || "No changelog available." }}
+                </p>
             </ScrollBox>
         </AccordionPane>
         <AccordionPane name="Rationale" :collapsed="false">
-            <ScrollBox>
+            <ScrollBox class="problem-scrollbox">
                 <p class="mapping-detail">
-                    {{ mappingDetails?.rationale?.value || "No rationale available." }}
+                    {{ currentMapping?.rationale.value || "No rationale available." }}
                 </p>
             </ScrollBox>
         </AccordionPane>
         <AccordionPane name="Mitigations" :collapsed="true">
-            <ScrollBox>
+            <ScrollBox class="problem-scrollbox">
                 <ul v-if="mappingMitigations.length" class="mitigation-list">
                     <li v-for="mitigation in mappingMitigations" :key="mitigation.key">
                         <strong v-if="mitigation.mostRelevant">
@@ -26,9 +28,9 @@
             </ScrollBox>
         </AccordionPane>
         <AccordionPane name="Capability Evidence" :collapsed="true">
-            <ScrollBox>
+            <ScrollBox class="problem-scrollbox">
                 <p class="mapping-detail">
-                    {{ mappingDetails?.evidenceCapability?.value || "No capability evidence available." }}
+                    {{ currentMapping?.evidenceCapability.value || "No capability evidence available." }}
                 </p>
             </ScrollBox>
         </AccordionPane>
@@ -217,19 +219,13 @@ import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
 import type { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
 import { ListProperty } from "../../assets/scripts/MappingFile";
-import type { ListItemProperty, StringProperty } from "../../assets/scripts/MappingFile";
+import type { ListItemProperty } from "../../assets/scripts/MappingFile";
 import type { MappingObject } from "../../assets/scripts/MappingFile/MappingObject";
 import * as EditorCommands from "../../assets/scripts/MappingFileEditor/EditorCommands";
 import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
 import type { MergeFieldSelection } from "@/assets/scripts/MappingFileEditor/EditorCommands/File/MergeMappingsObject";
 
 type MergeSourceKey = string;
-
-type MappingDetails = MappingObject & {
-    rationale?: StringProperty;
-    mitigations?: ListProperty;
-    evidenceCapability?: StringProperty;
-};
 
 type SourceOption = {
     key: MergeSourceKey;
@@ -291,12 +287,8 @@ export default defineComponent({
             return problems;
         },
 
-        mappingDetails(): MappingDetails | undefined {
-            return this.currentMapping;
-        },
-
         mappingMitigations() {
-            const mitigations = this.mappingDetails?.mitigations;
+            const mitigations = this.currentMapping?.mitigations;
             if (!mitigations) {
                 return [];
             }
@@ -308,7 +300,7 @@ export default defineComponent({
                     name: item.getAsString("attack_object_name"),
                     mostRelevant: relevance.exportValue === "true"
                 };
-            });
+            }).sort((first, second) => Number(second.mostRelevant) - Number(first.mostRelevant));
         },
 
         currentMapping(): MappingObject | undefined {
@@ -617,6 +609,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.mapping-detail,
+.mitigation-list {
+    color: #bfbfbf;
+    font-size: 12px;
+}
+
 .mapping-detail {
     margin: 0;
     padding: 16px;
@@ -632,6 +630,10 @@ export default defineComponent({
 
 .mitigation-list li + li {
     margin-top: 8px;
+}
+
+.mitigation-list strong {
+    color: #ffffff;
 }
 
 .problem-item {
