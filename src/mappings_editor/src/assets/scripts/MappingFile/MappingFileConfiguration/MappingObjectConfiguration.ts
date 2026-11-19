@@ -43,6 +43,13 @@ export type MappingObjectConfiguration = {
      */
     comments?: StringProperty;
 
+    mitigations?: ListProperty;
+    rationale?: StringProperty;
+    evidenceCapability?: StringProperty;
+    confidenceLevel?: StringProperty;
+    changelog?: StringProperty;
+
+
     /**
      * The mapping object's capability group.
      */

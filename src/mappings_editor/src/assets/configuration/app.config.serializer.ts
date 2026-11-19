@@ -38,7 +38,10 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
      *  The serialized {@link MappingObjectExport}s.
      */
     public processCopy(objects: MappingObjectExport[]): string {
-        return this.objectsToCsv(objects.map(o => this.toUniversalMappingObject(o)), "\t");
+        return this.objectsToCsv(objects.map(o => ({
+            ...this.toUniversalMappingObject(o),
+            mitigations: JSON.stringify(o.mitigations ?? [])
+        })), "\t");
     }
 
     /**
@@ -116,6 +119,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             score_value               : exp.score_value,
             related_score             : this.computeRelatedScore(obj),
             comments                  : exp.comments,
+            mitigations               : exp.mitigations,
+            rationale                 : exp.rationale,
+            evidence_capability       : exp.evidence_capability,
+            confidence_level          : exp.confidence_level,
+            changelog                 : exp.changelog,
             references                : exp.references,
             author                    : exp.author,
             contact                   : exp.author_contact,
@@ -256,6 +264,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
             author_organization : undefined,
             references          : obj.references,
             comments            : obj.comments,
+            mitigations               : obj.mitigations,
+            rationale                 : obj.rationale,
+            evidence_capability       : obj.evidence_capability,
+            confidence_level          : obj.confidence_level,
+            changelog                 : obj.changelog,
             capability_group    : obj.capability_group,
             mapping_type        : obj.mapping_type,
             mapping_status      : obj.status,
@@ -292,6 +305,11 @@ export class UniversalSchemaMappingFileSerializer extends MappingFileSerializer 
                 score_value               : this.getListItemName(file.score_values, obj.score_value),
                 related_score             : obj.related_score,
                 comments                  : obj.comments,
+                mitigations               : JSON.stringify(obj.mitigations ?? []),
+                rationale                 : obj.rationale,
+                evidence_capability       : obj.evidence_capability,
+                confidence_level          : obj.confidence_level,
+                changelog                 : obj.changelog,
                 references                : obj.references,
                 author                    : obj.author,
                 mapping_framework         : obj.mapping_framework,
@@ -361,6 +379,11 @@ type UniversalSchemaMappingObject = {
     contact?                              : string,
     references                            : string | string[],
     comments?                             : string,
+    mitigations?: MappingObjectExport["mitigations"],
+    rationale?: string,
+    evidence_capability?: string,
+    confidence_level?: string,
+    changelog?: string,
     mapping_type                          : string | null,
     capability_group?                     : string,
     status?                               : string

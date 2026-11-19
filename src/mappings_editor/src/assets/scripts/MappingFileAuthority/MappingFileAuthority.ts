@@ -1,6 +1,7 @@
 import { Reactivity, type MappingFileImport, type MappingObjectImport } from ".";
 import { MappingFile } from "../MappingFile/MappingFile";
 import {
+    ListItemProperty,
     DynamicFrameworkObjectProperty,
     EditableDynamicFrameworkListing,
     EditableStrictFrameworkListing,
@@ -218,6 +219,11 @@ export class MappingFileAuthority {
             authorOrganization : obj.author_organization,
             references         : obj.references,
             comments           : obj.comments,
+            mitigations        : obj.mitigations,
+            rationale          : obj.rationale,
+            evidenceCapability : obj.evidence_capability,
+            confidenceLevel    : obj.confidence_level,
+            changelog          : obj.changelog,
             capabilityGroup    : obj.capability_group,
             mappingType        : obj.mapping_type,
             mappingStatus      : obj.mapping_status,
@@ -534,6 +540,17 @@ export class MappingFileAuthority {
                 author_organization : obj.authorOrganization.value,
                 references,
                 comments            : obj.comments.value,
+                mitigations         : [...obj.mitigations.value.values()].map(item => ({
+                    attack_object_id: item.getAsString("attack_object_id"),
+                    attack_object_name: item.getAsString("attack_object_name"),
+                    most_relevant: (item.get("most_relevant") as ListItemProperty).isUnset()
+                        ? undefined
+                        : (item.get("most_relevant") as ListItemProperty).exportValue === "true"
+                })),
+                rationale           : obj.rationale.value,
+                evidence_capability : obj.evidenceCapability.value,
+                confidence_level    : obj.confidenceLevel.value,
+                changelog           : obj.changelog.value,
                 capability_group    : obj.capabilityGroup.exportValue,
                 mapping_type        : obj.mappingType.exportValue,
                 mapping_status      : obj.mappingStatus.exportValue,
