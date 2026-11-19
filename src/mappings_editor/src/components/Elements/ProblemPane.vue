@@ -1,5 +1,39 @@
 <template>
     <AccordionBox class="problem-pane-sidebar-element">
+        <AccordionPane name="Technique Changelog" :collapsed="true">
+            <ScrollBox class="problem-scrollbox">
+                <p class="mapping-detail">
+                    {{ currentMapping?.changelog.value || "No changelog available." }}
+                </p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Rationale" :collapsed="false">
+            <ScrollBox class="problem-scrollbox">
+                <p class="mapping-detail">
+                    {{ currentMapping?.rationale.value || "No rationale available." }}
+                </p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Mitigations" :collapsed="true">
+            <ScrollBox class="problem-scrollbox">
+                <ul v-if="mappingMitigations.length" class="mitigation-list">
+                    <li v-for="mitigation in mappingMitigations" :key="mitigation.key">
+                        <strong v-if="mitigation.mostRelevant">
+                            {{ mitigation.id }} — {{ mitigation.name }}
+                        </strong>
+                        <span v-else>{{ mitigation.id }} — {{ mitigation.name }}</span>
+                    </li>
+                </ul>
+                <p v-else class="mapping-detail">No mitigations available.</p>
+            </ScrollBox>
+        </AccordionPane>
+        <AccordionPane name="Capability Evidence" :collapsed="true">
+            <ScrollBox class="problem-scrollbox">
+                <p class="mapping-detail">
+                    {{ currentMapping?.evidenceCapability.value || "No capability evidence available." }}
+                </p>
+            </ScrollBox>
+        </AccordionPane>
         <AccordionPane :units="1" name="Problem Pane" class="pane">
             <ScrollBox class="problem-scrollbox">
                 <div class="problem-container">
@@ -185,6 +219,7 @@ import AccordionPane from "../Containers/AccordionPane.vue";
 import AlertIcon from "../Icons/AlertIcon.vue";
 import type { MappingObjectProblem } from "../../assets/scripts/MappingFile/MappingObjectProblem";
 import { ListProperty } from "../../assets/scripts/MappingFile";
+import type { ListItemProperty } from "../../assets/scripts/MappingFile";
 import type { MappingObject } from "../../assets/scripts/MappingFile/MappingObject";
 import * as EditorCommands from "../../assets/scripts/MappingFileEditor/EditorCommands";
 import type { EditorCommand } from "../../assets/scripts/MappingFileEditor";
@@ -250,6 +285,22 @@ export default defineComponent({
             });
 
             return problems;
+        },
+
+        mappingMitigations() {
+            const mitigations = this.currentMapping?.mitigations;
+            if (!mitigations) {
+                return [];
+            }
+            return Array.from(mitigations.value.entries()).map(([key, item]) => {
+                const relevance = item.get("most_relevant") as ListItemProperty;
+                return {
+                    key,
+                    id: item.getAsString("attack_object_id"),
+                    name: item.getAsString("attack_object_name"),
+                    mostRelevant: relevance.exportValue === "true"
+                };
+            }).sort((first, second) => Number(second.mostRelevant) - Number(first.mostRelevant));
         },
 
         currentMapping(): MappingObject | undefined {
@@ -558,6 +609,33 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.mapping-detail,
+.mitigation-list {
+    color: #bfbfbf;
+    font-size: 12px;
+}
+
+.mapping-detail {
+    margin: 0;
+    padding: 16px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mitigation-list {
+    margin: 0;
+    padding: 16px 16px 16px 32px;
+    overflow-wrap: anywhere;
+}
+
+.mitigation-list li + li {
+    margin-top: 8px;
+}
+
+.mitigation-list strong {
+    color: #ffffff;
+}
+
 .problem-item {
     margin-bottom: 10px;
 }
